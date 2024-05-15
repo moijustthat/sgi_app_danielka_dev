@@ -1,0 +1,37 @@
+# Carpeta de dependencias de npm
+/node_modules/.cache
+
+# Carpeta de construcción de producción
+/build
+
+# Carpeta de archivos temporales
+/.pnp
+.pnp.js
+
+# Archivo de caché de npm
+.npm
+
+# Archivos de registro
+*.log
+
+# Archivos de respaldo
+*.bak
+*.backup
+*.swp
+
+# Archivos de caché de Visual Studio Code
+.vscode/
+
+# Archivo de configuración local
+.env.local
+
+# Archivos de configuración
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+/@material-ui/icons
+# Otros archivos generados por Create React App
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

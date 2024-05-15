@@ -1,0 +1,20 @@
+.textContainer {
+    height: 2rem;
+    overflow: auto; /* Activar scroll cuando el contenido se desborda */
+  }
+  
+  .textContainer::-webkit-scrollbar {
+    display: none; 
+  }
+  
+  .textContainer::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color del thumb (la parte móvil del scroll) */
+    border-radius: 6px; /* Borde redondeado del thumb */
+  }
+
+  .scrollableText {
+    width: 100%; /* Asegurar que el contenido ocupe el ancho completo */
+    height: 100%; /* Asegurar que el contenido ocupe el alto completo */
+  }
+
+  
