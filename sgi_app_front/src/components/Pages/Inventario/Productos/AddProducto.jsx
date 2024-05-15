@@ -11,7 +11,7 @@ const AddProducto = ({setOpen}) => {
       
       <Grid container spacing={2} className='formProducto'>
         <Grid item xs={12} className='title'>
-          <h1>Agregar Nuevo Producto</h1>
+          <h1>Agregar Nuevo Productoo</h1>
         </Grid>
 
         <Grid item xs={12} className='fields'>
