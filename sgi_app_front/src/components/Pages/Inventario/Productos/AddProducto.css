@@ -1,0 +1,36 @@
+.wrap {
+    display: flex;
+    height: 100vh;
+    background-color: #F7F8FA !important;
+}
+
+.title {
+    border: 1px solid;
+    font-family: 'Inter';
+    position: absolute;
+    overflow: hidden;
+    font-size: 12px;
+}
+
+.title h1 {
+    margin-top: 2rem;
+    margin-left: 1rem;
+}
+
+.fields {
+    position: relative;
+    top: 7rem;
+    overflow: scroll;
+    height: 70vh;
+    max-height: 70vh;
+}
+
+.fields::-webkit-scrollbar {
+    display: none;
+}
+
+.buttons {
+    position: absolute;
+    top: 32rem;
+}
+

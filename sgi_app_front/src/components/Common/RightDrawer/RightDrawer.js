@@ -8,9 +8,10 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import MailIcon from '@mui/icons-material/Mail';
 
-export default function SwipeableTemporaryDrawer() {
+import './RightDrawer.css'
+
+export default function SwipeableTemporaryDrawer({open, setOpen, content, width}) {
   const [state, setState] = React.useState({
     right: false, // Solo el estado para el drawer de la derecha
   });
@@ -23,9 +24,20 @@ export default function SwipeableTemporaryDrawer() {
     ) {
       return;
     }
-
+    setOpen(open)
     setState({ ...state, [anchor]: open });
   };
+
+  const wrapper = (content) => (
+    <Box
+      sx={{ width: width }}
+      role="presentation"
+      onClick={toggleDrawer('right', false)}
+      onKeyDown={toggleDrawer('right', false)}
+    >
+        {content}
+    </Box>
+  )
 
   const list = () => (
     <Box
@@ -39,7 +51,7 @@ export default function SwipeableTemporaryDrawer() {
           <ListItem key={text} disablePadding>
             <ListItemButton>
               <ListItemIcon>
-                <MailIcon />
+              
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>
@@ -52,7 +64,7 @@ export default function SwipeableTemporaryDrawer() {
           <ListItem key={text} disablePadding>
             <ListItemButton>
               <ListItemIcon>
-                <MailIcon />
+              
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>
@@ -65,14 +77,13 @@ export default function SwipeableTemporaryDrawer() {
   return (
     <div>
       {/* Mostrar solo el botón y el drawer en el lado derecho */}
-      <Button onClick={toggleDrawer('right', true)}>Right</Button>
       <SwipeableDrawer
         anchor="right"
-        open={state.right}
+        open={open}
         onClose={toggleDrawer('right', false)}
         onOpen={toggleDrawer('right', true)}
       >
-        {list()}
+        {wrapper(content)}
       </SwipeableDrawer>
     </div>
   );
