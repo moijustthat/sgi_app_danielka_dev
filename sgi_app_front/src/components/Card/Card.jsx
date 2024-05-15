@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import './Card.css'
 
-import { motion, AnimateSharedLayout } from 'framer-motion'
+import { motion, LayoutGroup } from 'framer-motion'
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import Chart from 'react-apexcharts'
@@ -14,13 +14,13 @@ const Card = (props) => {
     const [expanded, setExpanded] = useState(false)
 
     return (
-        <AnimateSharedLayout>
+        <LayoutGroup id={props.title}>
             {
                 expanded ?  <ExpandedCard param={props} setExpanded={() => setExpanded(false)}/>
                             :
                             <CompactCard param={props} setExpanded={() => setExpanded(true)}/>
             }
-        </AnimateSharedLayout>
+        </LayoutGroup>
     )
 }
 
