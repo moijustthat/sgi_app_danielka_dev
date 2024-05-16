@@ -19,6 +19,58 @@
     border-radius: 2rem;
     background-color: var(--glass);
     overflow: hidden;
-    grid-template-columns: 40rem auto;
+    grid-template-columns: 50rem auto;
     gap: 10px;
+}
+
+/* Boton de salida */
+.exit {
+    border: 1px solid;
+    position: fixed;
+    overflow: hidden;
+}
+
+/* formulario  en si */
+.form {
+    position: relative;
+    overflow: scroll;
+    border: 1px solid;
+    top: 3.5rem;
+    height: 77vh;
+    margin-left: 1rem;
+}
+
+.form::-webkit-scrollbar {
+    display: none;
+}
+
+.btnAgregarProducto {
+    position: fixed;
+    border: 1px solid;
+    margin-left: 1rem;
+    top: 31rem;
+    width: 61.2%;
+    height: 7vh;
+}
+
+.listaNuevosProductos {
+    border: 1px solid;
+    position: relative;
+    overflow: scroll;
+    border: 1px solid;
+    top: 3.5rem;
+    height: 77vh;
+    margin-right: 0.5rem;
+}
+
+.listaNuevosProductos::-webkit-scrollbar {
+    display: none;
+}
+
+.btnAgregarLista {
+    position: fixed;
+    border: 1px solid;
+    top: 31rem;
+    width: 33%;
+    height: 7vh;
 }
