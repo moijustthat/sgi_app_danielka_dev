@@ -152,17 +152,5 @@ const AddProducto = ({setOpen}) => {
 }
 
 
-const fechaInput = document.getElementById('dateField');
-    
-// Función para convertir el formato de fecha
-function cambiarFormatoFecha() {
-  const fecha = fechaInput.value; // Obtener el valor del input de fecha
-  const partes = fecha.split('-'); // Dividir la fecha en partes (año, mes, día)
-  const fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`; // Reorganizar las partes de la fecha
-  fechaInput.value = fechaFormateada; // Asignar la fecha formateada de vuelta al input
-}
-
-// Ejecutar la función al cargar la página para formatear la fecha inicial si ya hay un valor en el input
-cambiarFormatoFecha();
 
 export default AddProducto
