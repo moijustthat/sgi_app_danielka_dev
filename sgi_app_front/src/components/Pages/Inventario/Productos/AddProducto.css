@@ -30,7 +30,7 @@
     overflow: hidden;
 }
 
-/* formulario  en si */
+/* FORMULARIO NUEVO PRODUCTO */
 .form {
     position: relative;
     overflow: scroll;
@@ -158,14 +158,29 @@
     height: 7vh;
 }
 
+.secondaryData {
+    display: flex;
+    gap: 2rem;
+    margin-top: 10px;
+}
+
+.secondaryData > * {
+    width: 50%;
+}
+
+
+
+
+/* LISTA DE NUEVOS PRODUCTOS */
+
 .listaNuevosProductos {
-    border: 1px solid;
     position: relative;
     overflow: scroll;
-    border: 1px solid;
     top: 3.5rem;
     height: 77vh;
     margin-right: 0.5rem;
+    background-color: #FFF;
+    border-radius: 20px;
 }
 
 .listaNuevosProductos::-webkit-scrollbar {
@@ -180,15 +195,7 @@
     height: 7vh;
 }
 
-.secondaryData {
-    display: flex;
-    gap: 2rem;
-    margin-top: 10px;
-}
 
-.secondaryData > * {
-    width: 50%;
-}
 
 @media screen and (max-width: 1276px) {
     .btnAgregarProducto {

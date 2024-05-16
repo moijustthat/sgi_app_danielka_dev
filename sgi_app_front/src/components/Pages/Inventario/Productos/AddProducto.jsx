@@ -1,28 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Banner from '../../../Common/Banner/Banner'
 import { Button, Grid } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton }  from '@mui/material';
-import { Paper } from '@mui/material';
+import { Paper, Alert } from '@mui/material';
+
+import validateAPI from '../../../../utils/textValidation'
 
 import './AddProducto.css'
+import TableListaProductos from '../../../Common/Table/Table'
 
-const DateField = ({label, blocked=false}) => {
+const DateField = ({label, blocked=false, onChange=() => null}) => {
 
+  const [err, setErr] = useState('')
+  const [value, setValue] = useState('')
   return (
     <div className='customDate'>
       <label>{label}</label>
-      <input id='dateField' type='date' disabled={blocked}></input>
+      <input value={value} onChange={(e) => onChange(e.target.value, setErr, setValue)} id='dateField' type='date' disabled={blocked}></input>
     </div>
   )
 }
 
-const SelectField = ({label}) => {
+const SelectField = ({label, onChange=() => null}) => {
+
+  const [value, setValue] = useState('')
 
   return (
     <div className='customSelect'>
       <label>{label}*</label>
-      <select>
+      <select value={value} onChange={(e) => onChange(e.target.value, ()=>true, setValue)}>
         <option value='1'>
           test 1
         </option>
@@ -38,28 +45,128 @@ const SelectField = ({label}) => {
   )
 }
 
-const TextField = ({label, placeholder}) => {
+const TextField = ({label, placeholder, onChange}) => {
+
+  const [err, setErr] = useState('')
+  const [value, setValue] = useState('')
 
   return (
     <div className='textField'>
       <label>{label}*</label>
-      <input type="text" placeholder={placeholder}/>
+      <Alert 
+        onClose={()=>setErr('')}
+        sx={{
+          display: err == '' ? 'none' : ''
+        }} severity="error">{err}</Alert>
+      <input 
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value, setErr, setValue)
+        }} 
+        type="text" placeholder={placeholder}/>
     </div>
   )
 }
 
-const TextArea = ({label, placeholder}) => {
+const TextArea = ({label, placeholder, onChange=()=>null}) => {
+
+  const [err, setErr] = useState('')
+  const [value, setValue] = useState('')
 
   return (
     <div className='textField'>
       <label>{label}*</label>
-      <textarea  placeholder={placeholder} rows={4} cols={50}></textarea>
+      <Alert 
+        onClose={()=>setErr('')}
+        sx={{
+          display: err == '' ? 'none' : ''
+        }} severity="error">{err}</Alert>
+      <textarea value={value} onChange={(e) => onChange(e.target.value, setErr, setValue)} placeholder={placeholder} rows={4} cols={50}></textarea>
     </div>
   )
 }
+
 
 const AddProducto = ({setOpen}) => {
+  const [nuevoProducto, setNuevoProducto] = useState({
+    id: 0,
+    nombre: '',
+    descripcion: '',
+    precio: '',
+    activo: 't',
+    perecedero: 'f',
+    codigoBarra: '',
+    minimo: '',
+    maximo: '',
+    img: 'null',
+    categoria: '',
+    marca: '',
+    medida: '',
+    metodo: '',
+    cantidad: '',
+    almacen: '',
+    comprobante: 'null',
+    fechaVencimiento: 'null',
+    descripcionEstacional: 'null',
+    fechaInicioEstacional: 'null',
+    fechaFinalEstacional: 'null'
+  })
+  const [listaNuevosProductos, setListaNuevosProductos] = useState([])
+
+
+  const handleAgregarNuevoProducto = (producto) => {
+    
+    console.log(producto);
+
+    const required = ['nombre', 'descripcion', 'categoria', 'marca', 'medida', 'precio', 'cantidad', 'minimo', 'maximo', 'metodo', 'almacen']
+    // Validaciones para registrar un nuevo producto
+    for (let require of required) {
+      if (!producto[require] || producto[require] === '') {
+        alert('Campos incompletos')
+        return
+      }
+    }
+
+    // Ingresar producto a la lista
+
+
+
+    const copiaLista = listaNuevosProductos.slice()
+    const copiaProducto = producto
+    copiaProducto.id += 1
+    
+    // validar que no ingrese el mismo producto(caso doble click)
+    if (copiaLista.length > 0 && copiaProducto.id == copiaLista.slice().pop().id) {
+      alert('No puedes ingresar el mismo producto  dos veces :(')
+      return 
+    }
+
+    copiaLista.push(copiaProducto)
+    setListaNuevosProductos(copiaLista)
+  }
+
+  const handleChangeNuevoProducto = (value, setErr, setValue, key, validate, personalized='') => {
+
+    // Validar entrada actual
+    // Validar caracter por caracter
+    
+    if (!validate(value)) {
+      // Mostrar mensaje
+      setErr(personalized!==''? personalized : `Entrada incorrecta: ${value}`)
+      return
+    } else {
+      setErr('')
+    }
+    
+    setValue(value)
+    setNuevoProducto({
+      ...nuevoProducto,
+      [key]: value
+    })
+  }
+
   return (
+
     <div className='container'>
       <div className='glass'>
        
@@ -72,80 +179,76 @@ const AddProducto = ({setOpen}) => {
 
             <div className='form'>
               <div className='mainData'>
-                <TextField label='Nombre del producto' placeholder='Nombre #'/>
+                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'nombre', validateAPI.name)} label='Nombre del producto' placeholder='Nombre #'/>
 
-                <TextArea label='Descripcion del producto' placeholder='Descripcion #'/>
+                <TextArea onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'descripcion', validateAPI.everything)} label='Descripcion del producto' placeholder='Descripcion #'/>
 
-                <SelectField label='Categoria del producto'/>
+                <SelectField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'categoria', (n)=>true)} label='Categoria del producto'/>
 
-                <SelectField label='Marca del producto'/>
+                <SelectField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'marca', (n)=>true)} label='Marca del producto'/>
                 
-                <SelectField label='Medida del producto'/>
+                <SelectField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'medida', (n)=>true)} label='Medida del producto'/>
                 
-                <TextField label='Codigo de barra' placeholder='**********'/>
+                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'codigoBarra', validateAPI.numeric, 'Maximo de digitos: 15. Solo digitos permitidos')} label='Codigo de barra' placeholder='**********'/>
 
-                <TextField label='Precio de venta' placeholder='C$'/>  
+                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'precio', validateAPI.positiveReal)} label='Precio de venta' placeholder='C$'/>  
 
-                <TextField label='Cantidad inicial de stock' placeholder='Cantidad'/>  
+                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'cantidad', validateAPI.number)} label='Cantidad inicial de stock' placeholder='Cantidad'/>  
 
-                <TextField label='Minimo de existencias' placeholder='Minimo'/>                
+                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'minimo', validateAPI.number)} label='Minimo de existencias' placeholder='Minimo'/>                
 
-                <TextField label='Maximo de existencias' placeholder='Maximo'/>                
+                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'maximo', validateAPI.number)} label='Maximo de existencias' placeholder='Maximo'/>                
 
               </div>
 
               <div className='secondaryData'>
-                <SelectField label='Metodo de inventario'/>
+                <SelectField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'metodo', (n)=>true)} label='Metodo de inventario'/>
     
-                <SelectField label='Almacen a guardar'/>
+                <SelectField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'almacen', (n)=>true)} label='Almacen a guardar'/>
               </div>
 
               <div className='secondaryData'>
-                <SelectField label='Es perecedero?'/>
+                <SelectField  onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'perecedero', (n)=>true)}label='Es perecedero?'/>
     
-                <DateField label='Fecha de vencimiento'/>
+                <DateField
+                  onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'fechaVencimiento', (n)=>true)} 
+                  label='Fecha de vencimiento'/>
               </div>
 
               <div className='mainData'>  
-                <TextArea label='Descripcion de temporada' placeholder='Exp: Stock reservado a ventas de verano entre...'/>  
+                <TextArea onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'descripcionEstacional', validateAPI.name)} label='Descripcion de temporada' placeholder='Exp: Stock reservado a ventas de verano entre...'/>  
               </div>
 
               <div className='secondaryData'>
-                <DateField label='Fecha inicio de temporada'/>
+                <DateField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'fechaInicioEstacional', (n)=>true)} label='Fecha inicio de temporada'/>
     
-                <DateField label='Fecha final de temporada'/>
+                <DateField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'fechaFinalEstacional', (n)=>true)} label='Fecha final de temporada'/>
               </div>
             </div>
 
 
 
-          <div className='btnAgregarProducto'>
+          <div onClick={() => handleAgregarNuevoProducto(nuevoProducto)} className='btnAgregarProducto'>
             <h3>Agregar a la lista</h3>
           </div>
 
 
         </div>
 
-        <div className='nuevosProductos'>
-          <div className='listaNuevosProductos'>
-            <h3>Nuevo Producto con scroll obvio</h3>
-            <h3>Nuevo Producto</h3>
-            <h3>Nuevo Producto</h3>
-            <h3>Nuevo Producto</h3>
-            <h3>Nuevo Producto</h3>
-            <h3>Nuevo Producto</h3>
-            <h3>Nuevo Producto</h3>
-            <h3>Nuevo Producto</h3>
-            <h3>Nuevo Producto</h3>
-            <h3>Nuevo Producto</h3>
-            <h3>Nuevo Producto</h3>
-          </div>
+        <div className='listaNuevosProductos'>
+          <TableListaProductos 
+            pagination={false}
+            empty='Agrega nuevos productos a la lista!!' 
+            rows={listaNuevosProductos}
+          />
 
-          <div className='btnAgregarLista'>
+          <div  id='agregarLista' className='btnAgregarLista'>
             <h3>Agregar nuevos prodctos a la BD</h3>
           </div>
         </div>
       </div>
+   
+
     </div>
 
   )

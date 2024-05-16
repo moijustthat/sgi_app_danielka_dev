@@ -22,6 +22,7 @@ import BasicMenu from '../BasicMenu/BasicMenu'
 import { Divider, ListItemButton, MenuItem } from '@mui/material';
 import { BsThreeDots } from "react-icons/bs";
 
+
 import Alert from '@mui/material/Alert';
 
 import {TextField} from '@mui/material';
@@ -190,7 +191,7 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function GeneralTable({edit=null, setEdit=()=>null,generalActions = [], editables=[],actions=[], rows=[[]], empty=<h1>Tabla sin contenido</h1>}) {
+export default function GeneralTable({edit=null, setEdit=()=>null,generalActions = [], editables=[],actions=[], rows=[[]], empty=<h1>Tabla sin contenido</h1>, pagination=true}) {
 const [order, setOrder] = React.useState('asc');
 const [orderBy, setOrderBy] = React.useState('calories');
 const [selected, setSelected] = React.useState([]);
@@ -211,13 +212,12 @@ function initEditables(){
 
 const [updates, setUpdates] = React.useState(initEditables()) 
 
-    const actionsButton =   <ListItemButton>
+const actionsButton =   <ListItemButton>
                                 <BsThreeDots />
                             </ListItemButton>
     
 
-  console.log(updates)
-
+ 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -302,10 +302,7 @@ const [updates, setUpdates] = React.useState(initEditables())
       ),
     [order, orderBy, page, rowsPerPage],
   );
-
-
-  console.log(updates)
-
+  
   return (
 
     <Box sx={{ width: '99%' }}>
@@ -343,7 +340,7 @@ const [updates, setUpdates] = React.useState(initEditables())
               rowCount={rows.length}
             />
             <TableBody>
-              {visibleRows
+              {rows
               .filter(row => {
                 const keys = Object.keys(row)
                 for (let key of keys) {
@@ -460,7 +457,8 @@ const [updates, setUpdates] = React.useState(initEditables())
           </Table>)
           }
         </TableContainer>
-        <TablePagination
+        {pagination ? (
+          <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={rows.length}
@@ -469,6 +467,8 @@ const [updates, setUpdates] = React.useState(initEditables())
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
+        ) :
+        ('')}
       </Paper>
     </Box>
   );
