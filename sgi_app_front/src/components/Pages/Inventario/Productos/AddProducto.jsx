@@ -3,8 +3,60 @@ import Banner from '../../../Common/Banner/Banner'
 import { Button, Grid } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton }  from '@mui/material';
+import { Paper } from '@mui/material';
 
 import './AddProducto.css'
+
+const DateField = ({label, blocked=false}) => {
+
+  return (
+    <div className='customDate'>
+      <label>{label}</label>
+      <input id='dateField' type='date' disabled={blocked}></input>
+    </div>
+  )
+}
+
+const SelectField = ({label}) => {
+
+  return (
+    <div className='customSelect'>
+      <label>{label}*</label>
+      <select>
+        <option value='1'>
+          test 1
+        </option>
+        <option value='2'>
+          test 2
+        </option>
+        <option value='3'>
+          test 3
+        </option>
+      </select>
+      <span className='customArrow'></span>
+    </div>
+  )
+}
+
+const TextField = ({label, placeholder}) => {
+
+  return (
+    <div className='textField'>
+      <label>{label}*</label>
+      <input type="text" placeholder={placeholder}/>
+    </div>
+  )
+}
+
+const TextArea = ({label, placeholder}) => {
+
+  return (
+    <div className='textField'>
+      <label>{label}*</label>
+      <textarea  placeholder={placeholder} rows={4} cols={50}></textarea>
+    </div>
+  )
+}
 
 const AddProducto = ({setOpen}) => {
   return (
@@ -18,22 +70,54 @@ const AddProducto = ({setOpen}) => {
               </IconButton>
             </div>
 
-          <div className='form'>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-            <h1>Formulario con scroll</h1>
-          </div>
+            <div className='form'>
+              <div className='mainData'>
+                <TextField label='Nombre del producto' placeholder='Nombre #'/>
+
+                <TextArea label='Descripcion del producto' placeholder='Descripcion #'/>
+
+                <SelectField label='Categoria del producto'/>
+
+                <SelectField label='Marca del producto'/>
+                
+                <SelectField label='Medida del producto'/>
+                
+                <TextField label='Codigo de barra' placeholder='**********'/>
+
+                <TextField label='Precio de venta' placeholder='C$'/>  
+
+                <TextField label='Cantidad inicial de stock' placeholder='Cantidad'/>  
+
+                <TextField label='Minimo de existencias' placeholder='Minimo'/>                
+
+                <TextField label='Maximo de existencias' placeholder='Maximo'/>                
+
+              </div>
+
+              <div className='secondaryData'>
+                <SelectField label='Metodo de inventario'/>
+    
+                <SelectField label='Almacen a guardar'/>
+              </div>
+
+              <div className='secondaryData'>
+                <SelectField label='Es perecedero?'/>
+    
+                <DateField label='Fecha de vencimiento'/>
+              </div>
+
+              <div className='mainData'>  
+                <TextArea label='Descripcion de temporada' placeholder='Exp: Stock reservado a ventas de verano entre...'/>  
+              </div>
+
+              <div className='secondaryData'>
+                <DateField label='Fecha inicio de temporada'/>
+    
+                <DateField label='Fecha final de temporada'/>
+              </div>
+            </div>
+
+
 
           <div className='btnAgregarProducto'>
             <h3>Agregar a la lista</h3>
@@ -66,5 +150,19 @@ const AddProducto = ({setOpen}) => {
 
   )
 }
+
+
+const fechaInput = document.getElementById('dateField');
+    
+// Función para convertir el formato de fecha
+function cambiarFormatoFecha() {
+  const fecha = fechaInput.value; // Obtener el valor del input de fecha
+  const partes = fecha.split('-'); // Dividir la fecha en partes (año, mes, día)
+  const fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`; // Reorganizar las partes de la fecha
+  fechaInput.value = fechaFormateada; // Asignar la fecha formateada de vuelta al input
+}
+
+// Ejecutar la función al cargar la página para formatear la fecha inicial si ya hay un valor en el input
+cambiarFormatoFecha();
 
 export default AddProducto

@@ -13,6 +13,7 @@ import { UilEye } from '@iconscout/react-unicons'
 
 import axiosClient from '../../../../axios-client'
 
+import validateApi from '../../../../utils/textValidation'
 
 
 
@@ -88,10 +89,10 @@ const Productos = () => {
                 actions={actions}
                 generalActions={generalActions}
                 editables={[
-                    {label: 'nombre', type:'text', validation:() => true},
+                    {label: 'nombre', type:'text', validation:(input) => [validateApi.name(input), `Simbolo ${input} no valido`]},
                     {label: 'marca', type:'select', validation:() => ['nike', 'adidas']},
                     {label: 'categoria', type:'select', validation:() => ['bebidas', 'ropa']},
-                    {label: 'precio', type:'text', validation:() => true},
+                    {label: 'precio', type:'number', validation:(input) => [validateApi.positiveReal(input), `Simbolo ${input} no valido`]},
                     {label: 'estado', type:'select', validation:() => ['Disponible', 'No disponible']}
                 ]}
                 rows={[

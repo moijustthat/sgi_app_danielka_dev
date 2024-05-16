@@ -22,6 +22,8 @@ import BasicMenu from '../BasicMenu/BasicMenu'
 import { Divider, ListItemButton, MenuItem } from '@mui/material';
 import { BsThreeDots } from "react-icons/bs";
 
+import Alert from '@mui/material/Alert';
+
 import {TextField} from '@mui/material';
 
 import SearchField from '../SearchField/SearchField'
@@ -196,20 +198,25 @@ const [page, setPage] = React.useState(0);
 const [dense, setDense] = React.useState(false);
 const [rowsPerPage, setRowsPerPage] = React.useState(5);
 const [searchText, setSearchText] = React.useState('');
+const [errorInput, setErrorInput] = React.useState([null,null,null])
 
-const [updates, setUpdates] = React.useState(function(){
+function initEditables(){
   const fields = Object.create({})
   for(let edit of editables) {
     
     fields[edit.label] = null
   }
   return fields
-}()) 
+}
+
+const [updates, setUpdates] = React.useState(initEditables()) 
 
     const actionsButton =   <ListItemButton>
                                 <BsThreeDots />
                             </ListItemButton>
     
+
+  console.log(updates)
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -227,6 +234,9 @@ const [updates, setUpdates] = React.useState(function(){
   };
 
   const handleClick = (event, id) => {
+
+    if (edit) return
+
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
 
@@ -258,10 +268,18 @@ const [updates, setUpdates] = React.useState(function(){
     setDense(event.target.checked);
   };
 
-  const handleEdit = (value, label) => {
+  const handleEdit = (value, row, editable) => {
+   
+    let valid = editable.validation(value)
+    if (!valid[0]) {
+      setErrorInput([row.id, editable.label, valid[1]])
+    } else {
+      setErrorInput([null, null, null])
+    }
+   
     setUpdates({
       ...updates,
-      [label]: value
+      [editable.label]: value
     })
   }
 
@@ -373,10 +391,12 @@ const [updates, setUpdates] = React.useState(function(){
                                   {editables.some(e=> e.label == key) ? (
                                     <div class='editField'>
                                       <TextField
-                                        onChange={(e)=>handleEdit(e.target.value, editables.find(e=> e.label == key).label)}
+                                        autoComplete='off'
+                                        onChange={(e)=>handleEdit(e.target.value, row, editables.find(e=> e.label == key))}
                                         onClick={(e) => e.stopPropagation()}
                                         value={updates[editables.find(e=> e.label == key).label]}
                                         select={'select' == editables.find(e=> e.label == key).type}
+                                        type={editables.find(e=> e.label == key).type}
                                       >
                                         { editables.find(e=> e.label == key).type == 'select' ? (
                                           editables.find(e=> e.label == key).validation().map((item, index)=>(
@@ -384,6 +404,13 @@ const [updates, setUpdates] = React.useState(function(){
                                           ))
                                         ) : null}
                                       </TextField>
+                                        <Alert 
+                                            style={{
+                                              display: errorInput[0] && errorInput[0] == row.id && errorInput[1] == editables.find(e=> e.label == key).label ? '' : 'none',
+                                              position: 'absolute'
+                                            }}
+                                            severity="error"
+                                          >{errorInput[2]}</Alert>
                                     </div>
                                   ) : (
                                     <div className='textContainer'>
@@ -403,11 +430,14 @@ const [updates, setUpdates] = React.useState(function(){
                                 />)
                                 :
                                 (
-                                 <div>
+                                 <div className='btnsUpdate'>
                                     <button onClick={(e) => {
-                                      e.stopPropagation();
-                                      setEdit(false);
-                                    }}>Cancelar</button>
+                                            e.stopPropagation();
+                                            setEdit(false);
+                                            setUpdates(initEditables())
+                                    }}>
+                                      Cancelar
+                                    </button>
                                     <button onClick={(e) => handleUpdate(e)}>Actualizar</button>
                                  </div>
                                 )

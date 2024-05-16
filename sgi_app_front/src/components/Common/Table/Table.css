@@ -17,6 +17,36 @@
     height: 100%; /* Asegurar que el contenido ocupe el alto completo */
   }
 
+
+  .btnsUpdate {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btnsUpdate button {
+    border: none;
+    border-radius: 10px;
+    font-family: 'Inter';
+    color: white;
+    transition: all 300ms ease;
+  }
+
+  .btnsUpdate button:first-child {
+    background-color: #FE919D;
+    cursor: pointer;
+  }
+
+  .btnsUpdate button:last-child {
+    background-color: #BD6EFC;
+    cursor: pointer;
+  }
+
+  
+
+  .btnsUpdate button:hover {
+    text-shadow: 2px 4px 5px white;
+  }
+
 @media screen and (max-width: 1276px) {
 
 }

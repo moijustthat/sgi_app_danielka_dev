@@ -19,7 +19,7 @@
     border-radius: 2rem;
     background-color: var(--glass);
     overflow: hidden;
-    grid-template-columns: 50rem auto;
+    grid-template-columns: 45rem auto;
     gap: 10px;
 }
 
@@ -34,10 +34,115 @@
 .form {
     position: relative;
     overflow: scroll;
-    border: 1px solid;
+    border-radius: 15px;
     top: 3.5rem;
-    height: 77vh;
+    height: 70vh;
     margin-left: 1rem;
+    background: white;
+    padding: 20px;
+}
+
+.textField, .customSelect, .customDate {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+
+.textField label, .customSelect label {
+    font-family: 'Inter';
+    font-size: 13px;
+    color: #364152;
+    font-weight: 500;
+}
+
+.textField input, .customDate input {
+    outline: none;
+    background: #F8FAFC;
+    border: 1px solid #AAA;
+    border-radius: 5px;
+    font-weight: 400;
+    font-size: 14px;
+    color: #333;
+    padding: 0 15px;
+    height: 42px;
+}
+
+.textField textarea {
+    outline: none;
+    background: #F8FAFC;
+    border: 1px solid #AAA;
+    border-radius: 5px;
+    font-weight: 400;
+    font-family: 'Inter';
+    font-size: 14px;
+    color: #333;
+    padding: 10px 15px;
+    resize: none;
+}
+
+.textField input:is(:focus), .textField textarea:is(:focus), .customSelect select:is(:focus){
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.20);
+}
+
+.customSelect {
+    position: relative;
+}
+
+.customSelect select {
+    background: #F8FAFC;
+    border: 1px solid #AAA;
+    font-size: 14px;
+    color: #757575;
+    border: 1px solid #AAA;
+    border-radius: 5px;
+    padding: 1em 1.5em;
+}
+
+.customArrow {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    position: absolute;
+    top: 1.5rem;
+    right: 0;
+    display: block;
+    background-color: #AAAAAA;
+    height: 64.5%;
+    width: 1rem;
+}
+
+.customArrow::before,
+.customArrow::after {
+    --size: 6px;
+
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);   
+}
+
+.customArrow::before {
+    border-left: var(--size) solid transparent;
+    border-right: var(--size) solid transparent;
+    border-bottom: var(--size) solid rgba(0, 0, 0, 0.5);
+    top: 40%;
+}
+
+.customArrow::after {
+    border-left: var(--size) solid transparent;
+    border-right: var(--size) solid transparent;
+    border-top: var(--size) solid rgba(0, 0, 0, 0.5);
+    top: 60%;
+}
+
+.form .mainData {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 20px;
+    margin-top: 10px;
 }
 
 .form::-webkit-scrollbar {
@@ -49,7 +154,7 @@
     border: 1px solid;
     margin-left: 1rem;
     top: 31rem;
-    width: 61.2%;
+    width: 55%;
     height: 7vh;
 }
 
@@ -71,6 +176,36 @@
     position: fixed;
     border: 1px solid;
     top: 31rem;
-    width: 33%;
+    width: 39.3%;
     height: 7vh;
+}
+
+.secondaryData {
+    display: flex;
+    gap: 2rem;
+    margin-top: 10px;
+}
+
+.secondaryData > * {
+    width: 50%;
+}
+
+@media screen and (max-width: 1276px) {
+    .btnAgregarProducto {
+        position: fixed;
+        border: 1px solid;
+        margin-left: 1rem;
+        top: 33rem;
+        width: 57%;
+        height: 7vh;
+    }
+    
+    .btnAgregarLista {
+        position: fixed;
+        border: 1px solid;
+        top: 33rem;
+        width: 37%;
+        height: 7vh;
+    }
+    
 }
