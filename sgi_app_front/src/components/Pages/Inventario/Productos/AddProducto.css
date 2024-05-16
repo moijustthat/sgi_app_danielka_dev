@@ -1,36 +1,24 @@
-.wrap {
-    display: flex;
-    height: 100vh;
-    background-color: #F7F8FA !important;
+.container {
+    background: linear-gradient(
+        106.37deg,
+        #ffe1bc 29.63%,
+        #ffcfd1 51.55%,
+        #f3c6f1 90.85%
+      );
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: "Inter", sans-serif;
 }
 
-.title {
-    border: 1px solid;
-    font-family: 'Inter';
-    position: absolute;
+.glass {
+    display: grid;
+    height: 97%;
+    width: 97%;
+    border-radius: 2rem;
+    background-color: var(--glass);
     overflow: hidden;
-    font-size: 12px;
+    grid-template-columns: 40rem auto;
+    gap: 10px;
 }
-
-.title h1 {
-    margin-top: 2rem;
-    margin-left: 1rem;
-}
-
-.fields {
-    position: relative;
-    top: 7rem;
-    overflow: scroll;
-    height: 70vh;
-    max-height: 70vh;
-}
-
-.fields::-webkit-scrollbar {
-    display: none;
-}
-
-.buttons {
-    position: absolute;
-    top: 32rem;
-}
-
