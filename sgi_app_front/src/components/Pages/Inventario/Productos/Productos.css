@@ -1,4 +1,14 @@
 .CatalogoProductos {
-    display: block !important;
     padding-top: 1.5rem;
+    display: grid;
+    height: 97%;
+    width: 100%;
+    grid-template-columns: auto;
 }
+
+@media screen and (max-width: 1276px) {
+    .CatalogoProductos {
+        width: 180%;
+    }
+}
+

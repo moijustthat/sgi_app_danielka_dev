@@ -17,4 +17,6 @@
     height: 100%; /* Asegurar que el contenido ocupe el alto completo */
   }
 
-  
+@media screen and (max-width: 1276px) {
+
+}

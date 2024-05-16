@@ -22,8 +22,9 @@ const Productos = () => {
     const [productos, setProductos] = useState([])
     const [loading, setLoading] = useState(false)
 
-    const [formOpen, setFormOpen] = useState(false)
+    const [edit, setEdit] = useState(null)
 
+    const [formOpen, setFormOpen] = useState(false)
 
     const generalActions = [
         {
@@ -50,7 +51,7 @@ const Productos = () => {
         {
             label: 'Editar',
             icon: <UilEdit />,
-            action: (i) => alert('Editar '+i)
+            action: (id) => setEdit(id)
         },
         {
             label: 'Ver detalles',
@@ -60,7 +61,7 @@ const Productos = () => {
     ]
 
     useEffect(() => {
-        getProductos()
+        //getProductos()
     }, [])
 
     const getProductos = () => {
@@ -82,11 +83,21 @@ const Productos = () => {
             <RightDrawer width={'100vw'} content={<AddProducto setOpen={setFormOpen}/>} open={formOpen}/>
             <Banner>Catalogo de Productos</Banner>
             <Table 
-                
+                edit={edit}
+                setEdit={setEdit}
                 actions={actions}
                 generalActions={generalActions}
+                editables={[
+                    {label: 'nombre', type:'text', validation:() => true},
+                    {label: 'marca', type:'select', validation:() => ['nike', 'adidas']},
+                    {label: 'categoria', type:'select', validation:() => ['bebidas', 'ropa']},
+                    {label: 'precio', type:'text', validation:() => true},
+                    {label: 'estado', type:'select', validation:() => ['Disponible', 'No disponible']}
+                ]}
                 rows={[
-                    //{id: 1, nombre: 'Martillo', marca: 'Papagayo', categoria: 'Herramientas Manuales', precio: 3.4, cantidad: 234, estado: 'Disponible'}, 
+                    {id: 1, nombre: 'Martillo', marca: 'Papagayo', categoria: 'Herramientas Manuales', precio: 3.4, cantidad: 234, estado: 'Disponible'}, 
+                    {id: 2, nombre: 'Martillo', marca: 'Papagayo', categoria: 'Herramientas Manuales', precio: 3.4, cantidad: 234, estado: 'Disponible'}, 
+                
                 ]}
             />
         </div>

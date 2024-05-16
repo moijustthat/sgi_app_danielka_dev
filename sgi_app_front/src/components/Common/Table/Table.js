@@ -18,30 +18,15 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { visuallyHidden } from '@mui/utils';
-
 import BasicMenu from '../BasicMenu/BasicMenu'
-import { Divider, ListItemButton } from '@mui/material';
+import { Divider, ListItemButton, MenuItem } from '@mui/material';
 import { BsThreeDots } from "react-icons/bs";
+
+import {TextField} from '@mui/material';
 
 import SearchField from '../SearchField/SearchField'
 
 import './Table.css'
-
-function createData(id, name, calories, fat, carbs, protein) {
-  return {
-    id,
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-    
-  };
-}
-
-
-
-
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -203,7 +188,7 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function GeneralTable({generalActions = [], actions=[], rows=[[]], empty=<h1>Tabla sin contenido</h1>}) {
+export default function GeneralTable({edit=null, setEdit=()=>null,generalActions = [], editables=[],actions=[], rows=[[]], empty=<h1>Tabla sin contenido</h1>}) {
 const [order, setOrder] = React.useState('asc');
 const [orderBy, setOrderBy] = React.useState('calories');
 const [selected, setSelected] = React.useState([]);
@@ -211,6 +196,15 @@ const [page, setPage] = React.useState(0);
 const [dense, setDense] = React.useState(false);
 const [rowsPerPage, setRowsPerPage] = React.useState(5);
 const [searchText, setSearchText] = React.useState('');
+
+const [updates, setUpdates] = React.useState(function(){
+  const fields = Object.create({})
+  for(let edit of editables) {
+    
+    fields[edit.label] = null
+  }
+  return fields
+}()) 
 
     const actionsButton =   <ListItemButton>
                                 <BsThreeDots />
@@ -264,6 +258,18 @@ const [searchText, setSearchText] = React.useState('');
     setDense(event.target.checked);
   };
 
+  const handleEdit = (value, label) => {
+    setUpdates({
+      ...updates,
+      [label]: value
+    })
+  }
+
+  const handleUpdate = (e) => {
+    e.stopPropagation()
+    setEdit(false)
+  }
+
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -279,10 +285,11 @@ const [searchText, setSearchText] = React.useState('');
     [order, orderBy, page, rowsPerPage],
   );
 
-  
 
+  console.log(updates)
 
   return (
+
     <Box sx={{ width: '99%' }}>
       <Paper elevation={0} square={false} sx={{ width: '99%', mb: 2, borderRadius: '13px' }}>
         <EnhancedTableToolbar setSearchText={setSearchText} generalActions={generalActions} numSelected={selected.length} />
@@ -351,20 +358,61 @@ const [searchText, setSearchText] = React.useState('');
                       />
                     </TableCell>
                     {Object.keys(row || []).map(key => {
-                      return <TableCell>
+                      return   edit !== row.id ? 
+                                (<TableCell>
+                                 
                                 <div className='textContainer'>
                                   <div className='scrollableText'>
                                     {row[key]} 
                                   </div> 
                                 </div>
-                              </TableCell>
+                              </TableCell>)
+                              :
+                              (
+                                <TableCell>
+                                  {editables.some(e=> e.label == key) ? (
+                                    <div class='editField'>
+                                      <TextField
+                                        onChange={(e)=>handleEdit(e.target.value, editables.find(e=> e.label == key).label)}
+                                        onClick={(e) => e.stopPropagation()}
+                                        value={updates[editables.find(e=> e.label == key).label]}
+                                        select={'select' == editables.find(e=> e.label == key).type}
+                                      >
+                                        { editables.find(e=> e.label == key).type == 'select' ? (
+                                          editables.find(e=> e.label == key).validation().map((item, index)=>(
+                                            <MenuItem key={index} value={item}>{item}</MenuItem>
+                                          ))
+                                        ) : null}
+                                      </TextField>
+                                    </div>
+                                  ) : (
+                                    <div className='textContainer'>
+                                      <div className='scrollableText'>
+                                        {row[key]} 
+                                       </div> 
+                                    </div>
+                                  )}
+                                </TableCell>
+                              )
                     })}
                     <TableCell>
-                            <BasicMenu
-                                id={row.id}
-                                items={actions}
-                                label={actionsButton}
-                            /> 
+                            {edit !== row.id ? (<BasicMenu
+                                  id={row.id}
+                                  items={actions}
+                                  label={actionsButton}
+                                />)
+                                :
+                                (
+                                 <div>
+                                    <button onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEdit(false);
+                                    }}>Cancelar</button>
+                                    <button onClick={(e) => handleUpdate(e)}>Actualizar</button>
+                                 </div>
+                                )
+                            }
+                            
                     </TableCell>
                   </TableRow>
                 );
