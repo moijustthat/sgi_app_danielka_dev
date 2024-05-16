@@ -169,13 +169,14 @@ const AddProducto = ({setOpen}) => {
 
     <div className='container'>
       <div className='glass'>
-       
-        <div className='formProducto'>
-          <div className='exit'>
+      <div className='exit'>
               <IconButton  onClick={() => setOpen(false)}>
                   <ArrowBackIcon />
               </IconButton>
             </div>
+       
+
+
 
             <div className='form'>
               <div className='mainData'>
@@ -228,24 +229,22 @@ const AddProducto = ({setOpen}) => {
 
 
 
-          <div onClick={() => handleAgregarNuevoProducto(nuevoProducto)} className='btnAgregarProducto'>
-            <h3>Agregar a la lista</h3>
-          </div>
-
-
-        </div>
-
         <div className='listaNuevosProductos'>
           <TableListaProductos 
             pagination={false}
             empty='Agrega nuevos productos a la lista!!' 
             rows={listaNuevosProductos}
           />
+        </div>
+
+        <div onClick={() => handleAgregarNuevoProducto(nuevoProducto)} className='btnAgregarProducto'>
+            <h3>Agregar a la lista</h3>
+          </div>
 
           <div  id='agregarLista' className='btnAgregarLista'>
-            <h3>Agregar nuevos prodctos a la BD</h3>
+            <h3>Registrar Productos</h3>
           </div>
-        </div>
+
       </div>
    
 

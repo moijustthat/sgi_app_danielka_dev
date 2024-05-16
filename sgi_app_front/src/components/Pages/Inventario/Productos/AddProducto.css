@@ -18,27 +18,35 @@
     width: 97%;
     border-radius: 2rem;
     background-color: var(--glass);
+    grid-template-areas: 
+        "exit exit"
+        "form products"
+        "btnProducto btnLista"
+    ;
     overflow: hidden;
-    grid-template-columns: 45rem auto;
-    gap: 10px;
+    gap: 16px;
 }
 
 /* Boton de salida */
 .exit {
-    border: 1px solid;
-    position: fixed;
     overflow: hidden;
+    margin-left: 1rem;
+    margin-top: 1rem;
 }
 
 /* FORMULARIO NUEVO PRODUCTO */
+.formProducto{
+   
+}
+
 .form {
-    position: relative;
+    grid-area: form;
     overflow: scroll;
     border-radius: 15px;
     top: 3.5rem;
-    height: 70vh;
+    height: 33rem;
     margin-left: 1rem;
-    background: white;
+    background: rgb(255, 255, 255);
     padding: 20px;
 }
 
@@ -83,6 +91,7 @@
 
 .textField input:is(:focus), .textField textarea:is(:focus), .customSelect select:is(:focus){
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.20);
+    border:1px solid rgb(0, 0, 255);
 }
 
 .customSelect {
@@ -149,14 +158,7 @@
     display: none;
 }
 
-.btnAgregarProducto {
-    position: fixed;
-    border: 1px solid;
-    margin-left: 1rem;
-    top: 31rem;
-    width: 55%;
-    height: 7vh;
-}
+
 
 .secondaryData {
     display: flex;
@@ -174,13 +176,14 @@
 /* LISTA DE NUEVOS PRODUCTOS */
 
 .listaNuevosProductos {
-    position: relative;
+    grid-area: products;
     overflow: scroll;
     top: 3.5rem;
-    height: 77vh;
-    margin-right: 0.5rem;
+    height: 35rem;
+    margin-right: 1rem;
     background-color: #FFF;
     border-radius: 20px;
+    margin-bottom: 0 !important;
 }
 
 .listaNuevosProductos::-webkit-scrollbar {
@@ -188,31 +191,38 @@
 }
 
 .btnAgregarLista {
-    position: fixed;
-    border: 1px solid;
-    top: 31rem;
-    width: 39.3%;
-    height: 7vh;
+    grid-area: btnLista;    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    width: 12rem;
+    height: 3rem;
+    background-color: #f3c6f1;
+}
+.btnAgregarLista:hover{
+    cursor: pointer;
+    background-color: #f3a4ef;
+}
+
+.btnAgregarProducto:hover{
+    cursor: pointer;
+    background-color: #f3a4ef;
 }
 
 
-
-@media screen and (max-width: 1276px) {
-    .btnAgregarProducto {
-        position: fixed;
-        border: 1px solid;
-        margin-left: 1rem;
-        top: 33rem;
-        width: 57%;
-        height: 7vh;
-    }
-    
-    .btnAgregarLista {
-        position: fixed;
-        border: 1px solid;
-        top: 33rem;
-        width: 37%;
-        height: 7vh;
-    }
-    
+.btnAgregarProducto {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-area: btnProducto;
+    width: 12rem;
+    height: 3rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    border-radius: 0.5rem;
+    background-color: #f3c6f1;
 }
+    
