@@ -204,3 +204,51 @@
     
 }   
 
+/* Botones */
+
+.btnAgregarProducto {
+    position: fixed;
+    border: none;
+    font-family: 'Inter';
+    font-weight: 500;
+    color: #FFF;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: #648291;
+    align-items: center;
+    justify-content: center;
+    width: 55%;
+    height: 7vh;
+    top: 31.2rem;
+    margin-left: 1rem;
+    transition: all 300ms ease;
+}
+
+.btnAgregarProducto:hover {
+    background-color: #546E7A;
+}
+
+.btnAgregarLista {
+    position: fixed;
+    border: none;
+    font-family: 'Inter';
+    font-weight: 500;
+    color: #009895;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: #F8FAFC;
+    align-items: center;
+    justify-content: center;
+    width: 39.3%;
+    height: 6.8vh;
+    left: 45.8rem;
+    top: 31rem;
+    margin-left: 1rem;
+    transition: all 300ms ease;
+}
+
+.btnAgregarLista:hover {
+    background-color: #ecf0f3;
+}

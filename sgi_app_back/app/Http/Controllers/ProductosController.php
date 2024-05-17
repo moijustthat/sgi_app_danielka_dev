@@ -26,7 +26,7 @@ class ProductosController extends Controller
         try {
             return Productos::get_items_for_products();
         } catch (\Exception $e) {
-            return JsonHelper::jsonResponse(400, ['error' => 'Error al retribuir los items del producto '.$e]);
+            return JsonHelper::jsonResponse(400, ['error' => 'Error al retribuir los items del producto     '.$e]);
         }
     }
 }
