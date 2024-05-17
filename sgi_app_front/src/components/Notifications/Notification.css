@@ -73,3 +73,10 @@
 .notificationItem.success {
     background: #4DD181;
 }
+
+.notificationItem.update {
+    background: #FFF;
+    color: #000;
+}
+
+

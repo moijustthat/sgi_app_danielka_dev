@@ -231,7 +231,7 @@ const AddProducto = ({setOpen}) => {
 
     <div className='container'>
 
-    <NotificationProvider message='Notificacion de prueba' type='success'/>
+    <NotificationProvider message='Notificacion de prueba' type='update'/>
 
       <div className='glass'>
       <div className='exit'>
