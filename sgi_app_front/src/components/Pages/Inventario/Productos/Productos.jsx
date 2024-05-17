@@ -8,6 +8,8 @@ import { UilPlus } from '@iconscout/react-unicons'
 import { UilFilter } from '@iconscout/react-unicons'
 import { UilTrashAlt } from '@iconscout/react-unicons'
 
+import NotificationProvider from '../../../Notifications/NotificationProvider'
+
 import { UilEdit } from '@iconscout/react-unicons'
 import { UilEye } from '@iconscout/react-unicons'
 
