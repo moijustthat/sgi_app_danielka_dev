@@ -20,7 +20,6 @@ const Notification = (props) => {
     }
 
     const handleClose = () => {
-        if (width < 100) return
         setToShow('slideRight')
         setTimeout(() => {
             props.dispatch({

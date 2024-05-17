@@ -77,6 +77,9 @@ export default function SwipeableTemporaryDrawer({open, content, width}) {
     <div>
       {/* Mostrar solo el botón y el drawer en el lado derecho */}
       <SwipeableDrawer
+        sx={{
+          zIndex: '1000'
+        }}
         anchor="right"
         open={open}
         onClose={toggleDrawer('right', false)}

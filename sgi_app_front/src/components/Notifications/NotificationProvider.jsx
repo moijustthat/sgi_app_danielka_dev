@@ -1,10 +1,10 @@
-import React, { useReducer } from 'react'
+import React, { createContext, useReducer } from 'react'
 import { v4 } from 'uuid'
 import Notification from './Notification'
 import './Notification.css'
-import { UilExclamationTriangle } from '@iconscout/react-unicons'
-import { UilCheckCircle } from '@iconscout/react-unicons'
-import { Avatar } from '@mui/material'
+
+
+export const NotificationContext = createContext()
 
 const NotificationProvider = (props) => {
     const [state, dispatch] = useReducer((state, action) => {
@@ -18,41 +18,29 @@ const NotificationProvider = (props) => {
           return state
       }
 
-    }, [
-      {
-        id: v4(),
-        type: 'success',
-        title: 'Exito',
-        icon: <UilCheckCircle />,
-        message: ''
-      },
-      {
+    }, [])
+    
+    /** 
+     * Notification model:
+     *       {
         id: v4(),
         type: 'error',
         title: 'Error',
         icon: <UilExclamationTriangle />,
         message: ''
       },
-      {
-        id: v4(),
-        type: 'update',
-        title: 'Actualizacion',
-        icon: <Avatar alt='user-img'/>,
-        message: ''
-      }
-    ])
-    
-
+     * 
+    */
 
     return (
-      <div>
+      <NotificationContext.Provider value={dispatch}>
         <div className='notificationWrapper'>
           {state.map(notification => {
             return <Notification dispatch={dispatch} key={notification.id} {...notification} />
           })}
         </div>
         {props.children}
-      </div>
+      </NotificationContext.Provider>
     )
 
 }

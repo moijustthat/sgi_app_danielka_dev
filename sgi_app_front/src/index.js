@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 
 import { ContextProvider } from './Contexts/ContextProvider';
+import NotificationProvider from './components/Notifications/NotificationProvider';
 
 import router from './router';
 
@@ -12,7 +13,9 @@ const root = createRoot(container);
 root.render(
     <React.StrictMode>
         <ContextProvider>
-            <RouterProvider router={router} />
+            <NotificationProvider>
+                <RouterProvider router={router} />
+            </NotificationProvider>
         </ContextProvider>
     </React.StrictMode>
 );

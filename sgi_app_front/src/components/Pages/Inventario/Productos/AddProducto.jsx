@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import Banner from '../../../Common/Banner/Banner'
 import { Button, Grid } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton }  from '@mui/material';
 import { Paper, Alert } from '@mui/material';
-
-import NotificationProvider from '../../../Notifications/NotificationProvider';
-
+import { v4 } from 'uuid'
+import { NotificationContext } from '../../../Notifications/NotificationProvider';
+import { UilExclamationTriangle } from '@iconscout/react-unicons'
+import { UilCheckCircle } from '@iconscout/react-unicons'
+import { Avatar } from '@mui/material'
 import { useStateContext } from '../../../../Contexts/ContextProvider';
 
 import axiosClient from '../../../../axios-client';
@@ -119,12 +121,14 @@ const AddProducto = ({setOpen}) => {
   const [unidades_medida, setUnidadesMedida] = useState([])
   const [almacenes, setAlmacenes] = useState([])
 
+  const dispatch = useContext(NotificationContext)
+
   // Traer informacion necesaria de la base de datos del contexto, no de uma nueva peticion
 
   const handleAgregarNuevoProducto = (producto) => {
 
     console.log('producto:', producto)
-
+    let logicError = false
     const required = ['nombre', 'descripcion', 'categoria', 'marca', 'medida', 'precio', 'cantidad', 'minimo', 'maximo', 'metodo', 'almacen']
     const incompletes = []
     // Validaciones para registrar un nuevo producto
@@ -143,13 +147,35 @@ const AddProducto = ({setOpen}) => {
 
     // Condiciones logicas:
     if (producto.perecedero == 't' && (producto.fechaVencimiento === '' || !producto.fechaVencimiento || producto.fechaVencimiento == 'null')) {
-      
+      dispatch({
+        type: 'ADD_NOTIFICATION',
+        payload: {
+          id: v4(),
+          type: 'error',
+          title: 'Producto sin fecha de vencimiento',
+          icon: <UilExclamationTriangle />,
+          message: 'Especifica la fecha de vencimiento de este stock'
+        }
+      })
+      logicError = true
     }
 
     if (Number(producto.minimo) >= Number([producto.maximo])) {
-     
+      dispatch({
+        type: 'ADD_NOTIFICATION',
+        payload: {
+          id: v4(),
+          type: 'error',
+          title: 'Error en las cantidades',
+          icon: <UilExclamationTriangle />,
+          message: 'El minimo no puede ser mayor al maximo'
+        }
+      })
+      logicError = true
     }
     
+    if (logicError) return
+
     // Quitar alertas de incompletitud
     setMarkAsIncomplete([])
     const copiaProducto = {...producto}
@@ -184,9 +210,7 @@ const AddProducto = ({setOpen}) => {
     })
   }
 
-  // Retribuir datos seleccionables de la BD
-
-  
+  // Retribuir datos seleccionables de la BD  
   const getItems = () => {
     axiosClient.get('/seleccionables')
       .then(({data}) => {
@@ -228,8 +252,6 @@ const AddProducto = ({setOpen}) => {
   return (
 
     <div className='container'>
-
-      <NotificationProvider />
 
       <div className='glass'>
       <div className='exit'>
