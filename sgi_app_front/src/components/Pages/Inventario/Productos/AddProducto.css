@@ -35,8 +35,8 @@
     position: relative;
     overflow: scroll;
     border-radius: 15px;
-    top: 3.5rem;
-    height: 70vh;
+    top: 2.5rem;
+    height: 77vh;
     margin-left: 1rem;
     background: white;
     padding: 20px;
@@ -149,15 +149,6 @@
     display: none;
 }
 
-.btnAgregarProducto {
-    position: fixed;
-    margin-left: 1rem;
-    top: 31rem;
-        margin-left: 0.8rem;width: 55%
-    ;
-    height: 7vh;
-}
-
 .secondaryData {
     display: flex;
     gap: 2rem;
@@ -178,8 +169,8 @@
 .listaNuevosProductos {
     position: relative;
     overflow: scroll;
-    top: 3.5rem;
-    height: 77vh;
+    top: 2.5rem;
+    height: 83.7vh;
     margin-right: 0.5rem;
     background-color: #FFF;
     border-radius: 20px;
@@ -188,15 +179,7 @@
 .listaNuevosProductos::-webkit-scrollbar {
     display: none;
 }
-
-.btnAgregarLista {
-    position: fixed;
-    top: 31rem;
-    width: 39.3%;
-        margin-left: 0.8rem;height: 7vh
-    ;
-}
-
+ 
 
 
 @media screen and (max-width: 1276px) {
@@ -219,4 +202,5 @@
         height: 7vh;
     }
     
-}
+}   
+
