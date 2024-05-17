@@ -7,7 +7,7 @@ import DefaultLayout from "./components/Pages/DefaultLayout";
 import Inicio from "./components/Pages/Inicio/Inicio";
 import Ordenes from "./components/Pages/Ordenes/Ordenes";
 import NotFound from "./components/Pages/NotFound/NotFound";
-
+import Perfil from "./components/Pages/Perfil/Perfil";
 import Productos from "./components/Pages/Inventario/Productos/Productos";
 
 
@@ -23,6 +23,10 @@ const router = createBrowserRouter([
             {
                 path: '/inicio',
                 element: <Inicio />
+            },
+            {
+                path: '/perfil',
+                element: <Perfil />
             },
             {
                 path: '/listar-ordenes',

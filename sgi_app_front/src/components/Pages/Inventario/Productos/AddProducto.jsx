@@ -5,6 +5,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton }  from '@mui/material';
 import { Paper, Alert } from '@mui/material';
 
+import NotificationProvider from '../../../Notifications/NotificationProvider';
+
 import { useStateContext } from '../../../../Contexts/ContextProvider';
 
 import axiosClient from '../../../../axios-client';
@@ -141,7 +143,7 @@ const AddProducto = ({setOpen}) => {
 
     // Condiciones logicas:
     if (producto.perecedero == 't' && (producto.fechaVencimiento === '' || !producto.fechaVencimiento)) {
-      
+
     }
     
     // Quitar alertas de incompletitud
@@ -229,7 +231,7 @@ const AddProducto = ({setOpen}) => {
               </IconButton>
             </div>
        
-
+    <NotificationProvider />
 
 
             <div className='form'>

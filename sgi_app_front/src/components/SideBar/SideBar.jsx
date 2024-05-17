@@ -91,14 +91,15 @@ const SideBar = () => {
 
             {/** Menu */}
             <div className='menu'>
-                <div 
-                    key={-1} 
-                    className='menuItem'   
-                >
-                    <Avatar alt={user.nombre} src={user.img}/> 
-                    <span>{`${user.nombre} ${user.apellido}`}</span>
-                </div>  
-
+                <Link to={`/perfil`} style={{all: 'unset'}}>
+                    <div 
+                        key={-1} 
+                        className='menuItem'   
+                    >
+                        <Avatar alt={user.nombre} src={user.img}/> 
+                        <span>{`${user.nombre} ${user.apellido}`}</span>
+                    </div>  
+                </Link>
                 {SideBarData.map((data, index) => {
                     return (
                             data.heading != 'Inicio' ?

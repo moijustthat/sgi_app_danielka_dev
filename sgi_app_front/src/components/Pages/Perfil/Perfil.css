@@ -1,0 +1,6 @@
+.PerfilContainer {
+    display: grid;
+    grid-template-columns: auto 20rem;
+    gap: 10px;
+    border: 1px solid;
+}
