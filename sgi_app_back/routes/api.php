@@ -27,5 +27,7 @@ Route::controller(UsuariosController::class)->group(function () {
 Route::controller(ProductosController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/producto', 'agregarProducto');
+        Route::get('/seleccionables', 'getItemsSeleccionables');
     });
 });
+

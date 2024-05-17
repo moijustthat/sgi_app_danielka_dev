@@ -4,8 +4,12 @@ const axiosClient = axios.create({
     baseURL: `http://localhost:8000/api`
 })
 
-axiosClient.interceptors.request.use((config, ) => {
-    config.headers.Authorization = 'Bearer '+localStorage.getItem('ACESS_TOKEN')
+axiosClient.interceptors.request.use((config) => {
+    const token = JSON.parse(localStorage.getItem('ACCESS_TOKEN'));
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    } else {
+    }
     return config
 })
 

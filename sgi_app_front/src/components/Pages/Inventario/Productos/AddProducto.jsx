@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Banner from '../../../Common/Banner/Banner'
 import { Button, Grid } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton }  from '@mui/material';
 import { Paper, Alert } from '@mui/material';
+
+import axiosClient from '../../../../axios-client';
 
 import validateAPI from '../../../../utils/textValidation'
 
@@ -22,30 +24,24 @@ const DateField = ({label, blocked=false, onChange=() => null}) => {
   )
 }
 
-const SelectField = ({label, onChange=() => null}) => {
+const SelectField = ({label, onChange=() => null, options=[]}) => {
 
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState('1')
 
   return (
     <div className='customSelect'>
       <label>{label}*</label>
       <select value={value} onChange={(e) => onChange(e.target.value, ()=>true, setValue)}>
-        <option value='1'>
-          test 1
-        </option>
-        <option value='2'>
-          test 2
-        </option>
-        <option value='3'>
-          test 3
-        </option>
+        {options.map(option => (
+          <option key={option.label} value={option.value}>{option.label}</option>
+        ))}
       </select>
       <span className='customArrow'></span>
     </div>
   )
 }
 
-const TextField = ({label, placeholder, onChange}) => {
+const TextField = ({label, placeholder, onChange, incomplete=null}) => {
 
   const [err, setErr] = useState('')
   const [value, setValue] = useState('')
@@ -58,17 +54,19 @@ const TextField = ({label, placeholder, onChange}) => {
         sx={{
           display: err == '' ? 'none' : ''
         }} severity="error">{err}</Alert>
-      <input 
+      <input
+        className={incomplete ? 'markAsIncomplete' : ''}
         value={value}
         onChange={(e) => {
           onChange(e.target.value, setErr, setValue)
         }} 
-        type="text" placeholder={placeholder}/>
+        type="text" 
+        placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
     </div>
   )
 }
 
-const TextArea = ({label, placeholder, onChange=()=>null}) => {
+const TextArea = ({label, placeholder, onChange=()=>null, incomplete=null}) => {
 
   const [err, setErr] = useState('')
   const [value, setValue] = useState('')
@@ -81,7 +79,7 @@ const TextArea = ({label, placeholder, onChange=()=>null}) => {
         sx={{
           display: err == '' ? 'none' : ''
         }} severity="error">{err}</Alert>
-      <textarea value={value} onChange={(e) => onChange(e.target.value, setErr, setValue)} placeholder={placeholder} rows={4} cols={50}></textarea>
+      <textarea className={incomplete ? 'markAsIncomplete' : ''} value={value} onChange={(e) => onChange(e.target.value, setErr, setValue)} placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder} rows={4} cols={50}></textarea>
     </div>
   )
 }
@@ -99,12 +97,12 @@ const AddProducto = ({setOpen}) => {
     minimo: '',
     maximo: '',
     img: 'null',
-    categoria: '',
-    marca: '',
-    medida: '',
-    metodo: '',
+    categoria: '1',
+    marca: '1',
+    medida: '1',
+    metodo: 'peps',
     cantidad: '',
-    almacen: '',
+    almacen: '1',
     comprobante: 'null',
     fechaVencimiento: 'null',
     descripcionEstacional: 'null',
@@ -112,25 +110,35 @@ const AddProducto = ({setOpen}) => {
     fechaFinalEstacional: 'null'
   })
   const [listaNuevosProductos, setListaNuevosProductos] = useState([])
+  const [markAsIncomplete, setMarkAsIncomplete] =  useState([])
+
+  const [categorias, setCategorias] = useState([])
+  const [marcas, setMarcas] = useState([])
+  const [unidades_medida, setUnidadesMedida] = useState([])
+  const [almacenes, setAlmacenes] = useState([])
 
 
   const handleAgregarNuevoProducto = (producto) => {
-    
-    console.log(producto);
 
     const required = ['nombre', 'descripcion', 'categoria', 'marca', 'medida', 'precio', 'cantidad', 'minimo', 'maximo', 'metodo', 'almacen']
+    const incompletes = []
     // Validaciones para registrar un nuevo producto
     for (let require of required) {
       if (!producto[require] || producto[require] === '') {
-        alert('Campos incompletos')
-        return
+        incompletes.push(require)
       }
     }
+   
+    if (incompletes.length > 0) {
+      setMarkAsIncomplete(incompletes)
+      return
+    } else {
+      setMarkAsIncomplete([])
+    }
 
+
+    
     // Ingresar producto a la lista
-
-
-
     const copiaLista = listaNuevosProductos.slice()
     const copiaProducto = producto
     copiaProducto.id += 1
@@ -165,6 +173,47 @@ const AddProducto = ({setOpen}) => {
     })
   }
 
+  // Retribuir datos seleccionables de la BD
+
+  
+  const getItems = () => {
+    axiosClient.get('/seleccionables')
+      .then(({data}) => {
+        setCategorias(data.categorias.map(categoria=> {
+          return {
+            label: categoria.nombre,
+            value: categoria.categoriaId
+          }
+        }))
+        setMarcas(data.marcas.map(marca=> {
+          return {
+            label: marca.nombre,
+            value: marca.marcaId
+          }
+        }))
+        setUnidadesMedida(data.unidades_medida.map(medida=> {
+          return {
+            label: medida.nombre,
+            value: medida.unidadMedidaId
+          }
+        }))
+        setAlmacenes(data.almacenes.map(almacen=> {
+          return {
+            label: almacen.nombre,
+            value: almacen.almacenId
+          }
+        }))
+
+      })
+      .catch((e) => {
+        console.log('Error en la respuesta: '+e);
+      }) 
+  }
+
+  useEffect(() => {
+    getItems()
+  },[])
+
   return (
 
     <div className='container'>
@@ -179,36 +228,36 @@ const AddProducto = ({setOpen}) => {
 
             <div className='form'>
               <div className='mainData'>
-                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'nombre', validateAPI.name)} label='Nombre del producto' placeholder='Nombre #'/>
+                <TextField incomplete={markAsIncomplete.find(l=>l=='nombre')} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'nombre', validateAPI.name)} label='Nombre del producto' placeholder='Nombre #'/>
 
-                <TextArea onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'descripcion', validateAPI.everything)} label='Descripcion del producto' placeholder='Descripcion #'/>
+                <TextArea incomplete={markAsIncomplete.find(l=>l=='descripcion')} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'descripcion', validateAPI.everything)} label='Descripcion del producto' placeholder='Descripcion #'/>
 
-                <SelectField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'categoria', (n)=>true)} label='Categoria del producto'/>
+                <SelectField options={categorias} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'categoria', (n)=>true)} label='Categoria del producto'/>
 
-                <SelectField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'marca', (n)=>true)} label='Marca del producto'/>
+                <SelectField options={marcas} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'marca', (n)=>true)} label='Marca del producto'/>
                 
-                <SelectField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'medida', (n)=>true)} label='Medida del producto'/>
+                <SelectField options={unidades_medida} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'medida', (n)=>true)} label='Medida del producto'/>
                 
                 <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'codigoBarra', validateAPI.numeric, 'Maximo de digitos: 15. Solo digitos permitidos')} label='Codigo de barra' placeholder='**********'/>
 
-                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'precio', validateAPI.positiveReal)} label='Precio de venta' placeholder='C$'/>  
+                <TextField incomplete={markAsIncomplete.find(l=>l=='precio')} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'precio', validateAPI.positiveReal)} label='Precio de venta' placeholder='C$'/>  
 
-                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'cantidad', validateAPI.number)} label='Cantidad inicial de stock' placeholder='Cantidad'/>  
+                <TextField incomplete={markAsIncomplete.find(l=>l=='cantidad')} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'cantidad', validateAPI.positiveIntegerOrZero)} label='Cantidad inicial de stock' placeholder='Cantidad'/>  
 
-                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'minimo', validateAPI.number)} label='Minimo de existencias' placeholder='Minimo'/>                
+                <TextField incomplete={markAsIncomplete.find(l=>l=='minimo')} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'minimo', validateAPI.positiveIntegerOrZero)} label='Minimo de existencias' placeholder='Minimo'/>                
 
-                <TextField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'maximo', validateAPI.number)} label='Maximo de existencias' placeholder='Maximo'/>                
+                <TextField incomplete={markAsIncomplete.find(l=>l=='maximo')} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'maximo', validateAPI.positiveIntegerOrZero)} label='Maximo de existencias' placeholder='Maximo'/>                
 
               </div>
 
               <div className='secondaryData'>
-                <SelectField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'metodo', (n)=>true)} label='Metodo de inventario'/>
+                <SelectField options={[{label: 'peps', value: 'peps'}, {label: 'ueps', value: 'ueps'}]} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'metodo', (n)=>true)} label='Metodo de inventario'/>
     
-                <SelectField onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'almacen', (n)=>true)} label='Almacen a guardar'/>
+                <SelectField options={almacenes} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'almacen', (n)=>true)} label='Almacen a guardar'/>
               </div>
 
               <div className='secondaryData'>
-                <SelectField  onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'perecedero', (n)=>true)}label='Es perecedero?'/>
+                <SelectField options={[{label: 'no', value: 'f'}, {label: 'si', value: 't'}]} onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'perecedero', (n)=>true)}label='Es perecedero?'/>
     
                 <DateField
                   onChange={(value, setErr, setValue)=>handleChangeNuevoProducto(value, setErr, setValue, 'fechaVencimiento', (n)=>true)} 
