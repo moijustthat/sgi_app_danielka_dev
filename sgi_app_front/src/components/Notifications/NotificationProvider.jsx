@@ -2,6 +2,8 @@ import React from 'react'
 import { v4 } from 'uuid'
 import Notification from './Notification'
 import './Notification.css'
+import { UilExclamationTriangle } from '@iconscout/react-unicons'
+import { UilCheckCircle } from '@iconscout/react-unicons'
 
 const NotificationProvider = (props) => {
 
@@ -9,25 +11,34 @@ const NotificationProvider = (props) => {
       {
         id: v4(),
         type: 'success',
-        message: 'Test Success'
+        title: 'Exito',
+        icon: <UilCheckCircle />,
+        message: ''
       },
       {
         id: v4(),
         type: 'error',
-        message: 'Test Error'
+        title: 'Error',
+        icon: <UilExclamationTriangle />,
+        message: ''
       }
     ]
 
+
+    const notification = notifications.find(noti => noti.type === props.type)
+
+    if (props.message === '') return
+
+    notification.message = props.message
     return (
       <div>
         <div className='notificationWrapper'>
-          {notifications.map(noti => {
-            return <Notification key={noti.id} {...noti}/>
-          })}
+         <Notification key={notification.id} {...notification}/>
         </div>
         {props.children}
       </div>
     )
+
 }
 
 export default NotificationProvider

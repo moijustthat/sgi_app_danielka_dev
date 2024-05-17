@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 
+
 const Notification = (props) => {
 
     const [width, setWidth] = useState(0)
     const [intervalId, setIntervalId] = useState(null)
-    const [display, setDisplay] = useState('')
+    const [toShow, setToShow] = useState('')
 
     const handleStartTimer = () => {
         const id = setInterval(() => {
@@ -20,7 +21,7 @@ const Notification = (props) => {
 
     const handleClose = () => {
         if (width < 100) return
-        setDisplay('none')
+        setToShow('slideRight')
     }
     
     useEffect(() => {
@@ -28,8 +29,10 @@ const Notification = (props) => {
     }, [])
 
     return (
-        <div onClick={handleClose} style={{display: display}} className={`notificationItem ${props.type}`}>
-            <p>{props.message}</p>
+        <div onClick={handleClose} className={`notificationItem ${toShow} ${props.type}`}>
+            <span>{props.icon}</span>
+            <p className='title'>{props.title}</p>
+            <p className='message'>{props.message}</p>
             <div className='bar' style={{width: `${width}%`}}></div>
         </div>
     )

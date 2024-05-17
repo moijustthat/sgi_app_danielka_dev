@@ -4,16 +4,25 @@
     top: 12px;
     width: 25%;
 
-    background: #FFF;
+    background: transparent;
     z-index: 1;
 }
 
 .notificationItem {
+    display: grid;
+    color: #FFF;
     box-shadow: 0 0 5px rgba(0,0,0, 0.4);
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 15px;
     animation: SlideLeft 0.2s;
+    animation-fill-mode: forwards;
+}
+
+
+
+.notificationItem.slideRight {
+    animation: SlideRight 0.2s;
     animation-fill-mode: forwards;
 }
 
@@ -27,19 +36,40 @@
     }
 }
 
-.notificationItem p{
+@keyframes SlideRight {
+    0% {
+        margin-left: 0;
+    }
+
+    100% {
+        margin-left: 120%;
+    }
+}
+
+.notificationItem span {
+    padding: 0 10px;
+}
+
+.notificationItem .title{
     margin: 0;
-    padding: 10px 0;
+    padding: 10px 10px;
+}
+
+.notificationItem .message {
+    font-size: 12px;
+    margin: 0;
+    padding: 3px 10px;
 }
 
 .notificationItem .bar {
     height: 4px;
+    background: #FFF1E0;
 }
 
-.notificationItem.error .bar {
-    background: rgb(247, 72, 72);
+.notificationItem.error {
+    background: #EA5F51;
 }
 
-.notificationItem.success .bar {
-    background: rgb(80, 235, 80);
+.notificationItem.success {
+    background: #4DD181;
 }
