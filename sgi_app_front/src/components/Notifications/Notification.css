@@ -22,8 +22,7 @@
 
 
 .notificationItem.slideRight {
-    animation: SlideRight 0.2s;
-    animation-fill-mode: forwards;
+    display: 'none';
 }
 
 @keyframes SlideLeft {
