@@ -22,6 +22,12 @@ const Notification = (props) => {
     const handleClose = () => {
         if (width < 100) return
         setToShow('slideRight')
+        setTimeout(() => {
+            props.dispatch({
+                type: 'REMOVE_NOTIFICATION',
+                id: props.id
+            })
+        }, 50)
     }
     
     useEffect(() => {

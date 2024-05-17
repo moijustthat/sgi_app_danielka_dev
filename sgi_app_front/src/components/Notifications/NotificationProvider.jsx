@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useReducer } from 'react'
 import { v4 } from 'uuid'
 import Notification from './Notification'
 import './Notification.css'
@@ -7,8 +7,18 @@ import { UilCheckCircle } from '@iconscout/react-unicons'
 import { Avatar } from '@mui/material'
 
 const NotificationProvider = (props) => {
+    const [state, dispatch] = useReducer((state, action) => {
 
-    const notifications = [
+      switch(action.type) {
+        case 'ADD_NOTIFICATION':
+          return [...state, {...action.payload}]
+        case 'REMOVE_NOTIFICATION':
+          return state.filter(el => el.id !== action.id)
+        default:
+          return state
+      }
+
+    }, [
       {
         id: v4(),
         type: 'success',
@@ -27,24 +37,19 @@ const NotificationProvider = (props) => {
         id: v4(),
         type: 'update',
         title: 'Actualizacion',
-        icon: null,
+        icon: <Avatar alt='user-img'/>,
         message: ''
       }
-    ]
+    ])
+    
 
 
-    const notification = notifications.find(noti => noti.type === props.type)
-    if (notification.type == 'update') {
-      notification.icon = <Avatar alt='user-img' />
-    }
-
-    if (props.message === '') return
-
-    notification.message = props.message
     return (
       <div>
         <div className='notificationWrapper'>
-         <Notification key={notification.id} {...notification}/>
+          {state.map(notification => {
+            return <Notification dispatch={dispatch} key={notification.id} {...notification} />
+          })}
         </div>
         {props.children}
       </div>

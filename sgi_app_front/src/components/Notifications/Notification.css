@@ -3,9 +3,9 @@
     right: 30px;
     top: 12px;
     width: 25%;
-
     background: transparent;
     z-index: 1;
+    transition: all 300ms ease;
 }
 
 .notificationItem {
@@ -63,7 +63,7 @@
 
 .notificationItem .bar {
     height: 4px;
-    background: #FFF1E0;
+    background: #5DD1F0;
 }
 
 .notificationItem.error {

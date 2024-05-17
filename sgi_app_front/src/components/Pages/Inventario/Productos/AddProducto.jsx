@@ -119,8 +119,6 @@ const AddProducto = ({setOpen}) => {
   const [unidades_medida, setUnidadesMedida] = useState([])
   const [almacenes, setAlmacenes] = useState([])
 
-  const [notification, setNotification] = useState('')
-
   // Traer informacion necesaria de la base de datos del contexto, no de uma nueva peticion
 
   const handleAgregarNuevoProducto = (producto) => {
@@ -145,11 +143,11 @@ const AddProducto = ({setOpen}) => {
 
     // Condiciones logicas:
     if (producto.perecedero == 't' && (producto.fechaVencimiento === '' || !producto.fechaVencimiento || producto.fechaVencimiento == 'null')) {
-      setNotification('Fecha de vencimiento no especificada')
+      
     }
 
     if (Number(producto.minimo) >= Number([producto.maximo])) {
-      setNotification('Minimo no puede ser mayor a maximo')
+     
     }
     
     // Quitar alertas de incompletitud
@@ -231,7 +229,7 @@ const AddProducto = ({setOpen}) => {
 
     <div className='container'>
 
-    <NotificationProvider message='Notificacion de prueba' type='update'/>
+      <NotificationProvider />
 
       <div className='glass'>
       <div className='exit'>
