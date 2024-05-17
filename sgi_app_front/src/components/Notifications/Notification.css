@@ -66,11 +66,15 @@
 }
 
 .notificationItem.error {
-    background: #EA5F51;
+    background: #F94416;
 }
 
 .notificationItem.success {
-    background: #4DD181;
+    background: #41D888;
+}
+
+.notificationItem.warning {
+    background: #FFBC00;
 }
 
 .notificationItem.update {
