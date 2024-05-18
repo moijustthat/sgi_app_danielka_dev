@@ -61,6 +61,13 @@ const Productos = () => {
     ]
 
     useEffect(() => {
+        if(productos.length > 0) {
+            alert('Cambio en la lista de productos')
+        }
+        
+    }, productos)
+
+    useEffect(() => {
         //getProductos()
     }, [])
 
@@ -80,25 +87,20 @@ const Productos = () => {
         <>
         <div className='CatalogoProductos'>
             {/** AddProducto(Metete a AddProducto.jsx y el css en AddProducto.css) es el formulario de nuevos productos */}
-            <RightDrawer width={'100vw'} content={<AddProducto setOpen={setFormOpen}/>} open={formOpen}/>
+            <RightDrawer width={'100vw'} content={<AddProducto productos={productos} setProductos={setProductos} setOpen={setFormOpen}/>} open={formOpen}/>
             <Banner>Catalogo de Productos</Banner>
-            <Table 
-                edit={edit}
-                setEdit={setEdit}
-                actions={actions}
-                generalActions={generalActions}
-                editables={[
-                    {label: 'nombre', type:'text', validation:(input) => [validateApi.name(input), `Simbolo ${input} no valido`]},
-                    {label: 'marca', type:'select', validation:() => ['nike', 'adidas']},
-                    {label: 'categoria', type:'select', validation:() => ['bebidas', 'ropa']},
-                    {label: 'precio', type:'number', validation:(input) => [validateApi.positiveReal(input), `Simbolo ${input} no valido`]},
-                    {label: 'estado', type:'select', validation:() => ['Disponible', 'No disponible']}
-                ]}
-                rows={[
-                    {id: 1, nombre: 'Martillo', marca: 'Papagayo', categoria: 'Herramientas Manuales', precio: 3.4, cantidad: 234, estado: 'Disponible'}, 
-                    {id: 2, nombre: 'Taladro', marca: 'Papagayo', categoria: 'Herramientas Manuales', precio: 3.4, cantidad: 234, estado: 'Disponible'}
-                ]}
-            />
+            <div className='catalogo'>
+                <Table 
+                    edit={edit}
+                    setEdit={setEdit}
+                    empty='Agrega productos al catalogo!!!'
+                    dense={true}
+                    actions={actions}
+                    generalActions={generalActions}
+                    rows={productos}
+                    setRows={setProductos}
+                />
+            </div>
         </div>
        </>
     )

@@ -363,6 +363,7 @@ const actionsButton =   <ListItemButton>
               .filter(row => {
                 const keys = Object.keys(row)
                 for (let key of keys) {
+                    if(!row[key]) continue
                     if (row[key].toString().toLowerCase().includes(searchText.toLowerCase())) return true
                 }
                 return false

@@ -118,7 +118,7 @@ const init ={
 }
 
 
-const AddProducto = ({setOpen}) => {
+const AddProducto = ({setOpen, setProductos, productos}) => {
   const [nuevoProducto, setNuevoProducto] = useState(init)
   const [listaNuevosProductos, setListaNuevosProductos] = useState([])
   const [markAsIncomplete, setMarkAsIncomplete] =  useState([])
@@ -162,11 +162,6 @@ const AddProducto = ({setOpen}) => {
         label: 'Editar',
         icon: <UilEdit />,
         action: (id) => setEdit(id)
-    },
-    {
-        label: 'Ver detalles',
-        icon: <UilEye />,
-        action: (i) => alert('Ver detalles '+i)
     }
   ]
 
@@ -406,7 +401,7 @@ const AddProducto = ({setOpen}) => {
     setListaNuevosProductos([copiaProducto, ...copiaLista])
   }
 
-  const requestNuevosProductos = (listaNuevosProductos) => {
+  const saveNuevosProductos = (listaNuevosProductos) => {
     if (listaNuevosProductos.length < 1) {
       alert('Ingresa nuevos productos a la lista!!')
       return
@@ -423,7 +418,7 @@ const AddProducto = ({setOpen}) => {
       producto.maximo = Number(producto.maximo)
     }
 
-    console.log(listaNuevosProductos);
+    setProductos([...listaNuevosProductos, ...productos])
   }
 
 
@@ -486,6 +481,7 @@ const AddProducto = ({setOpen}) => {
   useEffect(() => {
     getItems()
   },[])
+
 
   return (
 
@@ -592,7 +588,7 @@ const AddProducto = ({setOpen}) => {
           />
         </div>
         <button  onClick={() => handleAgregarNuevoProducto(nuevoProducto)} className='btnAgregarProducto'>Agregar a la lista</button>
-        <button  onClick={() => requestNuevosProductos(listaNuevosProductos)} id='agregarLista' className='btnAgregarLista'>Registrar Productos</button>
+        <button  onClick={() => saveNuevosProductos(listaNuevosProductos)} id='agregarLista' className='btnAgregarLista'>Registrar Productos</button>
       </div>
    
 

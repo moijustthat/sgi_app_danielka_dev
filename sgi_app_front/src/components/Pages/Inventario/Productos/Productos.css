@@ -6,6 +6,11 @@
     grid-template-columns: auto;
 }
 
+.catalogo {
+    position: relative;
+    overflow: scroll;
+}
+
 @media screen and (max-width: 1276px) {
     .CatalogoProductos {
         width: 180%;
