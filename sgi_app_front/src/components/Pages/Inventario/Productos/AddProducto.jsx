@@ -171,7 +171,7 @@ const AddProducto = ({setOpen}) => {
   ]
 
   const abstractTable = (table) => {
-    const columns = ['id', 'nombre', 'categoria', 'marca', 'cantidad', 'minimo', 'maximo']
+    const columns = ['id', 'nombre', 'codigoBarra', 'cantidad', 'minimo', 'maximo']
     const abstractedTable = []
     if (table.length == 0) return table
     for (let row of table) { // recorrer todas las filas de la tabla
@@ -557,8 +557,7 @@ const AddProducto = ({setOpen}) => {
             actions={actions}
             editables={[
               {label: 'nombre', type:'text', validation: (input) => [validateAPI.name2(input), `Simbolo: ${input} no valido`]},
-              {label: 'categoria', type:'select', validation: () => categorias},
-              {label: 'marca', type:'select', validation: () => marcas},
+              {label: 'codigoBarra', type:'text', validation: (input) => [validateAPI.numeric(input), `Simbolo: ${input} no valido`]},
               {label: 'cantidad', type:'text', validation: (input) => [validateAPI.positiveIntegerOrZero(input), `Simbolo: ${input} no valido`]},
               {label: 'minimo', type:'text', validation: (input) => [validateAPI.number(input), `Simbolo: ${input} no valido`]},
               {label: 'maximo', type:'text', validation: (input) => [validateAPI.number(input), `Simbolo: ${input} no valido`]},

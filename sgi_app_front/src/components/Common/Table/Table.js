@@ -202,16 +202,17 @@ const [rowsPerPage, setRowsPerPage] = React.useState(5);
 const [searchText, setSearchText] = React.useState('');
 const [errorInput, setErrorInput] = React.useState([null,null,null])
 
-function initEditables(){
+function initEditables(edit){
   const fields = Object.create({})
-  for(let edit of editables) {
-    
-    fields[edit.label] = null
+
+  for(let editable of editables) {    
+    fields[editable.label] = !edit ? null : rows.find(row=> row.id === edit)[editable.label]
   }
   return fields
 }
 
-const [updates, setUpdates] = React.useState(initEditables()) 
+
+const [updates, setUpdates] = React.useState(initEditables(edit)) 
 
 const actionsButton =   <ListItemButton>
                                 <BsThreeDots />
@@ -297,7 +298,7 @@ const actionsButton =   <ListItemButton>
       prevRows[index] = {...prevRows[index], ...updated}
       return prevRows
     })
-    setUpdates(initEditables)
+    setUpdates(initEditables(null))
     setEdit(false)
   }
 
@@ -316,6 +317,9 @@ const actionsButton =   <ListItemButton>
     [order, orderBy, page, rowsPerPage],
   );
   
+  React.useEffect(()=> {
+    setUpdates(initEditables(edit))
+  }, [edit])
   
   
   return (
@@ -446,7 +450,7 @@ const actionsButton =   <ListItemButton>
                                     <button onClick={(e) => {
                                             e.stopPropagation();
                                             setEdit(false);
-                                            setUpdates(initEditables())
+                                            setUpdates(initEditables(null))
                                     }}>
                                       Cancelar
                                     </button>
