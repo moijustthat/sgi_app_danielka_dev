@@ -146,7 +146,9 @@ function EnhancedTableToolbar(props) {
   const { 
     numSelected,
     generalActions,
-    setSearchText
+    setSearchText,
+    selected,
+    setSelected
    } = props;
 
 
@@ -174,7 +176,7 @@ function EnhancedTableToolbar(props) {
       {generalActions.map(action => {
         if (action.condition(numSelected)) {
             return (
-                <Tooltip onClick={() => action.action(numSelected)} key={action.label} title={action.label}>
+                <Tooltip onClick={() => {action.action(selected); setSelected([])}} key={action.label} title={action.label}>
                     <IconButton>
                       {action.icon}
                     </IconButton>
@@ -191,12 +193,11 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function GeneralTable({edit=null, setEdit=()=>null,generalActions = [], editables=[],actions=[], rows=[[]], empty=<h1>Tabla sin contenido</h1>, pagination=true}) {
+export default function GeneralTable({footer='',dense=false, edit=null, setEdit=()=>null,generalActions = [], editables=[],actions=[], rows=[[]], setRows=()=>null, empty=<h1>Tabla sin contenido</h1>, pagination=true}) {
 const [order, setOrder] = React.useState('asc');
 const [orderBy, setOrderBy] = React.useState('calories');
 const [selected, setSelected] = React.useState([]);
 const [page, setPage] = React.useState(0);
-const [dense, setDense] = React.useState(false);
 const [rowsPerPage, setRowsPerPage] = React.useState(5);
 const [searchText, setSearchText] = React.useState('');
 const [errorInput, setErrorInput] = React.useState([null,null,null])
@@ -264,19 +265,16 @@ const actionsButton =   <ListItemButton>
     setPage(0);
   };
 
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
-  };
 
   const handleEdit = (value, row, editable) => {
-   
     let valid = editable.validation(value)
     if (!valid[0]) {
       setErrorInput([row.id, editable.label, valid[1]])
+      return
     } else {
       setErrorInput([null, null, null])
     }
-   
+  
     setUpdates({
       ...updates,
       [editable.label]: value
@@ -285,6 +283,21 @@ const actionsButton =   <ListItemButton>
 
   const handleUpdate = (e) => {
     e.stopPropagation()
+    const updated = Object.create({})
+    const keys = Object.keys(updates)
+    for(let key of keys) {
+      if (updates[key]) updated[key] = updates[key]
+    }
+    // actulizar en la lista
+    setRows((prev) => {
+      // copia de las filas previas
+      const prevRows = prev.slice()
+      // encontrar indice de la fila a actualizar
+      const index = prevRows.findIndex(r=> r.id === edit)
+      prevRows[index] = {...prevRows[index], ...updated}
+      return prevRows
+    })
+    setUpdates(initEditables)
     setEdit(false)
   }
 
@@ -303,14 +316,16 @@ const actionsButton =   <ListItemButton>
     [order, orderBy, page, rowsPerPage],
   );
   
+  
+  
   return (
 
     <Box sx={{ width: '99%' }}>
       <Paper elevation={0} square={false} sx={{ width: '99%', mb: 2, borderRadius: '13px' }}>
-        <EnhancedTableToolbar setSearchText={setSearchText} generalActions={generalActions} numSelected={selected.length} />
+        <EnhancedTableToolbar setSearchText={setSearchText} generalActions={generalActions} setSelected={setSelected} selected={selected} numSelected={selected.length} />
         <TableContainer style={{
             height: '100vh',
-            maxHeight: 'calc(100vh - 275px)', 
+            maxHeight: 'calc(100vh - 250px)', 
             overflowY: 'auto', 
             width: '99%',
             maxWidth: '100%',
@@ -397,14 +412,14 @@ const actionsButton =   <ListItemButton>
                                       >
                                         { editables.find(e=> e.label == key).type == 'select' ? (
                                           editables.find(e=> e.label == key).validation().map((item, index)=>(
-                                            <MenuItem key={index} value={item}>{item}</MenuItem>
+                                            <MenuItem key={index} value={item.value}>{item.label}</MenuItem>
                                           ))
                                         ) : null}
                                       </TextField>
                                         <Alert 
                                             style={{
-                                              display: errorInput[0] && errorInput[0] == row.id && errorInput[1] == editables.find(e=> e.label == key).label ? '' : 'none',
-                                              position: 'absolute'
+                                              display: errorInput[0] && (Number(errorInput[0]) === Number(row.id)) && errorInput[1] == editables.find(e=> e.label == key).label ? '' : 'none',
+                                              position: 'relative'
                                             }}
                                             severity="error"
                                           >{errorInput[2]}</Alert>
@@ -444,15 +459,6 @@ const actionsButton =   <ListItemButton>
                   </TableRow>
                 );
               })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
             </TableBody>
           </Table>)
           }
@@ -468,7 +474,8 @@ const actionsButton =   <ListItemButton>
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
         ) :
-        ('')}
+          rows.length > 0 ? footer : ''
+        }
       </Paper>
     </Box>
   );

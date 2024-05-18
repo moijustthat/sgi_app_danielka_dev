@@ -7,9 +7,6 @@ import AddProducto from './AddProducto'
 import { UilPlus } from '@iconscout/react-unicons'
 import { UilFilter } from '@iconscout/react-unicons'
 import { UilTrashAlt } from '@iconscout/react-unicons'
-
-import NotificationProvider from '../../../Notifications/NotificationProvider'
-
 import { UilEdit } from '@iconscout/react-unicons'
 import { UilEye } from '@iconscout/react-unicons'
 
@@ -99,8 +96,7 @@ const Productos = () => {
                 ]}
                 rows={[
                     {id: 1, nombre: 'Martillo', marca: 'Papagayo', categoria: 'Herramientas Manuales', precio: 3.4, cantidad: 234, estado: 'Disponible'}, 
-                    {id: 2, nombre: 'Martillo', marca: 'Papagayo', categoria: 'Herramientas Manuales', precio: 3.4, cantidad: 234, estado: 'Disponible'}, 
-                
+                    {id: 2, nombre: 'Taladro', marca: 'Papagayo', categoria: 'Herramientas Manuales', precio: 3.4, cantidad: 234, estado: 'Disponible'}
                 ]}
             />
         </div>

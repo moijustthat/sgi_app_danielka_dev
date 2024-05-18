@@ -13,10 +13,18 @@ import { useStateContext } from '../../../../Contexts/ContextProvider';
 import * as DateHandler from '../../../../utils/DatesHelper'
 import axiosClient from '../../../../axios-client';
 
+import { UilPlus } from '@iconscout/react-unicons'
+import { UilInfoCircle } from '@iconscout/react-unicons'
+import { UilTrashAlt } from '@iconscout/react-unicons'
+import { UilEdit } from '@iconscout/react-unicons'
+import { UilEye } from '@iconscout/react-unicons'
+
 import validateAPI from '../../../../utils/textValidation'
 
 import './AddProducto.css'
 import TableListaProductos from '../../../Common/Table/Table'
+import Resume from '../../../Common/Resume/Resume.';
+
 
 const DateField = ({value, label, blocked=false, onChange=() => null}) => {
 
@@ -86,23 +94,23 @@ const TextArea = ({value, label, placeholder, onChange=()=>null, incomplete=null
 }
 
 const init ={
-  id: 0,
+  id: 1,
   nombre: '',
   descripcion: '',
   precio: '',
   activo: 't',
-  perecedero: 't',
+  perecedero: 'f',
   codigoBarra: '',
   minimo: '',
   maximo: '',
-  img: 'null',
+  img: '',
   categoria: 'empty',
   marca: 'empty',
   medida: 'empty',
   metodo: 'peps',
   cantidad: '',
   almacen: 'empty',
-  comprobante: 'null',
+  comprobante: '',
   fechaVencimiento: '',
   descripcionEstacional: '',
   fechaInicioEstacional: '',
@@ -122,17 +130,69 @@ const AddProducto = ({setOpen}) => {
 
   const dispatch = useContext(NotificationContext)
 
-  // Traer informacion necesaria de la base de datos del contexto, no de uma nueva peticion
+  const [edit, setEdit] = useState(null)
+
+  const generalActions = [
+    {
+        icon: <UilTrashAlt />,
+        label: 'Eliminar producto/s',
+        condition: (numSelected) => numSelected > 0,
+        action: (selected) => {
+          console.log(selected)
+          setListaNuevosProductos(prev => {
+            const reducedList = []
+            for (let row of prev) {
+              if (selected.findIndex(bye=> bye == row.id) !== -1) continue
+              reducedList.push(row)
+            }
+            return reducedList
+          })
+        }
+    },
+    {
+        icon: <UilInfoCircle  />,
+        label: 'Info',
+        condition: () => true,
+        action: () => alert('Mostrar Ayuda')
+    }
+]
+
+  const actions = [
+    {
+        label: 'Editar',
+        icon: <UilEdit />,
+        action: (id) => setEdit(id)
+    },
+    {
+        label: 'Ver detalles',
+        icon: <UilEye />,
+        action: (i) => alert('Ver detalles '+i)
+    }
+  ]
+
+  const abstractTable = (table) => {
+    const columns = ['id', 'nombre', 'categoria', 'marca', 'cantidad', 'minimo', 'maximo']
+    const abstractedTable = []
+    if (table.length == 0) return table
+    for (let row of table) { // recorrer todas las filas de la tabla
+      const abstractedRow = Object.create({})
+      for (let column of columns) {
+        abstractedRow[column] = row[column]
+      }
+      abstractedTable.push(abstractedRow)
+    }
+    console.log(abstractedTable);
+    return abstractedTable
+  }
 
   const handleAgregarNuevoProducto = (producto) => {
 
-    console.log('producto:', producto)
     let logicError = false
     const required = ['nombre', 'descripcion', 'categoria', 'marca', 'medida', 'precio', 'cantidad', 'minimo', 'maximo', 'metodo', 'almacen']
     const incompletes = []
     // Validaciones para registrar un nuevo producto
     
-    // Campos requeridos vacios:
+    // Campos requeridos vienen vacios:
     for (let require of required) {
       if (!producto[require] || producto[require] === '' || producto[require] === 'empty') {
         incompletes.push(require)
@@ -144,8 +204,6 @@ const AddProducto = ({setOpen}) => {
       setMarkAsIncomplete(incompletes)
       return
     } 
-
-    
 
     // Condiciones logicas:
     if (producto.perecedero == 't' && !producto.fechaVencimiento) {
@@ -271,8 +329,8 @@ const AddProducto = ({setOpen}) => {
             message: 'Ingresa la descripcion de la temporada que escogiste'
           }
         })
+        logicError = true
       }
-      logicError = true
     }
 
     /*
@@ -310,19 +368,65 @@ const AddProducto = ({setOpen}) => {
 
 
     if (logicError) return
+
+    
+    // Condiciones validadadas(en este punto la entrada es correcta y se manejara para mandarse a la lista de nuevos productos)
     // Quitar alertas de incompletitud
     setMarkAsIncomplete([])
+
+    // Realizar copia del producto
     const copiaProducto = {...producto}
-    copiaProducto.id += 1
-    setNuevoProducto({
-      ...init,
-      id: copiaProducto.id
+
+    // Preparacion para el siguiente producto
+    setNuevoProducto(prev => {
+      return {
+        ...init,
+        id: prev.id + 1
+      }
     })
-    console.log(copiaProducto);
+
+    // Parsear la copia del producto al formato de datos que espera la base de datos
+    copiaProducto.categoria = Number(copiaProducto.categoria)
+    copiaProducto.marca = Number(copiaProducto.marca)
+    copiaProducto.medida = Number(copiaProducto.medida)
+    copiaProducto.almacen = Number(copiaProducto.almacen)
+    copiaProducto.precio = Number(copiaProducto.precio)
+    copiaProducto.cantidad = Number(copiaProducto.cantidad)
+    copiaProducto.minimo = Number(copiaProducto.minimo)
+    copiaProducto.maximo = Number(copiaProducto.maximo)
     
+    // convertir vacios a null
+    const keys = Object.keys(copiaProducto)
+    for (let key of keys) {
+      if (copiaProducto[key] == '') copiaProducto[key] = null
+    }
 
-
+    // agregar producto a la lista de nuevos productos
+    const copiaLista = listaNuevosProductos.slice()
+    setListaNuevosProductos([copiaProducto, ...copiaLista])
   }
+
+  const requestNuevosProductos = (listaNuevosProductos) => {
+    if (listaNuevosProductos.length < 1) {
+      alert('Ingresa nuevos productos a la lista!!')
+      return
+    }
+    // Reparseado. Volver a estableces los tipos correctos que espera la base de datos(Medida de seguridad)
+    for (let producto of listaNuevosProductos) {
+      producto.categoria = Number(producto.categoria)
+      producto.marca = Number(producto.marca)
+      producto.medida = Number(producto.medida)
+      producto.almacen = Number(producto.almacen)
+      producto.precio = Number(producto.precio)
+      producto.cantidad = Number(producto.cantidad)
+      producto.minimo = Number(producto.minimo)
+      producto.maximo = Number(producto.maximo)
+    }
+
+    console.log(listaNuevosProductos);
+  }
+
+
 
   const handleChangeNuevoProducto = (value, setErr, key, validate, personalized='') => {
 
@@ -395,7 +499,7 @@ const AddProducto = ({setOpen}) => {
             </div>
 
 
-            <div className='form'>
+        <div className='form'>
               <div className='mainData'>
                 <TextField value={nuevoProducto.nombre} incomplete={markAsIncomplete.find(l=>l=='nombre')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'nombre', validateAPI.name)} label='Nombre del producto' placeholder='Nombre #'/>
 
@@ -413,9 +517,9 @@ const AddProducto = ({setOpen}) => {
 
                 <TextField value={nuevoProducto.cantidad} incomplete={markAsIncomplete.find(l=>l=='cantidad')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'cantidad', validateAPI.positiveIntegerOrZero)} label='Cantidad inicial de stock' placeholder='Cantidad'/>  
 
-                <TextField value={nuevoProducto.minimo} incomplete={markAsIncomplete.find(l=>l=='minimo')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'minimo', validateAPI.positiveIntegerOrZero)} label='Minimo de existencias' placeholder='Minimo'/>                
+                <TextField value={nuevoProducto.minimo} incomplete={markAsIncomplete.find(l=>l=='minimo')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'minimo', validateAPI.number)} label='Minimo de existencias' placeholder='Minimo'/>                
 
-                <TextField value={nuevoProducto.maximo} incomplete={markAsIncomplete.find(l=>l=='maximo')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'maximo', validateAPI.positiveIntegerOrZero)} label='Maximo de existencias' placeholder='Maximo'/>                
+                <TextField value={nuevoProducto.maximo} incomplete={markAsIncomplete.find(l=>l=='maximo')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'maximo', validateAPI.number)} label='Maximo de existencias' placeholder='Maximo'/>                
 
               </div>
 
@@ -443,19 +547,53 @@ const AddProducto = ({setOpen}) => {
     
                 <DateField value={nuevoProducto.fechaFinalEstacional} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'fechaFinalEstacional', (n)=>true)} label='Fecha final de temporada'/>
               </div>
-            </div>
-
-
+        </div>
 
         <div className='listaNuevosProductos'>
           <TableListaProductos 
+            dense={true}
+            edit={edit}
+            setEdit={setEdit}
+            actions={actions}
+            editables={[
+              {label: 'nombre', type:'text', validation: (input) => [validateAPI.name2(input), `Simbolo: ${input} no valido`]},
+              {label: 'categoria', type:'select', validation: () => categorias},
+              {label: 'marca', type:'select', validation: () => marcas},
+              {label: 'cantidad', type:'text', validation: (input) => [validateAPI.positiveIntegerOrZero(input), `Simbolo: ${input} no valido`]},
+              {label: 'minimo', type:'text', validation: (input) => [validateAPI.number(input), `Simbolo: ${input} no valido`]},
+              {label: 'maximo', type:'text', validation: (input) => [validateAPI.number(input), `Simbolo: ${input} no valido`]},
+            ]}
             pagination={false}
             empty='Agrega nuevos productos a la lista!!' 
-            rows={listaNuevosProductos}
+            generalActions={generalActions}
+            rows={abstractTable(listaNuevosProductos)}
+            setRows={setListaNuevosProductos}
+            footer={<Resume 
+                dataSet={listaNuevosProductos}
+                calcs={
+                  [
+                  (dataSet) => {
+                    const total = dataSet.length
+                    return <div style={{display: 'flex'}}>
+                              <p>Nuevos productos: {total}</p> 
+                            </div>
+                    },
+
+                  (dataSet) => {
+                    const total = dataSet.reduce((a,b) => a + b.cantidad, 0)
+                    console.log(total)
+                    return  <div style={{display: 'flex'}}>
+                                <p>Total de Stock: {total}</p> 
+                              </div>
+                  }
+                
+                ]
+              }
+            />}
           />
         </div>
         <button  onClick={() => handleAgregarNuevoProducto(nuevoProducto)} className='btnAgregarProducto'>Agregar a la lista</button>
-        <button id='agregarLista' className='btnAgregarLista'>Registrar Productos</button>
+        <button  onClick={() => requestNuevosProductos(listaNuevosProductos)} id='agregarLista' className='btnAgregarLista'>Registrar Productos</button>
       </div>
    
 
