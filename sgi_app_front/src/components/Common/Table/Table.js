@@ -16,20 +16,14 @@ import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import { visuallyHidden } from '@mui/utils';
-import BasicMenu from '../BasicMenu/BasicMenu'
-import { Divider, ListItemButton, MenuItem } from '@mui/material';
+import BasicMenu from '../BasicMenu/BasicMenu';
+import { Divider, ListItemButton, MenuItem, TextField, Alert } from '@mui/material';
 import { BsThreeDots } from "react-icons/bs";
 
+import SearchField from '../SearchField/SearchField';
 
-import Alert from '@mui/material/Alert';
-
-import {TextField} from '@mui/material';
-
-import SearchField from '../SearchField/SearchField'
-
-import './Table.css'
+import './Table.css';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -47,10 +41,6 @@ function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
 function stableSort(array, comparator) {
   const stabilizedThis = array.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
@@ -63,33 +53,28 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-
-
 function EnhancedTableHead(props) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, columns, actionsShow } =
-    props;
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, columns, actionsShow } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
 
-  
-
   const headCells = columns.map(column => {
-    return  {
-              id: column,
-              numeric: false,
-              disablePadding: true,
-              label: column,
-            }
-  })
+    return {
+      id: column,
+      numeric: false,
+      disablePadding: true,
+      label: column,
+    };
+  });
 
   if (actionsShow) {
     headCells.unshift({
       id: 'Acciones',
       numeric: false,
       disablePadding: true,
-      label: 'Acciones',    
-    })
+      label: 'Acciones',
+    });
   }
 
   return (
@@ -102,7 +87,7 @@ function EnhancedTableHead(props) {
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
             inputProps={{
-              'aria-label': 'select all desserts',
+              'aria-label': 'select all',
             }}
           />
         </TableCell>
@@ -110,17 +95,14 @@ function EnhancedTableHead(props) {
           <TableCell
             key={headCell.id}
             sortDirection={orderBy === headCell.id ? order : false}
+            sx={{ whiteSpace: 'nowrap', maxWidth: '200px' }} // Ajusta estos estilos según necesites
           >
             <TableSortLabel
               active={orderBy === headCell.id}
               direction={orderBy === headCell.id ? order : 'asc'}
               onClick={createSortHandler(headCell.id)}
             >
-              <div className='textContainer'>
-                <div className='scrollableText'>
-                  {headCell.label} 
-                </div>
-              </div>
+              {headCell.label}
               {orderBy === headCell.id ? (
                 <Box component="span" sx={visuallyHidden}>
                   {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
@@ -144,14 +126,13 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-  const { 
+  const {
     numSelected,
     generalActions,
     setSearchText,
     selected,
     setSelected
-   } = props;
-
+  } = props;
 
   return (
     <Toolbar
@@ -164,28 +145,25 @@ function EnhancedTableToolbar(props) {
         }),
       }}
     >
-      
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-            <SearchField setSearchText={setSearchText}/>
-        </Typography>
-      
+      <Typography
+        sx={{ flex: '1 1 100%' }}
+        variant="h6"
+        id="tableTitle"
+        component="div"
+      >
+        <SearchField setSearchText={setSearchText} />
+      </Typography>
       {generalActions.map(action => {
         if (action.condition(numSelected)) {
-            return (
-                <Tooltip onClick={() => {action.action(selected); setSelected([])}} key={action.label} title={action.label}>
-                    <IconButton>
-                      {action.icon}
-                    </IconButton>
-                </Tooltip>
-            )
+          return (
+            <Tooltip onClick={() => { action.action(selected); setSelected([]) }} key={action.label} title={action.label}>
+              <IconButton>
+                {action.icon}
+              </IconButton>
+            </Tooltip>
+          )
         }
       })}
-
     </Toolbar>
   );
 }
@@ -194,34 +172,31 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function GeneralTable({footer='',dense=false, edit=null, setEdit=()=>null,generalActions = [], editables=[],actions=[], rows=[[]], setRows=()=>null, empty=<h1>Tabla sin contenido</h1>, pagination=true}) {
-const [order, setOrder] = React.useState('asc');
-const [orderBy, setOrderBy] = React.useState('calories');
-const [selected, setSelected] = React.useState([]);
-const [page, setPage] = React.useState(0);
-const [rowsPerPage, setRowsPerPage] = React.useState(5);
-const [searchText, setSearchText] = React.useState('');
-const [errorInput, setErrorInput] = React.useState([null,null,null])
+export default function GeneralTable({requestUpdate=null, footer = '', dense = false, edit = null, setEdit = () => null, generalActions = [], editables = [], actions = [], rows = [[]], setRows = () => null, empty = <h1>Tabla sin contenido</h1>, pagination = true }) {
+  const [order, setOrder] = React.useState('asc');
+  const [orderBy, setOrderBy] = React.useState('calories');
+  const [selected, setSelected] = React.useState([]);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [searchText, setSearchText] = React.useState('');
+  const [errorInput, setErrorInput] = React.useState([null, null, null]);
 
-function initEditables(edit){
-  const fields = Object.create({})
+  function initEditables(edit) {
+    const fields = Object.create({});
 
-  for(let editable of editables) {    
-    if (editable.type === 'select') fields[editable.label] = !edit ? null : editable.validation().find(item=> item.label === rows.find(row=> row.id === edit)[editable.label]).value
-    else fields[editable.label] = !edit ? null : rows.find(row=> row.id === edit)[editable.label]
+    for (let editable of editables) {
+      if (editable.type === 'select') fields[editable.label] = !edit ? null : editable.validation().find(item => item.label === rows.find(row => row.id === edit)[editable.label]).value;
+      else fields[editable.label] = !edit ? null : rows.find(row => row.id === edit)[editable.label];
+    }
+    return fields;
   }
-  return fields
-}
 
+  const [updates, setUpdates] = React.useState(initEditables(edit));
 
-const [updates, setUpdates] = React.useState(initEditables(edit)) 
+  const actionsButton = <ListItemButton>
+    <BsThreeDots />
+  </ListItemButton>;
 
-const actionsButton =   <ListItemButton>
-                                <BsThreeDots />
-                            </ListItemButton>
-    
-
- 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -238,8 +213,7 @@ const actionsButton =   <ListItemButton>
   };
 
   const handleClick = (event, id) => {
-
-    if (edit) return
+    if (edit) return;
 
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
@@ -268,41 +242,77 @@ const actionsButton =   <ListItemButton>
     setPage(0);
   };
 
-
   const handleEdit = (value, row, editable) => {
-    let valid = editable.validation(value)
+    let valid = editable.validation(value);
     if (!valid[0]) {
-      setErrorInput([row.id, editable.label, valid[1]])
-      return
+      setErrorInput([row.id, editable.label, valid[1]]);
+      return;
     } else {
-      setErrorInput([null, null, null])
+      setErrorInput([null, null, null]);
     }
-  
+
     setUpdates({
       ...updates,
       [editable.label]: value
-    })
-  }
+    });
+  };
 
-  const handleUpdate = (e) => {
-    e.stopPropagation()
-    const updated = Object.create({})
-    const keys = Object.keys(updates)
-    for(let key of keys) {
-      if (updates[key]) updated[key] = updates[key]
+  const handleUpdate = (e, request) => {
+    e.stopPropagation();
+    const updated = Object.create({});
+    const keys = Object.keys(updates);
+    const index = rows.findIndex(r => r.id === edit);
+
+    function update() {
+      // actulizar en la lista
+      setRows((prev) => {
+        // copia de las filas previas
+        const prevRows = prev.slice();
+        // encontrar indice de la fila a actualizar
+        prevRows[index] = { ...prevRows[index], ...updated };
+        return prevRows;
+      });
+      setUpdates(initEditables(null));
+      setEdit(false);
     }
-    // actulizar en la lista
-    setRows((prev) => {
-      // copia de las filas previas
-      const prevRows = prev.slice()
-      // encontrar indice de la fila a actualizar
-      const index = prevRows.findIndex(r=> r.id === edit)
-      prevRows[index] = {...prevRows[index], ...updated}
-      return prevRows
-    })
-    setUpdates(initEditables(null))
-    setEdit(false)
-  }
+
+    for (let key of keys) {
+      if (updates[key]) updated[key] = updates[key];
+    }
+
+    if (request) {
+
+      //Recuperar solamente los campos que cambiaron su valor
+      const payload = Object.create({})
+      for (let key of keys) {
+        let editable = editables.find(e=>e.label===key)
+        let field = rows[index][key]
+        
+        if(editable.type === 'select') {
+          field = editable.validation().find(item=> item.label === field).value
+        }
+
+        if(field !== updated[key]) {
+          payload[key] = updated[key]
+        }
+      }
+
+      new Promise((resolve, reject) => {
+        request(edit, payload)
+        resolve()
+      })
+      .then(res=> {
+        update()
+      })
+      .catch(err=> {
+        console.log('Error al actualizar el producto: '+err)
+      })
+    } else {
+      update()
+    }
+
+
+  };
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
@@ -316,174 +326,174 @@ const actionsButton =   <ListItemButton>
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage,
       ),
-    [order, orderBy, page, rowsPerPage],
+    [order, orderBy, page, rowsPerPage, rows]
   );
-  
-  React.useEffect(()=> {
-    setUpdates(initEditables(edit))
-  }, [edit])
-  
-  
-  return (
 
+  React.useEffect(() => {
+    setUpdates(initEditables(edit));
+  }, [edit]);
+
+  return (
     <Box sx={{ width: '99%' }}>
       <Paper elevation={0} square={false} sx={{ width: '99%', mb: 2, borderRadius: '13px' }}>
         <EnhancedTableToolbar setSearchText={setSearchText} generalActions={generalActions} setSelected={setSelected} selected={selected} numSelected={selected.length} />
-        <TableContainer style={{
+        <TableContainer
+          style={{
             height: '100vh',
-            maxHeight: 'calc(100vh - 250px)', 
-            overflowY: 'auto', 
+            maxHeight: 'calc(100vh - 250px)',
+            overflowY: 'auto',
             width: '99%',
             maxWidth: '100%',
             overflowX: 'auto'
-          }} 
+          }}
           sx={{
-          '&::-webkit-scrollbar': {
-            width: '8px',
-            backgroundColor: 'white', // Hace el scrollbar inicialmente transparente
-            transition: 'opacity 0.3s', // Agrega una transición suave
-          },
-          
-        }}>
-          {rows.length == 0 ? empty : 
-          
-          (<Table
-            aria-labelledby="tableTitle"
-            size={dense ? 'small' : 'medium'}
-          >
-            <EnhancedTableHead
-              actionsShow={actions.length > 0 ? true : false}
-              numSelected={selected.length}
-              columns={Object.keys(rows[0] || [])}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {rows
-              .filter(row => {
-                const keys = Object.keys(row)
-                for (let key of keys) {
-                    if(!row[key] || key === 'img' || key==='Imagen') continue
-                    if (row[key].toString().toLowerCase().includes(searchText.toLowerCase())) return true
-                }
-                return false
-              })
-              .map((row, index) => {
-                const isItemSelected = isSelected(row.id);
-                const labelId = `enhanced-table-checkbox-${index}`;
-                
-                return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, row.id)}
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    key={row.id}
-                    selected={isItemSelected}
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          'aria-labelledby': labelId,
-                        }}
-                      />
-                    </TableCell>
-                    {actions.length > 0 ? 
-                      (                    <TableCell>
-                        {edit !== row.id ? (<BasicMenu
-                              id={row.id}
-                              items={actions}
-                              label={actionsButton}
-                            />)
-                            :
+            '&::-webkit-scrollbar': {
+              width: '8px',
+              backgroundColor: 'white',
+              transition: 'opacity 0.3s',
+            },
+          }}>
+          {rows.length === 0 ? empty :
+            (
+              <Table
+                stickyHeader
+                aria-labelledby="tableTitle"
+                size={dense ? 'small' : 'medium'}
+              >
+                <EnhancedTableHead
+                  actionsShow={actions.length > 0}
+                  numSelected={selected.length}
+                  columns={Object.keys(rows[0] || [])}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={rows.length}
+                />
+                <TableBody>
+                  {rows
+                    .filter(row => {
+                      const keys = Object.keys(row);
+                      for (let key of keys) {
+                        if (!row[key] || key === 'img' || key === 'Imagen') continue;
+                        if (row[key].toString().toLowerCase().includes(searchText.toLowerCase())) return true;
+                      }
+                      return false;
+                    })
+                    .map((row, index) => {
+                      const isItemSelected = isSelected(row.id);
+                      const labelId = `enhanced-table-checkbox-${index}`;
+
+                      return (
+                        <TableRow
+                          hover
+                          onClick={(event) => handleClick(event, row.id)}
+                          role="checkbox"
+                          aria-checked={isItemSelected}
+                          tabIndex={-1}
+                          key={row.id}
+                          selected={isItemSelected}
+                          sx={{ cursor: 'pointer' }}
+                        >
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              color="primary"
+                              checked={isItemSelected}
+                              inputProps={{
+                                'aria-labelledby': labelId,
+                              }}
+                            />
+                          </TableCell>
+                          {actions.length > 0 ?
                             (
-                             <div className='btnsUpdate'>
-                                <button onClick={(e) => {
+                              <TableCell>
+                                {edit !== row.id ? (
+                                  <BasicMenu
+                                    id={row.id}
+                                    items={actions}
+                                    label={actionsButton}
+                                  />)
+                                  :
+                                  (
+                                    <div className='btnsUpdate'>
+                                      <button onClick={(e) => {
                                         e.stopPropagation();
                                         setEdit(false);
-                                        setUpdates(initEditables(null))
-                                }}>
-                                  Cancelar
-                                </button>
-                                <button onClick={(e) => handleUpdate(e)}>Actualizar</button>
-                             </div>
-                            )
-                        }
-                        
-                  </TableCell>):
-                  ''
-                    }
-                    {Object.keys(row || []).map(key => {
-                      return   edit !== row.id ? 
-                                (<TableCell>
-                                 
+                                        setUpdates(initEditables(null));
+                                      }}>
+                                        Cancelar
+                                      </button>
+                                      <button onClick={(e) => handleUpdate(e, requestUpdate)}>Actualizar</button>
+                                    </div>
+                                  )
+                                }
+                              </TableCell>
+                            ) :
+                            ''
+                          }
+                          {Object.keys(row || []).map(key => {
+                            return edit !== row.id ?
+                              (<TableCell sx={{ whiteSpace: 'nowrap', maxWidth: '200px' }}>
                                 <div className='textContainer'>
                                   <div className='scrollableText'>
-                                    {row[key]}  
-                                  </div> 
+                                    {key === 'id' ? '#fdnum-' + row[key] : row[key]}
+                                  </div>
                                 </div>
                               </TableCell>)
                               :
                               (
                                 <TableCell>
-                                  {editables.some(e=> e.label == key) ? (
+                                  {editables.some(e => e.label == key) ? (
                                     <div class='editField'>
                                       <TextField
                                         autoComplete='off'
-                                        onChange={(e)=>handleEdit(e.target.value, row, editables.find(e=> e.label == key))}
+                                        onChange={(e) => handleEdit(e.target.value, row, editables.find(e => e.label == key))}
                                         onClick={(e) => e.stopPropagation()}
-                                        value={updates[editables.find(e=> e.label == key).label]}
-                                        select={'select' == editables.find(e=> e.label == key).type}
-                                        type={editables.find(e=> e.label == key).type}
+                                        value={updates[editables.find(e => e.label == key).label]}
+                                        select={'select' == editables.find(e => e.label == key).type}
+                                        type={editables.find(e => e.label == key).type}
                                       >
-                                        { editables.find(e=> e.label == key).type == 'select' ? (
-                                          editables.find(e=> e.label == key).validation().map((item, index)=>(
+                                        {editables.find(e => e.label == key).type == 'select' ? (
+                                          editables.find(e => e.label == key).validation().map((item, index) => (
                                             <MenuItem key={index} value={item.value}>{item.label}</MenuItem>
                                           ))
                                         ) : null}
                                       </TextField>
-                                        <Alert //Mensaje de error cuando la entrada en el campo es incorrecta
-                                            style={{
-                                              display: errorInput[0] && (Number(errorInput[0]) === Number(row.id)) && errorInput[1] == editables.find(e=> e.label == key).label ? '' : 'none',
-                                              position: 'relative'
-                                            }}
-                                            severity="error"
-                                          >{errorInput[2]}</Alert>
+                                      <Alert
+                                        style={{
+                                          display: errorInput[0] && (Number(errorInput[0]) === Number(row.id)) && errorInput[1] == editables.find(e => e.label == key).label ? '' : 'none',
+                                          position: 'relative'
+                                        }}
+                                        severity="error"
+                                      >{errorInput[2]}</Alert>
                                     </div>
                                   ) : (
                                     <div className='textContainer'>
                                       <div className='scrollableText'>
-                                        {row[key]} 
-                                       </div> 
+                                        {row[key]}
+                                      </div>
                                     </div>
                                   )}
                                 </TableCell>
-                              )
+                              );
+                          })}
+                        </TableRow>
+                      );
                     })}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>)
+                </TableBody>
+              </Table>)
           }
         </TableContainer>
         {pagination ? (
           <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         ) :
           rows.length > 0 ? footer : ''
         }

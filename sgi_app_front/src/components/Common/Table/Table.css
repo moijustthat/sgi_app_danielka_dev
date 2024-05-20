@@ -1,5 +1,5 @@
 .textContainer {
-    height: 2rem;
+    width: 150%;
     overflow: auto; /* Activar scroll cuando el contenido se desborda */
   }
   

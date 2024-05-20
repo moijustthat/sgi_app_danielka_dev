@@ -1,4 +1,5 @@
 function hexToBase64(hexString) {
+
     // Remove the '0x' prefix if present
     if (hexString.startsWith('0x')) {
         hexString = hexString.slice(2);

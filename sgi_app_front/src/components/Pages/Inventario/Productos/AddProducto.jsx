@@ -18,11 +18,11 @@ import { UilTrashAlt } from '@iconscout/react-unicons'
 import { UilEdit } from '@iconscout/react-unicons'
 import { UilEye } from '@iconscout/react-unicons'
 import { UilExpandAlt } from '@iconscout/react-unicons'
-import { UilTimesCircle } from '@iconscout/react-unicons'
+
 import { UilCompressAlt } from '@iconscout/react-unicons'
-import { UilCheckCircle } from '@iconscout/react-unicons'
+
 import validateAPI from '../../../../utils/textValidation'
-import { UilPen } from '@iconscout/react-unicons'
+
 import './AddProducto.css'
 import TableListaProductos from '../../../Common/Table/Table'
 import Resume from '../../../Common/Resume/Resume.';
@@ -180,7 +180,7 @@ const init ={
 }
 
 
-const AddProducto = ({setOpen, setProductos, productos, categorias, marcas, unidades_medida, almacenes}) => {
+const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, almacenes}) => {
   const [nuevoProducto, setNuevoProducto] = useState(init)
   const [listaNuevosProductos, setListaNuevosProductos] = useState([])
   const [markAsIncomplete, setMarkAsIncomplete] =  useState([])
@@ -522,10 +522,17 @@ const AddProducto = ({setOpen, setProductos, productos, categorias, marcas, unid
           message: 'Los productos fueron guardados con exito'
         }
       })
-      setNuevoProducto(init)
-      setListaNuevosProductos([])
-      setProductos([...listaNuevosProductos, ...productos])
-      setOpen(false)
+      new Promise((resolve, reject) => {
+        refresh()
+        resolve()
+      }).then((res)=> {
+        setNuevoProducto(init)
+        setListaNuevosProductos([])
+        setOpen(false)
+      }).catch((err)=> {
+        console.log(`Error al actualizar la lista de productos desde getProductos ${err}`);
+      })
+
     })
     .catch ((error) => {
       const messageErr = error.response.data.messageError

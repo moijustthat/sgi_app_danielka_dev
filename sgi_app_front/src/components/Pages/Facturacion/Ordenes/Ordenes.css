@@ -1,0 +1,16 @@
+.ListaOrdenes {
+    padding-top: 1.5rem;
+    display: grid;
+    height: 97%;
+    width: 100%;
+    grid-template-columns: auto;
+}
+
+.ordenes {
+    position: relative;
+    overflow: scroll;
+}
+
+.ordenes::-webkit-scrollbar {
+    display: none;
+}

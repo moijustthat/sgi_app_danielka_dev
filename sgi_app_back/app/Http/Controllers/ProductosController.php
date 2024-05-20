@@ -24,6 +24,19 @@ class ProductosController extends Controller
         return $res;
     }
 
+    public function actualizarProducto(Request $request) {
+        return Productos::actualizar($request['id'], $request['payload']);
+    }
+
+    public function desactivarProductos(Request $request) {
+         // Valida los datos de la solicitud si es necesario
+         $validatedData = $request->validate([
+            'productos' => 'required|array'
+        ]);
+
+        return Productos::desactivate($validatedData['productos']);
+    }
+
     public function getItemsSeleccionables() {
         try {
             return Productos::get_items_for_products();
