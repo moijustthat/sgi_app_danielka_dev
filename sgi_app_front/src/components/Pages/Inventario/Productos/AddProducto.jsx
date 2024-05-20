@@ -7,24 +7,61 @@ import { Paper, Alert } from '@mui/material';
 import { v4 } from 'uuid'
 import { NotificationContext } from '../../../Notifications/NotificationProvider';
 import { UilExclamationTriangle } from '@iconscout/react-unicons'
-import { UilCheckCircle } from '@iconscout/react-unicons'
 import { Avatar } from '@mui/material'
 import { useStateContext } from '../../../../Contexts/ContextProvider';
 import * as DateHandler from '../../../../utils/DatesHelper'
 import axiosClient from '../../../../axios-client';
-
+import CircularProgressLoading from '../../../Common/CircularProgess/CircularProgress';
 import { UilPlus } from '@iconscout/react-unicons'
 import { UilInfoCircle } from '@iconscout/react-unicons'
 import { UilTrashAlt } from '@iconscout/react-unicons'
 import { UilEdit } from '@iconscout/react-unicons'
 import { UilEye } from '@iconscout/react-unicons'
-
+import { UilExpandAlt } from '@iconscout/react-unicons'
+import { UilTimesCircle } from '@iconscout/react-unicons'
+import { UilCompressAlt } from '@iconscout/react-unicons'
+import { UilCheckCircle } from '@iconscout/react-unicons'
 import validateAPI from '../../../../utils/textValidation'
-
+import { UilPen } from '@iconscout/react-unicons'
 import './AddProducto.css'
 import TableListaProductos from '../../../Common/Table/Table'
 import Resume from '../../../Common/Resume/Resume.';
 
+
+
+const formatTable = (table, categorias, marcas, unidadesMedida, almacenes, estados, tipos) => {
+  const formatedTable = []
+  for (let row of table) {
+    let copyRow = {...row}
+    // Dar un valor descriptivo al usuario para los valores establecidos con los campos select
+    try {
+      copyRow.categoria = categorias.find(categoria => String(categoria.value) === String(copyRow.categoria)).label
+      copyRow.marca = marcas.find(marca => String(marca.value) === String(copyRow.marca)).label
+      copyRow.medida = unidadesMedida.find(medida => String(medida.value) === String(copyRow.medida)).label
+      copyRow.almacen = almacenes.find(almacen => String(almacen.value) === String(copyRow.almacen)).label
+      copyRow.activo = estados.find(activo => String(activo.value) === String(copyRow.activo)).label
+      copyRow.perecedero = tipos.find(tipo => String(tipo.value) === String(copyRow.perecedero)).label
+    } catch (e) {
+      alert('Error en: '+e)
+    }
+
+
+    // Dar un valor mas literal a las columnas nulas
+    let columns = Object.keys(copyRow)
+    for (let column of columns) {
+      if (copyRow[column] === 'null') {
+        copyRow[column] = ''
+      }
+    }
+
+    if (copyRow.img != '') {
+      copyRow.img = <Avatar alt={'producto'} src={`data:image/jpeg;base64,${copyRow.img}`}/> 
+    }
+
+    formatedTable.push(copyRow)
+  }
+  return formatedTable
+}
 
 const DateField = ({value, label, blocked=false, onChange=() => null}) => {
 
@@ -48,6 +85,31 @@ const SelectField = ({incomplete='', value, label, onChange=() => null, options=
         ))}
       </select>
       <span className='customArrow'></span>
+    </div>
+  )
+}
+
+
+const ImgField = ({label, placeholder, onChange, incomplete=null}) => {
+
+  const [err, setErr] = useState('')
+
+  return (
+    <div className='textField'>
+      <label>{label}*</label>
+      <Alert 
+        onClose={()=>setErr('')}
+        sx={{
+          display: err == '' ? 'none' : ''
+        }} severity="error">{err}</Alert>
+      <input
+        className={incomplete ? 'markAsIncomplete' : ''}
+        type="file"
+        onChange={(e) => {
+          onChange(e.target.files[0], setErr)
+        }} 
+       
+        placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
     </div>
   )
 }
@@ -95,38 +157,34 @@ const TextArea = ({value, label, placeholder, onChange=()=>null, incomplete=null
 
 const init ={
   id: 1,
-  nombre: '',
-  descripcion: '',
-  precio: '',
-  activo: 't',
-  perecedero: 'f',
-  codigoBarra: '',
-  minimo: '',
-  maximo: '',
   img: '',
+  nombre: '',
+  codigoBarra: '',
+  descripcion: '',
   categoria: 'empty',
   marca: 'empty',
   medida: 'empty',
-  metodo: 'peps',
+  precio: '',
   cantidad: '',
+  minimo: '',
+  maximo: '',
+  activo: 't',
   almacen: 'empty',
-  comprobante: '',
+  metodo: 'peps',
+  perecedero: 'f',
   fechaVencimiento: '',
   descripcionEstacional: '',
   fechaInicioEstacional: '',
-  fechaFinalEstacional: ''
+  fechaFinalEstacional: '',
+  comprobante: ''
 }
 
 
-const AddProducto = ({setOpen, setProductos, productos}) => {
+const AddProducto = ({setOpen, setProductos, productos, categorias, marcas, unidades_medida, almacenes}) => {
   const [nuevoProducto, setNuevoProducto] = useState(init)
   const [listaNuevosProductos, setListaNuevosProductos] = useState([])
   const [markAsIncomplete, setMarkAsIncomplete] =  useState([])
-
-  const [categorias, setCategorias] = useState([])
-  const [marcas, setMarcas] = useState([])
-  const [unidades_medida, setUnidadesMedida] = useState([])
-  const [almacenes, setAlmacenes] = useState([])
+  const [listFullSize, setListFullSize] = useState(false)
 
   const dispatch = useContext(NotificationContext)
 
@@ -154,6 +212,12 @@ const AddProducto = ({setOpen, setProductos, productos}) => {
         label: 'Info',
         condition: () => true,
         action: () => alert('Mostrar Ayuda')
+    },
+    {
+      icon: !listFullSize ? <UilExpandAlt   /> : <UilCompressAlt />,
+      label: !listFullSize ? 'Expandir' : 'Comprimir',
+      condition: () => true,
+      action: () => setListFullSize(!listFullSize)
     }
 ]
 
@@ -328,6 +392,21 @@ const AddProducto = ({setOpen, setProductos, productos}) => {
       }
     }
 
+    // Verificar que el codigo de barra no exista ya en la lista
+    if (listaNuevosProductos.findIndex(p=> p.codigoBarra === producto.codigoBarra) !== -1) {
+      dispatch({
+        type: 'ADD_NOTIFICATION',
+        payload: {
+          id: v4(),
+          type: 'error',
+          title: 'Codigo de barra existente',
+          icon: <UilExclamationTriangle />,
+          message: 'Verifica que el codigo de barra no exista ya en en la lista'
+        }
+      })
+      logicError = true
+    }
+
     /*
     if (listaNuevosProductos.some(prev => prev.codigoBarra === producto.codigoBarra)) {
 
@@ -393,7 +472,7 @@ const AddProducto = ({setOpen, setProductos, productos}) => {
     // convertir vacios a null
     const keys = Object.keys(copiaProducto)
     for (let key of keys) {
-      if (copiaProducto[key] == '') copiaProducto[key] = null
+      if (copiaProducto[key] == '') copiaProducto[key] = 'null'
     }
 
     // agregar producto a la lista de nuevos productos
@@ -401,9 +480,18 @@ const AddProducto = ({setOpen, setProductos, productos}) => {
     setListaNuevosProductos([copiaProducto, ...copiaLista])
   }
 
-  const saveNuevosProductos = (listaNuevosProductos) => {
+  const addNuevosProductos = (listaNuevosProductos) => {
     if (listaNuevosProductos.length < 1) {
-      alert('Ingresa nuevos productos a la lista!!')
+      dispatch({
+        type: 'ADD_NOTIFICATION',
+        payload: {
+          id: v4(),
+          type: 'error',
+          title: 'No hay productos en la lista',
+          icon: <UilExclamationTriangle />,
+          message: 'Agrega nuevos productos a la lista'
+        }
+      })
       return
     }
     // Reparseado. Volver a estableces los tipos correctos que espera la base de datos(Medida de seguridad)
@@ -418,7 +506,41 @@ const AddProducto = ({setOpen, setProductos, productos}) => {
       producto.maximo = Number(producto.maximo)
     }
 
-    setProductos([...listaNuevosProductos, ...productos])
+    //Establecer nuevos productos a la tabla de catalogo
+    // Realizar peticion post
+    const payload = {productos: listaNuevosProductos}
+    console.log(payload)
+    axiosClient.post('/productos', payload)
+    .then(({data}) => {
+      dispatch({
+        type: 'ADD_NOTIFICATION',
+        payload: {
+          id: v4(),
+          type: 'success',
+          title: 'Exito',
+          icon: <UilExclamationTriangle />,
+          message: 'Los productos fueron guardados con exito'
+        }
+      })
+      setNuevoProducto(init)
+      setListaNuevosProductos([])
+      setProductos([...listaNuevosProductos, ...productos])
+      setOpen(false)
+    })
+    .catch ((error) => {
+      const messageErr = error.response.data.messageError
+      dispatch({
+        type: 'ADD_NOTIFICATION',
+        payload: {
+          id: v4(),
+          type: 'error',
+          title: 'Error',
+          icon: <UilExclamationTriangle />,
+          message: messageErr
+        }
+      })
+    })
+    
   }
 
 
@@ -436,58 +558,38 @@ const AddProducto = ({setOpen, setProductos, productos}) => {
       setErr('')
     }
     
+    if (key === 'img') {
+      const file = value // Esta es la  ruta de la imagen
+      const reader = new FileReader()
+      
+      reader.onloadend = () => {
+        setNuevoProducto({
+          ...nuevoProducto,
+          [key]: reader.result.replace("data:", "").replace(/^.+,/, "")
+        })
+      }
 
-    setNuevoProducto({
-      ...nuevoProducto,
-      [key]: value
-    })
-  }
+      reader.readAsDataURL(file)
 
-  // Retribuir datos seleccionables de la BD  
-  const getItems = () => {
-    axiosClient.get('/seleccionables')
-      .then(({data}) => {
-        setCategorias(data.categorias.map((categoria, index)=> {
-          return {
-            label: categoria.nombre,
-            value: categoria.categoriaId
-          }
-        }))
-        setMarcas(data.marcas.map((marca,index)=> {
-          return {
-            label: marca.nombre,
-            value: marca.marcaId
-          }
-        }))
-        setUnidadesMedida(data.unidades_medida.map((medida, index)=> {
-          return {
-            label: medida.nombre,
-            value: medida.unidadMedidaId
-          }
-        }))
-        setAlmacenes(data.almacenes.map((almacen, index)=> {
-          return {
-            label: almacen.nombre,
-            value: almacen.almacenId
-          }
-        }))
-
+    } else {
+      setNuevoProducto({
+        ...nuevoProducto,
+        [key]: value
       })
-      .catch((e) => {
-        console.log('Error en la respuesta: '+e);
-      }) 
+    }
+
+
   }
 
-  useEffect(() => {
-    getItems()
-  },[])
+
 
 
   return (
 
     <div className='container'>
 
-      <div className='glass'>
+      <div className={`glass ${listFullSize ? 'fullGlass' : 'partialGlass'}`}>
+
       <div className='exit'>
               <IconButton  onClick={() => setOpen(false)}>
                   <ArrowBackIcon />
@@ -543,25 +645,37 @@ const AddProducto = ({setOpen, setProductos, productos}) => {
     
                 <DateField value={nuevoProducto.fechaFinalEstacional} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'fechaFinalEstacional', (n)=>true)} label='Fecha final de temporada'/>
               </div>
-        </div>
 
+              <div className='mainData'>  
+                <ImgField incomplete={markAsIncomplete.find(l=>l=='img')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'img', validateAPI.everything)} label='Imagen del producto' placeholder='Imagen'/>                  
+              </div>
+        </div>
         <div className='listaNuevosProductos'>
           <TableListaProductos 
             dense={true}
             edit={edit}
             setEdit={setEdit}
-            actions={actions}
             editables={[
               {label: 'nombre', type:'text', validation: (input) => [validateAPI.name2(input), `Simbolo: ${input} no valido`]},
               {label: 'codigoBarra', type:'text', validation: (input) => [validateAPI.numeric(input), `Simbolo: ${input} no valido`]},
+              {label: 'descripcion', type:'text', validation: (input) => [validateAPI.name2(input), `Simbolo: ${input} no valido`]},
+              {label: 'categoria', type:'select', validation: () => categorias},
+              {label: 'marca', type:'select', validation: () => marcas},
+              {label: 'medida', type:'select', validation: () => unidades_medida},
+              {label: 'almacen', type:'select', validation: () => almacenes},
+              {label: 'precio', type:'text', validation: (input) => [validateAPI.positiveReal(input), `Simbolo: ${input} no valido`]},
               {label: 'cantidad', type:'text', validation: (input) => [validateAPI.positiveIntegerOrZero(input), `Simbolo: ${input} no valido`]},
               {label: 'minimo', type:'text', validation: (input) => [validateAPI.number(input), `Simbolo: ${input} no valido`]},
               {label: 'maximo', type:'text', validation: (input) => [validateAPI.number(input), `Simbolo: ${input} no valido`]},
+              {label: 'activo', type:'select', validation: () => [{value: 't', label: 'Activo'}, {value: 'f', label: 'Inactivo'}]},
+              {label: 'perecedero', type:'select', validation: () => [{value: 't', label: 'Perecedero'}, {value: 'f', label: 'Persistente'}]},
+
             ]}
             pagination={false}
             empty='Agrega nuevos productos a la lista!!' 
             generalActions={generalActions}
-            rows={abstractTable(listaNuevosProductos)}
+            actions={actions}
+            rows={formatTable(listaNuevosProductos, categorias, marcas, unidades_medida, almacenes, [{value: 't', label: 'Activo'}, {value: 'f', label: 'Inactivo'}], [{value: 't', label: 'Perecedero'}, {value: 'f', label: 'Persistente'}])}
             setRows={setListaNuevosProductos}
             footer={<Resume 
                 dataSet={listaNuevosProductos}
@@ -587,8 +701,8 @@ const AddProducto = ({setOpen, setProductos, productos}) => {
             />}
           />
         </div>
-        <button  onClick={() => handleAgregarNuevoProducto(nuevoProducto)} className='btnAgregarProducto'>Agregar a la lista</button>
-        <button  onClick={() => saveNuevosProductos(listaNuevosProductos)} id='agregarLista' className='btnAgregarLista'>Registrar Productos</button>
+        <button  onClick={() => handleAgregarNuevoProducto(nuevoProducto)} className={`btnAgregarProducto ${!listFullSize ? 'partialBtn' : 'noneBtn'}`}>Agregar a la lista</button>
+        <button  onClick={() => addNuevosProductos(listaNuevosProductos)} id='agregarLista' className={`btnAgregarLista ${!listFullSize ? 'partialBtn' : 'fullBtn'}`}>Registrar Productos</button>
       </div>
    
 

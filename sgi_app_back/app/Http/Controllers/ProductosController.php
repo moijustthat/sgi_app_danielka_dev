@@ -7,19 +7,25 @@ use App\Lib\JsonHelper;
 
 class ProductosController extends Controller
 {
-    public function agregarProducto(Request $request) {
+    public function agregarProductos(Request $request) {
 
-        $required = ['nombre', 'descripcion', 'precio', 'activo', 'perecedero', 'codigoBarra', 'minimo', 'maximo','img','categoriaId', 'marcaId', 'unidadMedidaId','metodo', 'cantidad','almacenId','comprobante','fechaVencimiento','descripcionEstacion','fechaInicioEstacion','fechaFinalEstacion'];
+        //$required = ['nombre', 'descripcion', 'precio', 'activo', 'perecedero', 'codigoBarra', 'minimo', 'maximo','img','categoriaId', 'marcaId', 'unidadMedidaId','metodo', 'cantidad','almacenId','comprobante','fechaVencimiento','descripcionEstacion','fechaInicioEstacion','fechaFinalEstacion'];
         
         // Comprobar llegada de todos los campos
         
-        $input = array($request->input('nombre'));
+        //$input = array($request->input('nombre'));
 
-        try {
-            return JsonHelper::jsonResponse(200, ['data' => $input]);
-        } catch(\Exception $e) {
-            return JsonHelper::jsonResponse(400, ['error' => 'Error al agregar el nuevo producto '.$e]);
-        }
+
+            $validatedData = $request->validate([
+                'productos' => 'required|array',
+                'productos.*' => 'required|array',
+            ]);
+
+            $arrayData = $validatedData['productos'];
+
+            $res = Productos::saveNewProducts($arrayData);
+            return $res;
+
     }
 
     public function getItemsSeleccionables() {

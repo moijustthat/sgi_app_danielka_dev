@@ -66,7 +66,7 @@ function stableSort(array, comparator) {
 
 
 function EnhancedTableHead(props) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, columns } =
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, columns, actionsShow } =
     props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -83,13 +83,14 @@ function EnhancedTableHead(props) {
             }
   })
 
-  headCells.push({
-    id: 'Acciones',
-    numeric: false,
-    disablePadding: true,
-    label: 'Acciones',    
-  })
-  
+  if (actionsShow) {
+    headCells.push({
+      id: 'Acciones',
+      numeric: false,
+      disablePadding: true,
+      label: 'Acciones',    
+    })
+  }
 
   return (
     <TableHead>
@@ -206,7 +207,8 @@ function initEditables(edit){
   const fields = Object.create({})
 
   for(let editable of editables) {    
-    fields[editable.label] = !edit ? null : rows.find(row=> row.id === edit)[editable.label]
+    if (editable.type === 'select') fields[editable.label] = !edit ? null : editable.validation().find(item=> item.label === rows.find(row=> row.id === edit)[editable.label]).value
+    else fields[editable.label] = !edit ? null : rows.find(row=> row.id === edit)[editable.label]
   }
   return fields
 }
@@ -350,6 +352,7 @@ const actionsButton =   <ListItemButton>
             size={dense ? 'small' : 'medium'}
           >
             <EnhancedTableHead
+              actionsShow={actions.length > 0 ? true : false}
               numSelected={selected.length}
               columns={Object.keys(rows[0] || [])}
               order={order}
@@ -363,7 +366,7 @@ const actionsButton =   <ListItemButton>
               .filter(row => {
                 const keys = Object.keys(row)
                 for (let key of keys) {
-                    if(!row[key]) continue
+                    if(!row[key] || key == 'img') continue
                     if (row[key].toString().toLowerCase().includes(searchText.toLowerCase())) return true
                 }
                 return false
@@ -398,7 +401,7 @@ const actionsButton =   <ListItemButton>
                                  
                                 <div className='textContainer'>
                                   <div className='scrollableText'>
-                                    {row[key]} 
+                                    {row[key]}  
                                   </div> 
                                 </div>
                               </TableCell>)
@@ -421,7 +424,7 @@ const actionsButton =   <ListItemButton>
                                           ))
                                         ) : null}
                                       </TextField>
-                                        <Alert 
+                                        <Alert //Mensaje de error cuando la entrada en el campo es incorrecta
                                             style={{
                                               display: errorInput[0] && (Number(errorInput[0]) === Number(row.id)) && errorInput[1] == editables.find(e=> e.label == key).label ? '' : 'none',
                                               position: 'relative'
@@ -439,28 +442,32 @@ const actionsButton =   <ListItemButton>
                                 </TableCell>
                               )
                     })}
-                    <TableCell>
-                            {edit !== row.id ? (<BasicMenu
-                                  id={row.id}
-                                  items={actions}
-                                  label={actionsButton}
-                                />)
-                                :
-                                (
-                                 <div className='btnsUpdate'>
-                                    <button onClick={(e) => {
-                                            e.stopPropagation();
-                                            setEdit(false);
-                                            setUpdates(initEditables(null))
-                                    }}>
-                                      Cancelar
-                                    </button>
-                                    <button onClick={(e) => handleUpdate(e)}>Actualizar</button>
-                                 </div>
-                                )
-                            }
-                            
-                    </TableCell>
+                    {actions.length > 0 ? 
+                      (                    <TableCell>
+                        {edit !== row.id ? (<BasicMenu
+                              id={row.id}
+                              items={actions}
+                              label={actionsButton}
+                            />)
+                            :
+                            (
+                             <div className='btnsUpdate'>
+                                <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEdit(false);
+                                        setUpdates(initEditables(null))
+                                }}>
+                                  Cancelar
+                                </button>
+                                <button onClick={(e) => handleUpdate(e)}>Actualizar</button>
+                             </div>
+                            )
+                        }
+                        
+                  </TableCell>):
+                  ''
+                    }
+
                   </TableRow>
                 );
               })}

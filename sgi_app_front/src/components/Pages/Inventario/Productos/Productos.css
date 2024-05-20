@@ -11,6 +11,10 @@
     overflow: scroll;
 }
 
+.catalogo::-webkit-scrollbar {
+    display: none;
+}
+
 @media screen and (max-width: 1276px) {
     .CatalogoProductos {
         width: 180%;
