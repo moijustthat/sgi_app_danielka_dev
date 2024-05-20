@@ -26,6 +26,7 @@ Route::controller(UsuariosController::class)->group(function () {
 
 Route::controller(ProductosController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/productos', 'index');
         Route::post('/productos', 'agregarProductos');
         Route::get('/seleccionables', 'getItemsSeleccionables');
     });

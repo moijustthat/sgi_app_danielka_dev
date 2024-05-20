@@ -9,47 +9,28 @@ import { UilFilter } from '@iconscout/react-unicons'
 import { UilTrashAlt } from '@iconscout/react-unicons'
 import { UilEdit } from '@iconscout/react-unicons'
 import { UilEye } from '@iconscout/react-unicons'
-
+import hexToDataURL from '../../../../utils/HexToDataUrl'
 import axiosClient from '../../../../axios-client'
 
 import validateApi from '../../../../utils/textValidation'
 import { Avatar } from '@mui/material'
 
-const formatTable = (table, categorias, marcas, unidadesMedida, almacenes, estados, tipos) => {
+const formatTable = (table) => {
     const formatedTable = []
     for (let row of table) {
-      let copyRow = {...row}
-      // Dar un valor descriptivo al usuario para los valores establecidos con los campos select
-      try {
-        copyRow.categoria = categorias.find(categoria => String(categoria.value) === String(copyRow.categoria)).label
-        copyRow.marca = marcas.find(marca => String(marca.value) === String(copyRow.marca)).label
-        copyRow.medida = unidadesMedida.find(medida => String(medida.value) === String(copyRow.medida)).label
-        copyRow.almacen = almacenes.find(almacen => String(almacen.value) === String(copyRow.almacen)).label
-        copyRow.activo = estados.find(activo => String(activo.value) === String(copyRow.activo)).label
-        copyRow.perecedero = tipos.find(tipo => String(tipo.value) === String(copyRow.perecedero)).label
-      } catch (e) {
-        alert('Error en: '+e)
+      let copyRow = {...row}  
+      if (copyRow.Imagen != '' || copyRow.Imagen != null) {
+        copyRow.Imagen = <Avatar alt={'producto'} src={hexToDataURL(copyRow.Imagen)}/> 
       }
-  
-  
-      // Dar un valor mas literal a las columnas nulas
-      let columns = Object.keys(copyRow)
-      for (let column of columns) {
-        if (copyRow[column] === 'null') {
-          copyRow[column] = ''
-        }
-      }
-  
-      if (copyRow.img != '') {
-        copyRow.img = <Avatar alt={'producto'} src={`data:image/jpeg;base64,${copyRow.img}`}/> 
-      }
-
       formatedTable.push(copyRow)
     }
     return formatedTable
   }
 
+
+
 const Productos = () => {
+
 
     const [loading, setLoading] = useState(false)
     const [edit, setEdit] = useState(null)
@@ -102,6 +83,16 @@ const Productos = () => {
 
   // Retribuir datos seleccionables de la BD  
   const getItems = () => {
+    axiosClient.get('/productos')
+    .then(({data}) => {
+        setProductos(data.data)
+        console.log(data.data)
+    })
+    .catch(error=> {
+        const messageErr = error.response.data.messageError
+        console.log(messageErr)
+    })  
+
     axiosClient.get('/seleccionables')
       .then(({data}) => {
         setCategorias(data.categorias.map((categoria, index)=> {
@@ -140,19 +131,6 @@ const Productos = () => {
   },[])
 
 
-
-    const getProductos = () => {
-        setLoading(true)
-        axiosClient.get('/productos')
-            .then(({data}) => {
-                setLoading(false)
-                console.log(data)
-            })
-            .catch(() => {
-                setLoading(false)
-            })
-    }
-
     return (
         <>
         <div className='CatalogoProductos'>
@@ -167,7 +145,7 @@ const Productos = () => {
                     dense={true}
                     actions={actions}
                     generalActions={generalActions}
-                    rows={formatTable(productos, categorias, marcas, unidades_medida, almacenes, [{value: 't', label: 'Activo'}, {value: 'f', label: 'Inactivo'}], [{value: 't', label: 'Perecedero'}, {value: 'f', label: 'Persistente'}])}
+                    rows={formatTable(productos)}
                     setRows={setProductos}
                 />
             </div>

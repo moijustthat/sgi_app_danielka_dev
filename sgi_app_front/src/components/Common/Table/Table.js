@@ -84,7 +84,7 @@ function EnhancedTableHead(props) {
   })
 
   if (actionsShow) {
-    headCells.push({
+    headCells.unshift({
       id: 'Acciones',
       numeric: false,
       disablePadding: true,
@@ -366,7 +366,7 @@ const actionsButton =   <ListItemButton>
               .filter(row => {
                 const keys = Object.keys(row)
                 for (let key of keys) {
-                    if(!row[key] || key == 'img') continue
+                    if(!row[key] || key === 'img' || key==='Imagen') continue
                     if (row[key].toString().toLowerCase().includes(searchText.toLowerCase())) return true
                 }
                 return false
@@ -395,6 +395,31 @@ const actionsButton =   <ListItemButton>
                         }}
                       />
                     </TableCell>
+                    {actions.length > 0 ? 
+                      (                    <TableCell>
+                        {edit !== row.id ? (<BasicMenu
+                              id={row.id}
+                              items={actions}
+                              label={actionsButton}
+                            />)
+                            :
+                            (
+                             <div className='btnsUpdate'>
+                                <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEdit(false);
+                                        setUpdates(initEditables(null))
+                                }}>
+                                  Cancelar
+                                </button>
+                                <button onClick={(e) => handleUpdate(e)}>Actualizar</button>
+                             </div>
+                            )
+                        }
+                        
+                  </TableCell>):
+                  ''
+                    }
                     {Object.keys(row || []).map(key => {
                       return   edit !== row.id ? 
                                 (<TableCell>
@@ -442,32 +467,6 @@ const actionsButton =   <ListItemButton>
                                 </TableCell>
                               )
                     })}
-                    {actions.length > 0 ? 
-                      (                    <TableCell>
-                        {edit !== row.id ? (<BasicMenu
-                              id={row.id}
-                              items={actions}
-                              label={actionsButton}
-                            />)
-                            :
-                            (
-                             <div className='btnsUpdate'>
-                                <button onClick={(e) => {
-                                        e.stopPropagation();
-                                        setEdit(false);
-                                        setUpdates(initEditables(null))
-                                }}>
-                                  Cancelar
-                                </button>
-                                <button onClick={(e) => handleUpdate(e)}>Actualizar</button>
-                             </div>
-                            )
-                        }
-                        
-                  </TableCell>):
-                  ''
-                    }
-
                   </TableRow>
                 );
               })}

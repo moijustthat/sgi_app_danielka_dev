@@ -23,6 +23,30 @@ class Productos extends Model
     public $timestamps = false;
 
     // Peticiones con procedientos almacenados(esto no se ve en los tutoriales de youtube)
+
+    public static function getAllProducts() {
+        try {
+            $products = DB::select('select * from vw_productos;');
+            return JsonHelper::jsonResponse(200, ['data'=>$products, 'message'=> 'Productos retribuidos con exito']);
+        } catch(Exception $e) {
+            $fullErrorMessage = $e->getMessage();
+
+            // Extraer solo el mensaje que entiende el usuario(y yo tambien XD)
+            $pattern = '/SQLSTATE\[45000\]: <<Unknown error>>: \d+ (.+?) \(Connection: mysql,/';
+            $matches = [];
+        
+            if (preg_match($pattern, $fullErrorMessage, $matches)) {
+                // Si se encuentra el patron usarlo como respuesta de error
+                $errorMessage = $matches[1];
+            } else {
+                // Si no se encuentra el patron, aguas que se manda algo que ni yo se leer
+                $errorMessage = $fullErrorMessage;
+            }
+            return JsonHelper::jsonResponse(500, ['messageError'=> $errorMessage]);
+        }
+    }
+
+
     // Por alguna razon aqui no sirvio la transaccion. Esperemos Sergio lo arregle
     public static function saveNewProducts($products) {
             try {  
