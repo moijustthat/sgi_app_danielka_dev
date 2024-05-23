@@ -10,6 +10,11 @@
 
 .notificationItem {
     display: grid;
+    grid-template-areas: 
+    "title title title"
+    "message message icono"
+    "bar bar bar"
+    ;
     color: #FFF;
     box-shadow: 0 0 5px rgba(0,0,0, 0.4);
     border-radius: 10px;
@@ -46,21 +51,25 @@
 }
 
 .notificationItem span {
+    grid-area: icono;
     padding: 0 10px;
 }
 
 .notificationItem .title{
+    grid-area: title;
     margin: 0;
     padding: 10px 10px;
 }
 
 .notificationItem .message {
+    grid-area: message;
     font-size: 12px;
     margin: 0;
     padding: 3px 10px;
 }
 
 .notificationItem .bar {
+    grid-area: bar;
     height: 4px;
     background: #5DD1F0;
 }

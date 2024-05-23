@@ -1,0 +1,9 @@
+.profileHeader{
+    margin: 1rem 1rem;
+    border-radius: 0.5rem;
+    background-color: white;
+}
+
+.profileHeader h2{
+    margin-left: 1rem;
+}

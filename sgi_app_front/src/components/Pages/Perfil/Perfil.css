@@ -1,6 +1,32 @@
 .PerfilContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.PerfilContent{
+    background-color: #fff;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 0 1rem 1rem 1rem;
     display: grid;
-    grid-template-columns: auto 20rem;
-    gap: 10px;
-    border: 1px solid;
+    gap: 1rem;
+    height: 100%;
+    overflow-y: hidden;
+    grid-template-areas: 
+    " profileInfo formData formData "
+    " formPassword formData formData " 
+    " formPassword formData formData "
+    ;
+}
+
+.profileInfo{
+    grid-area: profileInfo;
+}
+
+.formPassword{
+    grid-area: formPassword;
+}
+
+.formData{
+    grid-area: formData;
 }

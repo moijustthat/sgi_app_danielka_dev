@@ -31,7 +31,7 @@ const Notification = (props) => {
 
     setTimeout(() => {
         handleClose()
-    }, 6500)
+    }, 6500)  
     
     useEffect(() => {
         handleStartTimer()
