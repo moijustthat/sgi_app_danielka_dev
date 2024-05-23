@@ -5,11 +5,10 @@ import App from "./App";
 import DefaultLayout from "./components/Pages/DefaultLayout";
 // Paginas
 import Inicio from "./components/Pages/Inicio/Inicio";
-import Ordenes from "./components/Pages/Ordenes/Ordenes";
 import NotFound from "./components/Pages/NotFound/NotFound";
 import Perfil from "./components/Pages/Perfil/Perfil";
 import Productos from "./components/Pages/Inventario/Productos/Productos";
-
+import Ordenes from "./components/Pages/Facturacion/Ordenes/Ordenes";
 
 const router = createBrowserRouter([
     {
@@ -30,7 +29,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/listar-ordenes',
-                element: <h1>Listar Ordenes</h1>
+                element: <Ordenes />
             },
             {
                 path: '/listar-ventas',

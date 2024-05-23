@@ -18,7 +18,7 @@ const validateApi = {
 
     number: (input) => {
         if (input == '') return true
-        return /^(?:(?:0\.\d*[1-9]\d*|[1-9]\d*(?:\.\d*)?)|\.\d*[1-9]\d*|null|\b)$/.test(input)
+        return /^(|[1-9]\d*)$/.test(input)
     },
 
     positiveIntegerOrZero: (input) => {
