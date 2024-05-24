@@ -51,7 +51,7 @@ class Productos extends Model
                 Si ya existe un producto con el nombre o codigo de barra en la bd y este esta desactivado 
                 y el cliente lo mando en la peticion, entonces mandar una respuesta(despues de guardar el resto de nuevos productos)
                 indicando que se encontraron productos con los mismo datos en la bd pero que estan desactivados y si este
-                quiere restituir estos productos o crear productos nuevos(sin que el codigo de barra sea igual a otro producto en la tabla Productos)
+                quiere restituir estos productos o crear productos nuevos(sin que el codigo de barra y nombre sean igual a otro producto en la tabla Productos)
             */
             foreach ($products as $product) {
                 $rollback = false;

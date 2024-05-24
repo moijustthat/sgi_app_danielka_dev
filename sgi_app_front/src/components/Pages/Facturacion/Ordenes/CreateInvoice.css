@@ -1,0 +1,170 @@
+/* Boton de salida */
+.exit {
+    position: fixed;
+    overflow: hidden;
+    margin-left: 0.8rem;
+}
+
+
+.Title {
+    display: flex;
+    align-items: center; /* Alinea los elementos verticalmente */
+    gap: 10px; /* Espacio entre el título y el icono */
+  }
+  
+.TitleContainer > p {
+    font-size: 13px;
+    font-weight: 500;
+    color: #989595;
+    margin-top: 1%;
+    margin-bottom: -1.5%;
+} 
+
+  .Title h3 {
+    margin: 0; /* Eliminar margen del h3 */
+  }
+  
+  .Title span {
+    border-radius: 5px;
+    display: flex;
+    align-items: center; /* Asegurar que el icono esté centrado dentro del span */
+    font-size: 22px;
+  }
+
+/* FORMULARIO NUEVO PRODUCTO */
+.formCarrito {
+    position: relative;
+    overflow: scroll;
+    border-radius: 7px;
+    top: 8%;
+    height: 77% !important;
+    margin-left: 1rem;
+    background: white;
+    padding: 20px;
+}
+
+.formCarrito .mainData {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+.ticket {
+    position: relative;
+    overflow: scroll;
+    top: 8%;
+    height: 90%;
+    margin-right: 0.5rem;
+    background-color: #FFF;
+    border-radius: 7px;
+}
+
+.btnAgregarItem {
+    position: fixed;
+    border: none;
+    font-family: 'Inter';
+    font-weight: 500;
+    color: #FFF;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: #648291;
+    align-items: center;
+    justify-content: center;
+    height: 7%;
+    top: 90%;
+    transition: all 300ms ease;
+    cursor: pointer;
+}
+
+.btnAgregarItem.partialBtn {
+    width: 55.08%;
+    margin-left: 1rem;
+}
+
+.btnAgregarItem.noneBtn {
+    display: none;
+}
+
+.btnAgregarItem:hover {
+    background-color: #546E7A;
+}
+
+.btnAgregarOrden {
+    position: fixed;
+    border: none;
+    font-family: 'Inter';
+    font-weight: 500;
+    color: #009895;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: #F8FAFC;
+    align-items: center;
+    justify-content: center;
+    height: 7%;
+    top: 90%;
+    margin-left: 1.2%;
+    transition: all 300ms ease;
+    cursor: pointer;
+}
+
+.btnAgregarOrden.partialBtn {
+    width: 39.4%;
+    left: 45.8rem;
+}
+
+.btnAgregarOrden.fullBtn {
+    width: 95.6vw;
+    left: 0.8rem;
+}
+
+.btnAgregarOrden:hover {
+    background-color: #ecf0f3;
+}
+
+.editBtns {
+    display: flex;
+    position: fixed;
+    top: 31.2rem;
+    left: 2.1rem;
+    width: 55.08%;
+}
+
+.editBtns button {
+    border: none;
+    flex: 1;
+    font-family: 'Inter';
+    height: 5%;
+    font-weight: 500;
+    align-items: center;
+    width: auto;
+    margin: 0;
+    cursor: pointer;
+}
+
+.editBtns button:first-child {
+    border-bottom-left-radius: 10px;
+    color: #FFF;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+    background-color: #648291;
+    transition: all 300ms ease;
+}
+
+.editBtns button:first-child:hover {
+    background-color: #546E7A;
+}
+
+.editBtns button:last-child {
+    border-bottom-right-radius: 10px;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+    color: #D9534F;
+    background-color: #FFF;
+    transition: all 300ms ease;
+}
+
+.editBtns button:last-child:hover {
+    background-color: #FEF8F8;
+}

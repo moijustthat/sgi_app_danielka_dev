@@ -1,4 +1,4 @@
-/*formAddProducto height*/
+/*formCarrito lista height*/
 .container {
     background: linear-gradient(
         106.37deg,
@@ -65,10 +65,11 @@
   }
 
 /* FORMULARIO NUEVO PRODUCTO */
-.formAddProducto {
+.formCarrito {
     position: relative;
     overflow: scroll;
-    border-radius: 7px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
     top: 8%;
     height: 77% !important;
     margin-left: 1rem;
@@ -171,7 +172,7 @@
     top: 60%;
 }
 
-.formAddProducto .mainData {
+.formCarrito .mainData {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -179,7 +180,7 @@
     margin-top: 10px;
 }
 
-.formAddProducto::-webkit-scrollbar {
+.formCarrito::-webkit-scrollbar {
     display: none;
 }
 
@@ -226,7 +227,7 @@
 .listaNuevosProductos {
     position: relative;
     overflow: scroll;
-    top: 2.5rem;
+    top: 8%;
     height: 90%;
     margin-right: 0.5rem;
     background-color: #FFF;

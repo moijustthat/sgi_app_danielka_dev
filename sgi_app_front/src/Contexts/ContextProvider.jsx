@@ -5,15 +5,18 @@ import { usersInfo } from '../Data/EmpleadosInfo'
 const StateContext = createContext({
     user: null,
     token: null,
+    productos: null,
     setUser: () => {},
     setToken: () => {},
-    getUser: () => null
+    getUser: () => null,
+    setProductos: () => {},
 })
 
 export const ContextProvider = ({children}) => {
 
     const [user, _setUser] = useState(localStorage.getItem('USER_INFO'))
     const [token, _setToken] = useState(localStorage.getItem('ACCESS_TOKEN'))
+    const [productos, setProductos] = useState([])
 
     const getUser = () => {
         if (user) return JSON.parse(user)
@@ -43,9 +46,11 @@ export const ContextProvider = ({children}) => {
         <StateContext.Provider value={{
             user,
             token,
+            productos,
             setUser,
             setToken,
-            getUser
+            setProductos,
+            getUser,
         }}>
             {children}
         </StateContext.Provider>

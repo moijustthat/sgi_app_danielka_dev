@@ -10,6 +10,7 @@ import Perfil from "./components/Pages/Perfil/Perfil";
 import Productos from "./components/Pages/Inventario/Productos/Productos";
 import Ordenes from "./components/Pages/Facturacion/Ordenes/Ordenes";
 import Inventario from "./components/Pages/Inventario/Inventario";
+import Facturacion from "./components/Pages/Facturacion/Facturacion"
 
 const router = createBrowserRouter([
     {
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/facturacion',
-                element: <Ordenes />
+                element: <Facturacion />
             },
             {
                 path: '/inventario',
