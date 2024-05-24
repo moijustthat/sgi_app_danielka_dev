@@ -2,11 +2,7 @@ import { useState } from 'react'
 import Logo from '../../imgs/logo.png'
 import './SideBar.css'
 
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import AlertDialog from '../Common/AlertDialog/AlertDialog';
 import {Button} from '@mui/material';
 import {Menu, MenuItem} from '@mui/material';
 
@@ -49,29 +45,12 @@ const SideBar = () => {
     
     return (
         <>
-
-            <Dialog
+            <AlertDialog 
                 open={openLogOut}
-                onClose={() => setOpenLogOut(false)}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-            <DialogTitle id="alert-dialog-title">
-            {"Cerrar Sesion?"}
-            </DialogTitle>
-            <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-                Seguro que quieres cerrar tu sesion. Puedes volver a entrar cuando quieras
-            </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-            <Button onClick={() => setOpenLogOut(false)}>Cancelar</Button>
-            <Button onClick={() => setToken(false)} autoFocus>
-                Aceptar
-            </Button>
-            </DialogActions>
-            </Dialog>
-
+                cancelAction={()=>setOpenLogOut(false)}
+                acceptAction={() => setToken(false)}
+                contentText='Seguro que quieres cerrar tu sesion. Puedes volver a entrar cuando quieras.'
+            />
 
             <div className='bars' style={expanded ? {left: '60%'} : {left: '5%'}}>
                 <UilBars onClick={() => setExpanded(!expanded)}/>
@@ -84,7 +63,7 @@ const SideBar = () => {
             <div className='logo'>
                 <img src={Logo} alt='logo' />
                 <span>
-                    Dani<span>e</span>lka
+                    Danielka
                 </span>
             </div>
 
@@ -96,23 +75,12 @@ const SideBar = () => {
                         key={-1} 
                         className='menuItem'   
                     >
-                        <Avatar alt={user.nombre} src={user.img}/> 
-                        <span>{`${user.nombre} ${user.apellido}`}</span>
+                        <Avatar sx={{width: '3rem', height:'3rem'}} alt={user.nombre} src={user.img}/> 
+                       
                     </div>  
                 </Link>
                 {SideBarData.map((data, index) => {
                     return (
-                            data.heading != 'Inicio' ?
-                            <SubMenu options={data.subIcons} onSelected={() => handleClick(index)}>
-                                <div 
-                                    key={index} 
-                                    className={selected===index ? 'menuItem active' : 'menuItem'}   
-                                >
-                                    {data.icon}
-                                    <span>{data.heading}</span>
-                                </div>   
-                            </SubMenu>
-                            :
                             <Link to={`${data.heading.toLowerCase()}`} style={{all: 'unset'}}>
                                 <div 
                                     key={index} 

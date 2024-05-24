@@ -20,45 +20,17 @@ export const SideBarData = [
 
     {
         icon: <UilClipboardAlt />,
-        heading: 'Ordenes',
-        subIcons: [
-            {
-                heading: 'Listar Ordenes',
-                url: '/listar-ordenes'
-            },
-            {
-                heading: 'Listar Ventas',
-                url: '/listar-ventas'
-            },
-            {
-                heading: 'Nueva Orden',
-                url: '/nueva-orden'
-            },
-            {
-                heading: 'Nueva Venta',
-                url: '/nueva-venta'
-            }
-        ]
+        heading: 'Facturacion',
     },
 
     {
         icon: <UilUsersAlt />,
-        heading: 'Clientes'
+        heading: 'Usuarios'
     },
 
     {
         icon: <UilPackage />,
         heading: 'Inventario',
-        subIcons: [
-            {
-                heading: 'Catalogo de Productos',
-                url: '/listar-productos'
-            },
-            {
-                heading: 'Lista de Almacenes',
-                url: '/listar-almacenes'
-            }
-        ]
     },
 
     {
@@ -71,7 +43,7 @@ export const CardsData = [
     {
         title: 'Ventas',
         color: {
-            background: 'linear-gradient(180deg, #bb67ff 0%, #c484f3 100%)',
+            background: 'linear-gradient(180deg, #557290 0%, #83729D 100%)',
             boxShadow: '0px 10px 20px 0px #e0c6f5'
         },
         barValue: 54,
@@ -88,8 +60,8 @@ export const CardsData = [
     {
         title: 'Compras',
         color: {
-            background: 'linear-gradient(180deg, #ff919d 0%, #fc929d 100%)',
-            boxShadow: '0px 10px 20px 0px #fdc0c7'
+            background: 'linear-gradient(180deg, #60CD99 0%, #A6E684 100%)',
+            boxShadow: '0px 10px 20px 0px #82F9BE'
         },
         barValue: 20,
         value: '23,232',
@@ -105,8 +77,8 @@ export const CardsData = [
     {
         title: 'Ganancias',
         color: {
-            background: 'linear-gradient(rgb(248, 212, 154) -146.42%, rgb(255, 202, 113) -46.42%)',
-            boxShadow: '0px 10px 20px 0px #f9d59b'
+            background: 'linear-gradient(180deg, #7CA3B7 0%, #C7F8FF 100%)',
+            boxShadow: '0px 10px 20px 0px #EAFCFF'
         },
         barValue: 80,
         value: '23,232',

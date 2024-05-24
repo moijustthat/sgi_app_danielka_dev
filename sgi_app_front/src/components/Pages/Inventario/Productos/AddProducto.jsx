@@ -1,33 +1,27 @@
 import React, { useState, useEffect, useContext } from 'react'
-import Banner from '../../../Common/Banner/Banner'
-import { Button, Grid } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { IconButton }  from '@mui/material';
-import { Paper, Alert } from '@mui/material';
+import { Divider, IconButton }  from '@mui/material';
+import { Alert } from '@mui/material';
 import { v4 } from 'uuid'
 import { NotificationContext } from '../../../Notifications/NotificationProvider';
 import { UilExclamationTriangle } from '@iconscout/react-unicons'
 import { Avatar } from '@mui/material'
-import { useStateContext } from '../../../../Contexts/ContextProvider';
 import * as DateHandler from '../../../../utils/DatesHelper'
 import axiosClient from '../../../../axios-client';
-import CircularProgressLoading from '../../../Common/CircularProgess/CircularProgress';
-import { UilPlus } from '@iconscout/react-unicons'
-import { UilInfoCircle } from '@iconscout/react-unicons'
 import { UilTrashAlt } from '@iconscout/react-unicons'
 import { UilEdit } from '@iconscout/react-unicons'
-import { UilEye } from '@iconscout/react-unicons'
 import { UilExpandAlt } from '@iconscout/react-unicons'
-
 import { UilCompressAlt } from '@iconscout/react-unicons'
-
 import validateAPI from '../../../../utils/textValidation'
-
 import './AddProducto.css'
 import TableListaProductos from '../../../Common/Table/Table'
 import Resume from '../../../Common/Resume/Resume.';
-
-
+import {TextField, TextArea, SelectField, ImgField, DateField} from '../../../Common/AwesomeFields/AwesomeFields'
+import { UilColumns } from '@iconscout/react-unicons'
+import CheckMenu from '../../../Common/CheckMenu/CheckMenu';
+import { AiOutlineProduct } from "react-icons/ai";
+import { BsBoxes } from "react-icons/bs";
+import AlertDialog from '../../../Common/AlertDialog/AlertDialog';
 
 const formatTable = (table, categorias, marcas, unidadesMedida, almacenes, estados, tipos) => {
   const formatedTable = []
@@ -35,14 +29,14 @@ const formatTable = (table, categorias, marcas, unidadesMedida, almacenes, estad
     let copyRow = {...row}
     // Dar un valor descriptivo al usuario para los valores establecidos con los campos select
     try {
-      copyRow.categoria = categorias.find(categoria => String(categoria.value) === String(copyRow.categoria)).label
-      copyRow.marca = marcas.find(marca => String(marca.value) === String(copyRow.marca)).label
-      copyRow.medida = unidadesMedida.find(medida => String(medida.value) === String(copyRow.medida)).label
-      copyRow.almacen = almacenes.find(almacen => String(almacen.value) === String(copyRow.almacen)).label
-      copyRow.activo = estados.find(activo => String(activo.value) === String(copyRow.activo)).label
-      copyRow.perecedero = tipos.find(tipo => String(tipo.value) === String(copyRow.perecedero)).label
+      copyRow.Categoria = categorias.find(Categoria => String(Categoria.value) === String(copyRow.Categoria)).label
+      copyRow.Marca = marcas.find(Marca => String(Marca.value) === String(copyRow.Marca)).label
+      copyRow['Unidad de medida'] = unidadesMedida.find(medida => String(medida.value) === String(copyRow['Unidad de medida'])).label
+      copyRow.Almacen = almacenes.find(Almacen => String(Almacen.value) === String(copyRow.Almacen)).label
+      copyRow.Estado = estados.find(Estado => String(Estado.value) === String(copyRow.Estado)).label
+      copyRow.Caducidad = tipos.find(tipo => String(tipo.value) === String(copyRow.Caducidad)).label
     } catch (e) {
-      alert('Error en: '+e)
+      console.log('Error en: '+e)
     }
 
 
@@ -54,8 +48,8 @@ const formatTable = (table, categorias, marcas, unidadesMedida, almacenes, estad
       }
     }
 
-    if (copyRow.img != '') {
-      copyRow.img = <Avatar alt={'producto'} src={`data:image/jpeg;base64,${copyRow.img}`}/> 
+    if (copyRow.Imagen != '') {
+      copyRow.Imagen = <Avatar alt={'producto'} src={`data:image/jpeg;base64,${copyRow.Imagen}`}/> 
     }
 
     formatedTable.push(copyRow)
@@ -63,160 +57,102 @@ const formatTable = (table, categorias, marcas, unidadesMedida, almacenes, estad
   return formatedTable
 }
 
-const DateField = ({value, label, blocked=false, onChange=() => null}) => {
-
-  const [err, setErr] = useState('')
-  return (
-    <div className='customDate'>
-      <label>{label}</label>
-      <input value={value} onChange={(e) => onChange(e.target.value, setErr)} id='dateField' type='date' disabled={blocked}></input>
-    </div>
-  )
-}
-
-const SelectField = ({incomplete='', value, label, onChange=() => null, options=[]}) => {
-  return (
-    <div className='customSelect'>
-      <label>{label}*</label>
-      <select className={incomplete !== '' ? 'markAsIncomplete' : ''} value={value} onChange={(e) => onChange(e.target.value, ()=>true)}>
-        <option disabled selected value='empty'>Seleccionar</option>
-        {options.map(option => (
-          <option key={option.label} value={option.value}>{option.label}</option>
-        ))}
-      </select>
-      <span className='customArrow'></span>
-    </div>
-  )
-}
-
-
-const ImgField = ({label, placeholder, onChange, incomplete=null}) => {
-
-  const [err, setErr] = useState('')
-
-  return (
-    <div className='textField'>
-      <label>{label}*</label>
-      <Alert 
-        onClose={()=>setErr('')}
-        sx={{
-          display: err == '' ? 'none' : ''
-        }} severity="error">{err}</Alert>
-      <input
-        className={incomplete ? 'markAsIncomplete' : ''}
-        type="file"
-        onChange={(e) => {
-          onChange(e.target.files[0], setErr)
-        }} 
-       
-        placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
-    </div>
-  )
-}
-
-const TextField = ({value, label, placeholder, onChange, incomplete=null}) => {
-
-  const [err, setErr] = useState('')
-
-  return (
-    <div className='textField'>
-      <label>{label}*</label>
-      <Alert 
-        onClose={()=>setErr('')}
-        sx={{
-          display: err == '' ? 'none' : ''
-        }} severity="error">{err}</Alert>
-      <input
-        className={incomplete ? 'markAsIncomplete' : ''}
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value, setErr)
-        }} 
-        type="text" 
-        placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
-    </div>
-  )
-}
-
-const TextArea = ({value, label, placeholder, onChange=()=>null, incomplete=null}) => {
-
-  const [err, setErr] = useState('')
-
-  return (
-    <div className='textField'>
-      <label>{label}*</label>
-      <Alert 
-        onClose={()=>setErr('')}
-        sx={{
-          display: err == '' ? 'none' : ''
-        }} severity="error">{err}</Alert>
-      <textarea className={incomplete ? 'markAsIncomplete' : ''} value={value} onChange={(e) => onChange(e.target.value, setErr)} placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder} rows={4} cols={50}></textarea>
-    </div>
-  )
-}
 
 const init ={
   id: 1,
-  img: '',
-  nombre: '',
-  codigoBarra: '',
-  descripcion: '',
-  categoria: 'empty',
-  marca: 'empty',
-  medida: 'empty',
-  precio: '',
-  cantidad: '',
-  minimo: '',
-  maximo: '',
-  activo: 't',
-  almacen: 'empty',
-  metodo: 'peps',
-  perecedero: 'f',
-  fechaVencimiento: '',
-  descripcionEstacional: '',
-  fechaInicioEstacional: '',
-  fechaFinalEstacional: '',
+  Imagen: '',
+  Nombre: '',
+  'Codigo de barra': '',
+  'Descripcion': '',
+  Categoria: 'empty',
+  Marca: 'empty',
+  'Unidad de medida' : 'empty',
+  'Precio de venta': '',
+  Cantidad: '',
+  Minimo: '',
+  Maximo: '',
+  Estado: 't',
+  Almacen: 'empty',
+  Metodo: 'peps',
+  Caducidad: 'f',
+  'Fecha de vencimiento': '',
+  'Descripcion de la temporada': '',
+  'Fecha de inicio de la temporada': '',
+  'Fecha final de la temporada': '',
   comprobante: ''
 }
 
 
-const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, almacenes}) => {
+const establecerColumnasPersonalizadas = (row) => {
+  const columnas =  Object.keys(row)
+  const unchecked = ['Categoria', 'Marca', 'Unidad de medida', 'Cantidad', 'Minimo', 'Maximo', 'Estado', 'Almacen', 'Metodo', 'Caducidad', 'Fecha de vencimiento', 'Descripcion de la temporada', 'Fecha de inicio de la temporada', 'Fecha final de la temporada', 'comprobante']
+  const state = [] // Configuracion inicial de las columnas
+  for (let columna of columnas) {
+    state.push({label: columna, checked: unchecked.findIndex(u=>u==columna) != -1 ? false : true})
+  }
+  return state
+  return []
+}
+
+const AddProducto = React.memo((props) => {
+
+  const {
+    setOpen,
+    refresh,
+    categorias,
+    marcas,
+    unidades_medida,
+    almacenes,
+    productos
+  } = props
+
+
+
+  const codigos_de_barra = productos.map(producto=> {
+    return {
+      Nombre: producto['Nombre'],
+      'Codigo de barra': producto['Codigo de barra']
+    }
+  })
+
   const [nuevoProducto, setNuevoProducto] = useState(init)
   const [listaNuevosProductos, setListaNuevosProductos] = useState([])
   const [markAsIncomplete, setMarkAsIncomplete] =  useState([])
   const [listFullSize, setListFullSize] = useState(false)
 
+  const [nuevoStock, setNuevoStock] = useState('f')
+
+  const [columnas, setColumnas] = useState(establecerColumnasPersonalizadas(nuevoProducto))
+  
   const dispatch = useContext(NotificationContext)
+  
+  const [items, setItems] = useState({
+    Categoria: '',
+    Marca: '',
+    'Unidad de medida': ''
+  })
 
   const [edit, setEdit] = useState(null)
+
+  const [eliminar, setEliminar] = useState(null)
 
   const generalActions = [
     {
         icon: <UilTrashAlt />,
         label: 'Eliminar producto/s',
         condition: (numSelected) => numSelected > 0,
-        action: (selected) => {
-          console.log(selected)
-          setListaNuevosProductos(prev => {
-            const reducedList = []
-            for (let row of prev) {
-              if (selected.findIndex(bye=> bye == row.id) !== -1) continue
-              reducedList.push(row)
-            }
-            return reducedList
-          })
-        }
+        action: (selected) => setEliminar(selected)
     },
     {
-        icon: <UilInfoCircle  />,
-        label: 'Info',
-        condition: () => true,
-        action: () => alert('Mostrar Ayuda')
+        icon: <CheckMenu columns={columnas} setColumns={setColumnas} icon={<UilColumns />}  />,
+        label: '',
+        condition: () => listaNuevosProductos.length > 0,
+        action: () => null
     },
     {
       icon: !listFullSize ? <UilExpandAlt   /> : <UilCompressAlt />,
       label: !listFullSize ? 'Expandir' : 'Comprimir',
-      condition: () => true,
+      condition: () => !edit,
       action: () => setListFullSize(!listFullSize)
     }
 ]
@@ -229,26 +165,39 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
     }
   ]
 
-  const abstractTable = (table) => {
-    const columns = ['id', 'nombre', 'codigoBarra', 'cantidad', 'minimo', 'maximo']
-    const abstractedTable = []
-    if (table.length == 0) return table
-    for (let row of table) { // recorrer todas las filas de la tabla
-      const abstractedRow = Object.create({})
-      for (let column of columns) {
-        abstractedRow[column] = row[column]
+  const configTable = (table, columns) => {
+    const configuredTable = []
+    for (let row of table) {
+      let configuredRow = {}
+      for (let {label, checked} of columns) {
+        if (checked) configuredRow[label] = row[label]
       }
-      abstractedTable.push(abstractedRow)
+      configuredTable.push(configuredRow)
     }
-    console.log(abstractedTable);
-    return abstractedTable
+  
+    return configuredTable
   }
 
   const handleAgregarNuevoProducto = (producto) => {
 
     let logicError = false
-    const required = ['nombre', 'descripcion', 'categoria', 'marca', 'medida', 'precio', 'cantidad', 'minimo', 'maximo', 'metodo', 'almacen']
+    const required = ['Nombre', 'Descripcion', 'Categoria', 'Marca', 'Unidad de medida', 'Precio de venta', 'Minimo', 'Maximo', 'Metodo']
     const incompletes = []
+
+    // Si se agregara un stock inicial Cantidad y Almacen deben ser requeridos
+    if (nuevoStock === 't') {
+      required.push('Cantidad')
+      required.push('Almacen')
+
+      // Si Descripcion estacional tiene contenido las fechas son requeridas
+      if (producto['Descripcion de la temporada'] !== '') {
+        required.push('Fecha de inicio de la temporada')
+        required.push('Fecha final de la temporada')
+      }
+    } 
+
+
+
     // Validaciones para registrar un nuevo producto
     
     // Campos requeridos vienen vacios:
@@ -259,13 +208,12 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
     }
    
     if (incompletes.length > 0) {
-      console.log(incompletes);
       setMarkAsIncomplete(incompletes)
       return
     } 
 
     // Condiciones logicas:
-    if (producto.perecedero == 't' && !producto.fechaVencimiento) {
+    if (producto.Caducidad == 't' && !producto['Fecha de vencimiento']) {
       dispatch({
         type: 'ADD_NOTIFICATION',
         payload: {
@@ -279,13 +227,13 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
       logicError = true
     }
 
-    if (producto.perecedero == 'f' && producto.fechaVencimiento !== '') {
+    if (producto.Caducidad == 'f' && producto['Fecha de vencimiento'] !== '') {
       dispatch({
         type: 'ADD_NOTIFICATION',
         payload: {
           id: v4(),
           type: 'error',
-          title: 'Producto no perecedero',
+          title: 'Producto no Caducidad',
           icon: <UilExclamationTriangle />,
           message: 'Si el producto no vence no ingreses una fecha de vencimiento'
         }
@@ -293,7 +241,7 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
       logicError = true
     }
 
-    if (Number(producto.minimo) >= Number([producto.maximo])) {
+    if (Number(producto.Minimo) >= Number([producto.Maximo])) {
       dispatch({
         type: 'ADD_NOTIFICATION',
         payload: {
@@ -301,14 +249,14 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
           type: 'error',
           title: 'Error en las cantidades',
           icon: <UilExclamationTriangle />,
-          message: 'El minimo no puede ser mayor al maximo'
+          message: 'El Minimo no puede ser mayor al Maximo'
         }
       })
       logicError = true
     }
 
-    if (producto.fechaVencimiento !== '' && producto.perecedero === 't') {
-      if (DateHandler.isLesserOrEqual(producto.fechaVencimiento, DateHandler.getCurrentDate())) {
+    if (producto['Fecha de vencimiento'] !== '' && producto.Caducidad === 't') {
+      if (DateHandler.isLesserOrEqual(producto['Fecha de vencimiento'], DateHandler.getCurrentDate())) {
         dispatch({
           type: 'ADD_NOTIFICATION',
           payload: {
@@ -323,8 +271,8 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
       }
     }
 
-    if (producto.descripcionEstacional !== '') {
-      if (producto.fechaInicioEstacional == '' || producto.fechaFinalEstacional == '') {
+    if (producto['Descripcion de la temporada'] !== '') {
+      if (producto['Fecha de inicio de la temporada'] == '' || producto['Fecha final de la temporada'] == '') {
         dispatch({
           type: 'ADD_NOTIFICATION',
           payload: {
@@ -337,7 +285,7 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
         })
         logicError = true
       } else {
-        if (DateHandler.isLesser(producto.fechaInicioEstacional, DateHandler.getCurrentDate())) {
+        if (DateHandler.isLesser(producto['Fecha de inicio de la temporada'], DateHandler.getCurrentDate())) {
           dispatch({
             type: 'ADD_NOTIFICATION',
             payload: {
@@ -349,7 +297,7 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
             }
           })
           logicError = true
-        } else if(DateHandler.isLesser(producto.fechaFinalEstacional, DateHandler.getCurrentDate())) {
+        } else if(DateHandler.isLesser(producto['Fecha final de la temporada'], DateHandler.getCurrentDate())) {
           dispatch({
             type: 'ADD_NOTIFICATION',
             payload: {
@@ -361,7 +309,7 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
             }
           })
           logicError = true
-        } else if (DateHandler.isLesser(producto.fechaFinalEstacional, producto.fechaInicioEstacional)) {
+        } else if (DateHandler.isLesser(producto['Fecha final de la temporada'], producto['Fecha de inicio de la temporada'])) {
           dispatch({
             type: 'ADD_NOTIFICATION',
             payload: {
@@ -377,23 +325,24 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
       }
 
     } else {
-      if (producto.fechaInicioEstacional !== '' || producto.fechaFinalEstacional !== '') {
+      if (producto['Fecha de inicio de la temporada'] !== '' || producto['Fecha final de la temporada'] !== '') {
         dispatch({
           type: 'ADD_NOTIFICATION',
           payload: {
             id: v4(),
             type: 'error',
-            title: 'Ingresa la descripcion de la temporada',
+            title: 'Ingresa la Descripcion de la temporada',
             icon: <UilExclamationTriangle />,
-            message: 'Ingresa la descripcion de la temporada que escogiste'
+            message: 'Ingresa la Descripcion de la temporada que escogiste'
           }
         })
         logicError = true
       }
     }
 
+
     // Verificar que el codigo de barra no exista ya en la lista
-    if (listaNuevosProductos.findIndex(p=> p.codigoBarra === producto.codigoBarra) !== -1) {
+    if (!edit && listaNuevosProductos.findIndex(p=> p['Codigo de barra'] === producto['Codigo de barra']) !== -1) {
       dispatch({
         type: 'ADD_NOTIFICATION',
         payload: {
@@ -407,40 +356,42 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
       logicError = true
     }
 
-    /*
-    if (listaNuevosProductos.some(prev => prev.codigoBarra === producto.codigoBarra)) {
+    /* console.log
+    if (listaNuevosProductos.some(prev => prev['Codigo de barra'] === producto['Codigo de barra'])) {
 
     }*/
 
     // Warnings
-    if (Number(producto.cantidad) < Number(producto.minimo)) {
-      dispatch({
-        type: 'ADD_NOTIFICATION',
-        payload: {
-          id: v4(),
-          type: 'warning',
-          title: 'Stock en escazes',
-          icon: <UilExclamationTriangle />,
-          message: 'La cantidad que ingresaras es menor a la minima'
-        }
-      })
+    if (nuevoStock) {
+      if (Number(producto.Cantidad) < Number(producto.Minimo)) {
+        dispatch({
+          type: 'ADD_NOTIFICATION',
+          payload: {
+            id: v4(),
+            type: 'warning',
+            title: 'Stock en escazes',
+            icon: <UilExclamationTriangle />,
+            message: 'La Cantidad que ingresaras es menor a la minima'
+          }
+        })
+      }
+  
+      if (Number(producto.Cantidad) > Number(producto.Maximo)) {
+        dispatch({
+          type: 'ADD_NOTIFICATION',
+          payload: {
+            id: v4(),
+            type: 'warning',
+            title: 'Stock en exceso',
+            icon: <UilExclamationTriangle />,
+            message: 'La Cantidad que ingresaras es mayor al Maximo'
+          }
+        })
+      }
+  
     }
 
-    if (Number(producto.cantidad) > Number(producto.maximo)) {
-      dispatch({
-        type: 'ADD_NOTIFICATION',
-        payload: {
-          id: v4(),
-          type: 'warning',
-          title: 'Stock en exceso',
-          icon: <UilExclamationTriangle />,
-          message: 'La cantidad que ingresaras es mayor al maximo'
-        }
-      })
-    }
-
-
-
+    // Si existe un error logico cancelar la operacion
     if (logicError) return
 
     
@@ -451,23 +402,15 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
     // Realizar copia del producto
     const copiaProducto = {...producto}
 
-    // Preparacion para el siguiente producto
-    setNuevoProducto(prev => {
-      return {
-        ...init,
-        id: prev.id + 1
-      }
-    })
-
     // Parsear la copia del producto al formato de datos que espera la base de datos
-    copiaProducto.categoria = Number(copiaProducto.categoria)
-    copiaProducto.marca = Number(copiaProducto.marca)
-    copiaProducto.medida = Number(copiaProducto.medida)
-    copiaProducto.almacen = Number(copiaProducto.almacen)
-    copiaProducto.precio = Number(copiaProducto.precio)
-    copiaProducto.cantidad = Number(copiaProducto.cantidad)
-    copiaProducto.minimo = Number(copiaProducto.minimo)
-    copiaProducto.maximo = Number(copiaProducto.maximo)
+    copiaProducto.Categoria = Number(copiaProducto.Categoria)
+    copiaProducto.Marca = Number(copiaProducto.Marca)
+    copiaProducto['Unidad de medida'] = Number(copiaProducto['Unidad de medida'])
+    copiaProducto.Almacen = Number(copiaProducto.Almacen)
+    copiaProducto['Precio de venta'] = Number(copiaProducto['Precio de venta'])
+    copiaProducto.Cantidad = nuevoStock === 't' ? Number(copiaProducto.Cantidad) : 'null'
+    copiaProducto.Minimo = Number(copiaProducto.Minimo)
+    copiaProducto.Maximo = Number(copiaProducto.Maximo)
     
     // convertir vacios a null
     const keys = Object.keys(copiaProducto)
@@ -475,9 +418,37 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
       if (copiaProducto[key] == '') copiaProducto[key] = 'null'
     }
 
-    // agregar producto a la lista de nuevos productos
-    const copiaLista = listaNuevosProductos.slice()
-    setListaNuevosProductos([copiaProducto, ...copiaLista])
+    if (edit) {
+      const productoEditarIndex = listaNuevosProductos.findIndex(producto=>producto.id === edit)
+      const ultimoProducto = listaNuevosProductos[listaNuevosProductos.length - 1] // Guardar el ultimo id para restituirlo al finalizar la edicion
+      const ultimoId = ultimoProducto.id
+      const copiaLista = listaNuevosProductos.slice()
+      // restituir nuevo producto
+      setNuevoProducto(prev => {
+        return {
+          ...init,
+          id: ultimoId + 1
+        }
+      })
+
+      copiaLista[productoEditarIndex] = copiaProducto
+      setListaNuevosProductos(copiaLista)
+      setEdit(null)
+    } else {
+      const copiaLista = listaNuevosProductos.slice()
+      // Preparacion para el siguiente producto
+      setNuevoProducto(prev => {
+        return {
+          ...init,
+          id: prev.id + 1
+        }
+      })
+
+      // agregar producto a la lista de nuevos productos
+      
+      setListaNuevosProductos([copiaProducto, ...copiaLista])
+    }
+
   }
 
   const addNuevosProductos = (listaNuevosProductos) => {
@@ -496,20 +467,20 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
     }
     // Reparseado. Volver a estableces los tipos correctos que espera la base de datos(Medida de seguridad)
     for (let producto of listaNuevosProductos) {
-      producto.categoria = Number(producto.categoria)
-      producto.marca = Number(producto.marca)
-      producto.medida = Number(producto.medida)
-      producto.almacen = Number(producto.almacen)
-      producto.precio = Number(producto.precio)
-      producto.cantidad = Number(producto.cantidad)
-      producto.minimo = Number(producto.minimo)
-      producto.maximo = Number(producto.maximo)
+      producto.Categoria = Number(producto.Categoria)
+      producto.Marca = Number(producto.Marca)
+      producto['Unidad de medida'] = Number(producto['Unidad de medida'])
+      producto.Almacen = Number(producto.Almacen)
+      producto['Precio de venta'] = Number(producto['Precio de venta'])
+      producto.Cantidad = producto.Cantidad == 'null' ? 'null' : Number(producto.Cantidad)
+      producto.Minimo = Number(producto.Minimo)
+      producto.Maximo = Number(producto.Maximo)
     }
 
     //Establecer nuevos productos a la tabla de catalogo
-    // Realizar peticion post
+    // Realizar peticion post console.log
     const payload = {productos: listaNuevosProductos}
-    console.log(payload)
+    
     axiosClient.post('/productos', payload)
     .then(({data}) => {
       dispatch({
@@ -550,13 +521,19 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
     
   }
 
-
-
   const handleChangeNuevoProducto = (value, setErr, key, validate, personalized='') => {
 
     // Validar entrada actual
     // Validar caracter por caracter
     
+    if (key == 'Nombre' || key == 'Descripcion') {
+      setNuevoProducto({
+        ...nuevoProducto,
+        [key]: value
+      })
+      return
+    }
+
     if (!validate(value)) {
       // Mostrar mensaje
       setErr(personalized!==''? personalized : `Entrada incorrecta: ${value}`)
@@ -565,7 +542,21 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
       setErr('')
     }
     
-    if (key === 'img') {
+    if (key === 'Imagen') {
+      if (value==='') {
+        setNuevoProducto({
+          ...nuevoProducto,
+          [key]: value
+        })
+        return
+      }  
+      
+      // Validar tipos permitidos en la imagen
+      if (value.type !== 'image/avif' && value.type !== 'image/png' && value.type !== 'image/jpeg') {
+        setErr(`Tipo de archivo incorrecto.Solo se permiten: png, jpeg y avif`)
+        return
+      }
+
       const file = value // Esta es la  ruta de la imagen
       const reader = new FileReader()
       
@@ -588,12 +579,59 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
 
   }
 
+    const categoriasUsable = categorias.slice()
+    const marcasUsable = marcas.slice()
+    const unidades_medidaUsable = unidades_medida.slice()
+
+    //  Agregar opcion de crear nueva Categoria
+    categoriasUsable.unshift({value: 'new', label: 'Nueva Categoria'})
+    //  Agregar opcion de crear nueva Marca
+    marcasUsable.unshift({value: 'new', label: 'Nueva Marca'})
+    //  Agregar opcion de crear nueva Categoria
+    unidades_medidaUsable.unshift({value: 'new', label: 'Nueva unidad de medida'})
 
 
+  useEffect(()=>{
+    if(edit) {
+      // Establecer vista para editar
+      setListFullSize(false)
+      // Recuperar producto a editar
+      const productoEditarIndex = listaNuevosProductos.findIndex(producto=> producto.id === edit)
+      const productoEditar = {...listaNuevosProductos[productoEditarIndex]}
+      // Reformatear producto(Formatear los valores al formato de nuevo producto)
+      const keys = Object.keys(productoEditar)
+      for(let key of keys) {
+        if (productoEditar[key] === 'null' || !!!productoEditar[key]) {
+          productoEditar[key] = ''
+        }
+      }
+      setNuevoProducto(productoEditar)
+    }
+  }, [edit])
 
   return (
 
     <div className='container'>
+
+      <AlertDialog
+       open={eliminar ? true : false}
+       contentText={eliminar ? `Seguro deseas eliminar ${eliminar.length > 1 ? `estos ${eliminar.length} productos` : 'este producto'}` : ''}
+       cancelText='Cancelar'
+       acceptText='Eliminar'
+        acceptAction={()=>{
+          setListaNuevosProductos(prev => {
+            const reducedList = []
+            for (let row of prev) {
+              if (eliminar.findIndex(bye=> bye == row.id) !== -1) continue
+              reducedList.push(row)
+            }
+            return reducedList
+          })
+          setEliminar(null)
+          }
+        }
+        cancelAction={()=>setEliminar(null)}
+      />
 
       <div className={`glass ${listFullSize ? 'fullGlass' : 'partialGlass'}`}>
 
@@ -601,88 +639,483 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
               <IconButton  onClick={() => setOpen(false)}>
                   <ArrowBackIcon />
               </IconButton>
-            </div>
+      </div>
 
 
         <div className='form'>
+
+            <div>            
               <div className='mainData'>
-                <TextField value={nuevoProducto.nombre} incomplete={markAsIncomplete.find(l=>l=='nombre')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'nombre', validateAPI.name)} label='Nombre del producto' placeholder='Nombre #'/>
+                <div className='TitleContainer'>
+                  <div className='Title'>
+                    <h3>Nuevos productos</h3>
+                    <span style={{
+                      background: '#E8E1FF',
+                      color: '#5E3AE6',
+                    }}><AiOutlineProduct /></span>
+                  </div>
+                  <p>*Ingrese la informacion general de un nuevo producto</p>
+                </div>
+              </div>
+            </div>
 
-                <TextArea  value={nuevoProducto.descripcion} incomplete={markAsIncomplete.find(l=>l=='descripcion')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'descripcion', validateAPI.everything)} label='Descripcion del producto' placeholder='Descripcion #'/>
+            <div className='mainData'>
+              <Divider />
+            </div>
 
-                <SelectField incomplete={markAsIncomplete.find(l=>l=='categoria')} value={nuevoProducto.categoria} options={categorias} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'categoria', (n)=>true)} label='Categoria del producto'/>
+            <div className='secondaryData'>
+              <TextField 
+                  value={nuevoProducto.Nombre} 
+                  incomplete={markAsIncomplete.find(l=>l=='Nombre')} 
+                  onChange={(value, setErr)=> {
+                    handleChangeNuevoProducto(value, setErr, 'Nombre', validateAPI.everything)
+                  }} 
+                  label='Nombre del producto' 
+                  placeholder='Requerido'
+                />
 
-                <SelectField incomplete={markAsIncomplete.find(l=>l=='marca')} value={nuevoProducto.marca} options={marcas} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'marca', (n)=>true)} label='Marca del producto'/>
+                <TextField 
+                  value={nuevoProducto['Codigo de barra']} 
+                  onChange={(value, setErr, setWarning)=> {
+                  
+                    const prod = codigos_de_barra.find(producto=> Number(producto['Codigo de barra']) === Number(value))
+                    // Codigo de barra encontrado en la base de datos: console
+                    
+                    if (prod) {
+                      setWarning(`Producto con el mismo codigo de barra encontrado: ${prod.Nombre}`)
+                    } else {
+                      setWarning('')
+                    }
+
+                    if (listaNuevosProductos.length > 0) {
+                      const newProd = listaNuevosProductos.find(producto=> producto['Codigo de barra'] === value)
+                    // Codigo de barra encontrado en la lista de nuevos productos
+                      if (newProd) {
+                        setWarning(`Producto con el mismo codigo de barra encontrado: ${newProd.Nombre}`)
+                      } else {
+                        setWarning('')
+                      }
+                    }
+                    
+                    handleChangeNuevoProducto(value, setErr, 'Codigo de barra', validateAPI.numeric, 'Maximo de digitos: 15. Solo digitos permitidos')
+                  }} 
+                  label='Codigo de barra' 
+                  placeholder='**********'
+                  />
+            </div>
+
+            <div className='mainData'>
+              <TextArea 
+                  value={nuevoProducto.Descripcion} 
+                  incomplete={markAsIncomplete.find(l=>l=='Descripcion')} 
+                  onChange={(value, setErr)=> {
+                    handleChangeNuevoProducto(value, setErr, 'Descripcion', validateAPI.everything)
+                  }} 
+                  label='Descripcion del producto' 
+                  placeholder='Requerido'
+                />
+            </div>
+
+              <div className='secondaryData'>
                 
-                <SelectField incomplete={markAsIncomplete.find(l=>l=='medida')} value={nuevoProducto.medida} options={unidades_medida} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'medida', (n)=>true)} label='Medida del producto'/>
+                <div style={{display: nuevoProducto.Categoria === 'new' ? 'none' : ''}}>
+                <SelectField 
+                    incomplete={markAsIncomplete.find(l=>l=='Categoria')} 
+                    value={nuevoProducto.Categoria} options={categoriasUsable} 
+                    onChange={(value, setErr)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Categoria', (n)=>true)
+                    }} 
+                    label='Categoria del producto'
+                  />
+                </div>
                 
-                <TextField value={nuevoProducto.codigoBarra} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'codigoBarra', validateAPI.numeric, 'Maximo de digitos: 15. Solo digitos permitidos')} label='Codigo de barra' placeholder='**********'/>
+                <div style={{display: nuevoProducto.Categoria === 'new' ? '' : 'none'}} className='campoNuevaCategoria nuevoItem'>
+                    <div className='secondaryData'>
+                      <TextField 
+                        value={items.Categoria} 
+                        incomplete={markAsIncomplete.find(l=>l=='Categoria')} 
+                        onChange={(value, setErr)=> {
+                          if (validateAPI.name(value)) {
+                            setItems({
+                              ...items,
+                              Categoria: value
+                            })
+                          } 
+                        }} 
+                        label='Nueva Categoria' 
+                        placeholder='Requerido'
+                      />
+                      <div className='btnGroup'>
+                      <button onClick={() => {
+                        const payload = {categoria: items.Categoria}
+                        axiosClient.post('/categoria', payload)
+                          .then(({data}) => {
+                            const Categoria = data.data
+                            const value = Categoria.value.val
+                            const label = Categoria.label.label
+                            setNuevoProducto({
+                              ...nuevoProducto,
+                              Categoria: value
+                            })
+                            setItems({
+                              ...items,
+                              Categoria: ''
+                            })
+                            categorias.unshift({value, label})
+                          })
+                          .catch(error => {
+                            const messageError = error.response.data
+                            console.log(messageError);
+                          })
+                      }}>
+                        Crear
+                      </button>
+                      <button onClick={()=>{
+                        setNuevoProducto({
+                          ...nuevoProducto,
+                          ['Categoria']: 'empty'
+                        })
+                        setItems({
+                          ...items,
+                          Categoria: ''
+                        })
+                      }}>
+                        Cancelar
+                      </button>
+                      </div>
+                    </div>
+                </div>
 
-                <TextField value={nuevoProducto.precio} incomplete={markAsIncomplete.find(l=>l=='precio')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'precio', validateAPI.positiveReal)} label='Precio de venta' placeholder='C$'/>  
-
-                <TextField value={nuevoProducto.cantidad} incomplete={markAsIncomplete.find(l=>l=='cantidad')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'cantidad', validateAPI.positiveIntegerOrZero)} label='Cantidad inicial de stock' placeholder='Cantidad'/>  
-
-                <TextField value={nuevoProducto.minimo} incomplete={markAsIncomplete.find(l=>l=='minimo')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'minimo', validateAPI.number)} label='Minimo de existencias' placeholder='Minimo'/>                
-
-                <TextField value={nuevoProducto.maximo} incomplete={markAsIncomplete.find(l=>l=='maximo')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'maximo', validateAPI.number)} label='Maximo de existencias' placeholder='Maximo'/>                
-
+                <div style={{display: nuevoProducto.Marca === 'new' ? 'none' : ''}}>
+                  <SelectField 
+                      incomplete={markAsIncomplete.find(l=>l=='Marca')} 
+                      value={nuevoProducto.Marca} options={marcasUsable} 
+                      onChange={(value, setErr)=> {
+                        handleChangeNuevoProducto(value, setErr, 'Marca', (n)=>true)
+                      }} 
+                      label='Marca del producto'
+                    />
+                </div>
+                <div style={{display: nuevoProducto.Marca === 'new' ? '' : 'none'}} className='campoNuevaMarca nuevoItem'>
+                    <div className='secondaryData'>
+                      <TextField 
+                        value={items.Marca} 
+                        incomplete={markAsIncomplete.find(l=>l=='Marca')} 
+                        onChange={(value, setErr)=> {
+                          if (validateAPI.name(value)) {
+                            setItems({
+                              ...items,
+                              Marca: value
+                            })
+                          } 
+                        }} 
+                        label='Nueva Marca' 
+                        placeholder='Requerido'
+                      />
+                      <div className='btnGroup'>
+                      <button onClick={() => {
+                        const payload = {marca: items.Marca}
+                        axiosClient.post('/marca', payload)
+                          .then(({data}) => {
+                            const Marca = data.data
+                            const value = Marca.value.val
+                            const label = Marca.label.label
+                            
+                            setNuevoProducto({
+                              ...nuevoProducto,
+                              Marca: value
+                            })
+                            setItems({
+                              ...items,
+                              Marca: ''
+                            })
+                            marcas.unshift({value, label})
+                          })
+                          .catch(error => {
+                            const messageError = error.response.data
+                            console.log(messageError);
+                          })
+                      }}>Crear</button>
+                      <button onClick={()=>{
+                        setNuevoProducto({
+                          ...nuevoProducto,
+                          ['Marca']: 'empty'
+                        })
+                        setItems({
+                          ...items,
+                          Marca: ''
+                        })
+                      }}>
+                        Cancelar
+                      </button>
+                      </div>
+                    </div>
+                  </div>
               </div>
 
               <div className='secondaryData'>
-                <SelectField value={nuevoProducto.metodo} options={[{label: 'peps', value: 'peps'}, {label: 'ueps', value: 'ueps'}]} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'metodo', (n)=>true)} label='Metodo de inventario'/>
-    
-                <SelectField incomplete={markAsIncomplete.find(l=>l=='almacen')} value={nuevoProducto.almacen} options={almacenes} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'almacen', (n)=>true)} label='Almacen a guardar'/>
+                <div style={{display: nuevoProducto['Unidad de medida'] === 'new' ? 'none' : ''}}>
+                  <SelectField 
+                    incomplete={markAsIncomplete.find(l=>l=='Unidad de medida')} 
+                    value={nuevoProducto['Unidad de medida']} options={unidades_medidaUsable} 
+                    onChange={(value, setErr)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Unidad de medida', (n)=>true)
+                    }} 
+                    label='Medida del producto'
+                    />
+                </div>
+
+              <div style={{display: nuevoProducto['Unidad de medida'] === 'new' ? '' : 'none'}} className='campoNuevaUnidadMedida nuevoItem'>
+                    <div className='secondaryData'>
+                      <TextField 
+                        value={items['Unidad de medida']} 
+                        incomplete={markAsIncomplete.find(l=>l=='Unidad de medida')} 
+                        onChange={(value, setErr)=> {
+                          if (validateAPI.name(value)) {
+                            setItems({
+                              ...items,
+                              'Unidad de medida': value
+                            })
+                          } 
+                        }} 
+                        label='Nueva medida' 
+                        placeholder='Requerido'
+                      />
+                      <div className='btnGroup'>
+                      <button onClick={() => {
+                        const payload = {medida: items['Unidad de medida']}
+                        axiosClient.post('/unidad_medida', payload)
+                          .then(({data}) => {
+                            const medidad = data.data
+                            const value = medidad.value.val
+                            const label = medidad.label.label
+                  
+                            setNuevoProducto({
+                              ...nuevoProducto,
+                              'Unidad de medida': value  
+                            })
+                            setItems({
+                              ...items,
+                              ['Unidad de medida']: ''
+                            })
+                            unidades_medida.unshift({value, label})
+                          })
+                          .catch(error => {
+                            const messageError = error.response.data
+                            console.log(messageError);
+                          })
+                      }}>Crear</button>
+                      <button onClick={()=>{
+                        setNuevoProducto({
+                          ...nuevoProducto,
+                          ['Unidad de medida']: 'empty'
+                        })
+                        setItems({
+                          ...items,
+                          ['Unidad de medida']: ''
+                        })
+                      }}>
+                        Cancelar
+                      </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <TextField 
+                  value={nuevoProducto['Precio de venta']} 
+                  incomplete={markAsIncomplete.find(l=>l=='Precio de venta')} 
+                  onChange={(value, setErr)=> {
+                    handleChangeNuevoProducto(value, setErr, 'Precio de venta', validateAPI.positiveReal)
+                  }} 
+                  label='Precio de venta'
+                  placeholder='C$'
+                />  
               </div>
 
               <div className='secondaryData'>
-                <SelectField value={nuevoProducto.perecedero} options={[{label: 'no', value: 'f'}, {label: 'si', value: 't'}]} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'perecedero', (n)=>true)}label='Es perecedero?'/>
+              <TextField 
+                  value={nuevoProducto.Maximo} 
+                  incomplete={markAsIncomplete.find(l=>l=='Maximo')} 
+                  onChange={(value, setErr, setWarning)=> {
+                    if (nuevoProducto.Minimo !== '') {
+                      const Maximo = Number(value)
+                      const Minimo = Number(nuevoProducto.Minimo)
+                      if (Maximo < Minimo) {
+                        setWarning(`La Cantidad maxima no puede ser menor a la minima`)
+                      } else if (Minimo === Maximo){
+                        setWarning(`Debes dejar un margen entre la Cantidad minima y maxima`)
+                      } else {
+                        setWarning('')
+                      }
+                    }
+                    handleChangeNuevoProducto(value, setErr, 'Maximo', validateAPI.number)
+                  }} 
+                  label='Maximo de existencias' 
+                  placeholder='Requerido'
+                  />
+
+                <TextField 
+                  value={nuevoProducto.Minimo} 
+                  incomplete={markAsIncomplete.find(l=>l=='Minimo')} 
+                  onChange={(value, setErr, setWarning)=> {
+                    if (nuevoProducto.Maximo !== '') {
+                      const Minimo = Number(value)
+                      const Maximo = Number(nuevoProducto.Maximo)
+                      if (Minimo > Maximo) {
+                        setWarning(`La Cantidad minima no puede ser mayor a la maxima`)
+                      } else if (Minimo === Maximo){
+                        setWarning(`Debes dejar un margen entre la Cantidad minima y maxima`)
+                      } else {
+                        setWarning('')
+                      }
+                    }
+
+                    handleChangeNuevoProducto(value, setErr, 'Minimo', validateAPI.number)
+                  }} 
+                  label='Minimo de existencias' 
+                  placeholder='Requerido'
+                  />     
+              </div>
+
+          
+
+              <div className='mainData'>
+            
     
-                <DateField
-                  value={nuevoProducto.fechaVencimiento}
-                  onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'fechaVencimiento', (n)=>true)} 
-                  label='Fecha de vencimiento'/>
+                <ImgField 
+                  incomplete={markAsIncomplete.find(l=>l=='Imagen')} 
+                  onChange={(value, setErr)=> {
+                    handleChangeNuevoProducto(value, setErr, 'Imagen', validateAPI.everything)
+                  }} 
+                  label='Imagen del producto' 
+                  placeholder='Opcional'
+                  />                  
+
               </div>
 
-              <div className='mainData'>  
-                <TextArea value={nuevoProducto.descripcionEstacional} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'descripcionEstacional', validateAPI.name)} label='Descripcion de temporada' placeholder='Exp: Stock reservado a ventas de verano entre...'/>  
+              <div className='mainData'>
+                <SelectField 
+                  value={nuevoStock}
+                  label='¿Quieres ingresar un stock inicial sin orden?'
+                  options={[
+                    {value: 't', label: 'Si'},
+                    {value: 'f', label: 'No'},
+                  ]}
+                  onChange={(value) => {
+                    setNuevoStock(value)
+                  }}
+                />
               </div>
 
-              <div className='secondaryData'>
-                <DateField value={nuevoProducto.fechaInicioEstacional} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'fechaInicioEstacional', (n)=>true)} label='Fecha inicio de temporada'/>
-    
-                <DateField value={nuevoProducto.fechaFinalEstacional} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'fechaFinalEstacional', (n)=>true)} label='Fecha final de temporada'/>
+            <div style={{display: nuevoStock === 'f' ? 'none' : ''}}>
+              <div className='mainData'>
+                <div className='TitleContainer'>
+                  <div className='Title'>
+                    <h3>Informacion de Stock</h3>
+                    <span style={{
+                      background: '#D9FFF1',
+                      color: '#60E7B6',
+                    }}><BsBoxes /></span>
+                  </div>
+                  <p>*Informacion de stock inicial de {nuevoProducto['Nombre']}</p>
+                </div>
               </div>
 
-              <div className='mainData'>  
-                <ImgField incomplete={markAsIncomplete.find(l=>l=='img')} onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'img', validateAPI.everything)} label='Imagen del producto' placeholder='Imagen'/>                  
+              <div className='mainData'>
+                <Divider />
               </div>
+            </div>
+
+              <div style={{display: nuevoStock === 'f' ? 'none' : ''}}>
+                <div className='mainData'>
+                  <TextField 
+                    value={nuevoProducto.Cantidad} 
+                    incomplete={markAsIncomplete.find(l=>l=='Cantidad')} 
+                    onChange={(value, setErr, setWarning)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Cantidad', validateAPI.positiveIntegerOrZero)
+                    }} 
+                    label='Cantidad inicial de stock' 
+                    placeholder='Requerido'
+                  />                    
+                </div>
+
+                <div className='secondaryData'>
+                  <SelectField 
+                    value={nuevoProducto.Metodo} 
+                    options={[{label: 'peps', value: 'peps'}, {label: 'ueps', value: 'ueps'}]} 
+                    onChange={(value, setErr)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Metodo', (n)=>true)
+                    }} 
+                    label='Metodo de inventario'
+                  />
+      
+                  <SelectField 
+                    incomplete={markAsIncomplete.find(l=>l=='Almacen')} 
+                    value={nuevoProducto.Almacen} options={almacenes} 
+                    onChange={(value, setErr)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Almacen', (n)=>true)
+                    }} 
+                    label='Almacen a guardar'
+                  />
+                </div>
+
+                <div className='secondaryData'>
+                  <SelectField 
+                    value={nuevoProducto.Caducidad} 
+                    options={[{label: 'no', value: 'f'}, {label: 'si', value: 't'}]} 
+                    onChange={(value, setErr)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Caducidad', (n)=>true)
+                    }}
+                    label='Es Caducidad?'
+                  />
+      
+                  <DateField
+                    value={nuevoProducto['Fecha de vencimiento']}
+                    onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'Fecha de vencimiento', (n)=>true)} 
+                    label='Fecha de vencimiento'/>
+                </div>
+
+                <div className='mainData'>  
+                  <TextArea 
+                    value={nuevoProducto['Descripcion de la temporada']} 
+                    onChange={(value, setErr)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Descripcion de la temporada', validateAPI.everything)
+                    }} 
+                    label='Descripcion de temporada' 
+                    placeholder='Opcional'
+                  />  
+                </div>
+
+                <div className='secondaryData'>
+                  <DateField 
+                    value={nuevoProducto['Fecha de inicio de la temporada']} 
+                    onChange={(value, setErr)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Fecha de inicio de la temporada', (n)=>true)
+                    }} 
+                    label='Fecha inicio de temporada'
+                  />
+      
+                  <DateField 
+                    value={nuevoProducto['Fecha final de la temporada']} 
+                    onChange={(value, setErr)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Fecha final de la temporada', (n)=>true)
+                    }} 
+                    label='Fecha final de temporada'
+                  />
+                </div>
+              </div>
+
         </div>
+
         <div className='listaNuevosProductos'>
           <TableListaProductos 
             dense={true}
-            edit={edit}
-            setEdit={setEdit}
-            editables={[
-              {label: 'nombre', type:'text', validation: (input) => [validateAPI.name2(input), `Simbolo: ${input} no valido`]},
-              {label: 'codigoBarra', type:'text', validation: (input) => [validateAPI.numeric(input), `Simbolo: ${input} no valido`]},
-              {label: 'descripcion', type:'text', validation: (input) => [validateAPI.name2(input), `Simbolo: ${input} no valido`]},
-              {label: 'categoria', type:'select', validation: () => categorias},
-              {label: 'marca', type:'select', validation: () => marcas},
-              {label: 'medida', type:'select', validation: () => unidades_medida},
-              {label: 'almacen', type:'select', validation: () => almacenes},
-              {label: 'precio', type:'text', validation: (input) => [validateAPI.positiveReal(input), `Simbolo: ${input} no valido`]},
-              {label: 'cantidad', type:'text', validation: (input) => [validateAPI.positiveIntegerOrZero(input), `Simbolo: ${input} no valido`]},
-              {label: 'minimo', type:'text', validation: (input) => [validateAPI.number(input), `Simbolo: ${input} no valido`]},
-              {label: 'maximo', type:'text', validation: (input) => [validateAPI.number(input), `Simbolo: ${input} no valido`]},
-              {label: 'activo', type:'select', validation: () => [{value: 't', label: 'Activo'}, {value: 'f', label: 'Inactivo'}]},
-              {label: 'perecedero', type:'select', validation: () => [{value: 't', label: 'Perecedero'}, {value: 'f', label: 'Persistente'}]},
-
-            ]}
             pagination={false}
             empty='Agrega nuevos productos a la lista!!' 
             generalActions={generalActions}
             actions={actions}
-            rows={formatTable(listaNuevosProductos, categorias, marcas, unidades_medida, almacenes, [{value: 't', label: 'Activo'}, {value: 'f', label: 'Inactivo'}], [{value: 't', label: 'Perecedero'}, {value: 'f', label: 'Persistente'}])}
+            setEdit={setEdit}
+            rows={configTable(formatTable(listaNuevosProductos, categorias, marcas, unidades_medida, almacenes, [{value: 't', label: 'Activo'}, {value: 'f', label: 'Inactivo'}], [{value: 't', label: 'Perecedero'}, {value: 'f', label: 'Persistente'}]), columnas)}
             setRows={setListaNuevosProductos}
             footer={<Resume 
                 dataSet={listaNuevosProductos}
@@ -696,10 +1129,10 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
                     },
 
                   (dataSet) => {
-                    const total = dataSet.reduce((a,b) => a + b.cantidad, 0)
-                    console.log(total)
+                    const total = dataSet.reduce((a,b) => typeof b.Cantidad == 'number' ? a + b.Cantidad : a, 0)
+                    
                     return  <div style={{display: 'flex'}}>
-                                <p>Total de Stock: {total}</p> 
+                                <p>Total de nuevo stock: {total}</p> 
                               </div>
                   }
                 
@@ -708,7 +1141,12 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
             />}
           />
         </div>
-        <button  onClick={() => handleAgregarNuevoProducto(nuevoProducto)} className={`btnAgregarProducto ${!listFullSize ? 'partialBtn' : 'noneBtn'}`}>Agregar a la lista</button>
+
+        <button style={{display: edit ? 'none' : ''}} onClick={() => handleAgregarNuevoProducto(nuevoProducto)} className={`btnAgregarProducto ${!listFullSize ? 'partialBtn' : 'noneBtn'}`}>Agregar a la lista</button>
+        <div style={{display: !edit ? 'none' : ''}} className='editBtns'>
+          <button onClick={()=>handleAgregarNuevoProducto(nuevoProducto)}>Actualizar</button>
+          <button onClick={()=>setEdit(null)}>Cancelar</button>
+        </div>
         <button  onClick={() => addNuevosProductos(listaNuevosProductos)} id='agregarLista' className={`btnAgregarLista ${!listFullSize ? 'partialBtn' : 'fullBtn'}`}>Registrar Productos</button>
       </div>
    
@@ -716,7 +1154,7 @@ const AddProducto = ({setOpen, refresh, categorias, marcas, unidades_medida, alm
     </div>
 
   )
-}
+})
 
 
 

@@ -12,6 +12,20 @@ function hexToBase64(hexString) {
     return btoa(binaryString);
 }
 
+export function base64ToHex(base64) {
+    const raw = atob(base64);
+    let result = '';
+    for (let i = 0; i < raw.length; i++) {
+        const hex = raw.charCodeAt(i).toString(16);
+        result += (hex.length === 2 ? hex : '0' + hex); // Asegura que cada byte sea representado por dos dígitos
+    }
+    return result.toUpperCase();
+}
+
+export function isHex(img) {
+    return /^0x[0-9A-Fa-f]+$/.test(img)
+}
+
 export default function hexToDataURL(hexString) {
     const base64String = hexToBase64(hexString);
     return `data:image/png;base64,${base64String}`;

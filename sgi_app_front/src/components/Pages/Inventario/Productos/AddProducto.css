@@ -1,3 +1,4 @@
+/*vh*/
 .container {
     background: linear-gradient(
         106.37deg,
@@ -19,7 +20,7 @@
     border-radius: 2rem;
     background-color: var(--glass);
     overflow: hidden;
-    gap: 10px;
+    gap: 12px;
     transition: all 300ms ease;
 }
 
@@ -38,13 +39,38 @@
     margin-left: 0.8rem;
 }
 
+.Title {
+    display: flex;
+    align-items: center; /* Alinea los elementos verticalmente */
+    gap: 10px; /* Espacio entre el título y el icono */
+  }
+  
+.TitleContainer > p {
+    font-size: 13px;
+    font-weight: 500;
+    color: #989595;
+    margin-top: 1%;
+    margin-bottom: -1.5%;
+} 
+
+  .Title h3 {
+    margin: 0; /* Eliminar margen del h3 */
+  }
+  
+  .Title span {
+    border-radius: 5px;
+    display: flex;
+    align-items: center; /* Asegurar que el icono esté centrado dentro del span */
+    font-size: 22px;
+  }
+
 /* FORMULARIO NUEVO PRODUCTO */
 .form {
     position: relative;
     overflow: scroll;
-    border-radius: 15px;
+    border-radius: 7px;
     top: 2.5rem;
-    height: 77vh;
+    height: 83% !important;
     margin-left: 1rem;
     background: white;
     padding: 20px;
@@ -167,6 +193,29 @@
     width: 50%;
 }
 
+.secondaryData button {
+    font-family: 'Inter';
+    height: 2.8rem;
+    margin-top: 3.5%;
+    color: #fff;
+    padding: 5px 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    border-radius: 5px;
+    border: none;
+    background-color: #648291;
+}
+
+.secondaryData button:hover {
+    background-position: right center;
+}
+
+.secondaryData button:active {
+    top: 2px;
+}
+
 /* Marcar campo como incompleto */
 .markAsIncomplete {
     border-color: red !important;
@@ -178,10 +227,10 @@
     position: relative;
     overflow: scroll;
     top: 2.5rem;
-    height: 83.7vh;
+    height: 100%;
     margin-right: 0.5rem;
     background-color: #FFF;
-    border-radius: 20px;
+    border-radius: 7px;
 }
 
 .listaNuevosProductos::-webkit-scrollbar {
@@ -214,6 +263,11 @@
 
 /* Botones */
 
+.btnGroup {
+    display: flex;
+    flex-direction: column;
+}
+
 .btnAgregarProducto {
     position: fixed;
     border: none;
@@ -226,14 +280,58 @@
     background-color: #648291;
     align-items: center;
     justify-content: center;
-    height: 7vh;
-    top: 31.2rem;
+    height: 7%;
+    top: 100%;
     transition: all 300ms ease;
     cursor: pointer;
 }
 
+.editBtns {
+    display: flex;
+    position: fixed;
+    top: 31.2rem;
+    left: 2.1rem;
+    width: 55.08%;
+}
+
+.editBtns button {
+    border: none;
+    flex: 1;
+    font-family: 'Inter';
+    height: 7vh;
+    font-weight: 500;
+    align-items: center;
+    width: auto;
+    margin: 0;
+    cursor: pointer;
+}
+
+.editBtns button:first-child {
+    border-bottom-left-radius: 10px;
+    color: #FFF;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+    background-color: #648291;
+    transition: all 300ms ease;
+}
+
+.editBtns button:first-child:hover {
+    background-color: #546E7A;
+}
+
+.editBtns button:last-child {
+    border-bottom-right-radius: 10px;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+    color: #D9534F;
+    background-color: #FFF;
+    transition: all 300ms ease;
+}
+
+.editBtns button:last-child:hover {
+    background-color: #FEF8F8;
+}
+
 .btnAgregarProducto.partialBtn {
-    width: 55%;
+    width: 55.08%;
     margin-left: 1rem;
 }
 
@@ -257,15 +355,15 @@
     background-color: #F8FAFC;
     align-items: center;
     justify-content: center;
-    height: 6.8vh;
-    top: 31rem;
-    margin-left: 1rem;
+    height: 7%;
+    top: 92%;
+    margin-left: 1.2%;
     transition: all 300ms ease;
     cursor: pointer;
 }
 
 .btnAgregarLista.partialBtn {
-    width: 39.3%;
+    width: 39.4%;
     left: 45.8rem;
 }
 
@@ -277,3 +375,4 @@
 .btnAgregarLista:hover {
     background-color: #ecf0f3;
 }
+

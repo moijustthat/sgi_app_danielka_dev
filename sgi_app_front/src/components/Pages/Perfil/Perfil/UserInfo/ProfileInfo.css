@@ -1,0 +1,52 @@
+.infoContent{
+    display: grid;
+    grid-template-areas: 
+        "avatarPerfil infoPerfil"
+    ;
+    gap: 1rem;
+    justify-content: left;
+    align-items: center;
+    
+}
+
+
+.avatarPerfil{
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 3rem;
+    grid-area: avatarPerfil;
+}
+
+.infoPerfil{
+    grid-area: infoPerfil;
+    display: flex;
+    flex-direction: column; 
+    gap: 0.2rem;
+    
+}
+
+.infoPerfil p{
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.infoPerfil h3{
+    font-size: 1rem;
+    margin: 0;
+}
+
+.infoContainer{
+    border: 1.5px solid #e7e7f0;
+    border-radius: 0.3rem;
+    padding: 1rem;
+    transition: box-shadow 0.3s ease-in-out;
+    /* width: 30% */
+}
+
+
+.infoContainer:hover{
+    box-shadow: 2px 6px 8px rgba(0, 0, 0, 0.1);
+}

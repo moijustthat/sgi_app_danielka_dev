@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Lib\JsonHelper;
-use App\Lib\ImgProccessor;
 use App\Lib\HandleDbResponse;
+
+use App\Lib\ImgProccessor;
 
 use Exception;
 
@@ -45,33 +46,73 @@ class Productos extends Model
     // Por alguna razon aqui no sirvio la transaccion. Esperemos Sergio lo arregle
     public static function saveNewProducts($products) {
         return HandleDbResponse::handleResponse(function() use ($products){
+            $disabledProducts = array(); // Productos que estan desactivados y vienen de nuevo en la peticion por su nombre o codigo de barra
+            /* 
+                Si ya existe un producto con el nombre o codigo de barra en la bd y este esta desactivado 
+                y el cliente lo mando en la peticion, entonces mandar una respuesta(despues de guardar el resto de nuevos productos)
+                indicando que se encontraron productos con los mismo datos en la bd pero que estan desactivados y si este
+                quiere restituir estos productos o crear productos nuevos(sin que el codigo de barra sea igual a otro producto en la tabla Productos)
+            */
             foreach ($products as $product) {
+                $rollback = false;
+                $countNew = 0;
+                // Validar si el nombre o codigo de barra ya existe en la base de datos
+                $name = $product['Nombre'];
+                $barCode =  $product['Codigo de barra'] == "null" ? NULL : $product['Codigo de barra'];
+
+                $disabledProductByName = DB::select('select productoId, nombre, descripcion, codigoBarra, img from Productos where nombre = ?', [$name]);
+                $disabledProductByBarCode = DB::select('select productoId, nombre, descripcion, codigoBarra, img from Productos where codigoBarra = ?', [$barCode]);
+
+                // Verificar que exista un producto con el nombre y codigo de barra iguales al de la peticion
+                if ($disabledProductByName && $disabledProductByBarCode) {
+                    if ($disabledProductByBarCode[0]->productoId === $disabledProductByName[0]->productoId ) {
+                        array_push($disabledProducts, ['producto'=>$disabledProductByName, 'type'=>'both']);
+                        $rollback = true;
+                    } 
+                } else {
+                    if($disabledProductByName) {
+                        array_push($disabledProducts, ['producto'=>$disabledProductByName, 'type'=>'name']);
+                        $rollback = true;
+                    }
+
+                    if ($disabledProductByBarCode) {
+                        array_push($disabledProducts, ['producto'=>$disabledProductByBarCode, 'type'=>'bar_code']);
+                        $rollback = true;
+                    }
+                }
+
+                
+                if ($rollback) {
+                    continue;
+                }
+
                 $params = array();
                 array_push($params,
-                        $product['nombre'],
-                        $product['descripcion'],
-                        floatval($product['precio']),
-                        $product['activo'],
-                        $product['perecedero'],
-                        $product['codigoBarra'] == "null" ? NULL : $product['codigoBarra'],
-                        intval($product['minimo']),
-                        intval($product['maximo']),
-                        $product['img'] == "null" ? NULL : ImgProccessor::binToHex($product['img']),
-                        intval($product['categoria']),
-                        intval($product['marca']),
-                        intval($product['medida']),
-                        $product['metodo'],
-                        intval($product['cantidad']),
-                        intval($product['almacen']),
+                        $name,
+                        $product['Descripcion'],
+                        floatval($product['Precio de venta']),
+                        $product['Estado'],
+                        $product['Caducidad'],
+                        $barCode,
+                        intval($product['Minimo']),
+                        intval($product['Maximo']),
+                        $product['Imagen'] == "null" ? NULL : ImgProccessor::binToHex($product['Imagen']),
+                        intval($product['Categoria']),
+                        intval($product['Marca']),
+                        intval($product['Unidad de medida']),
+                        $product['Metodo'],
+                        $product['Cantidad'] == "null" ? NULL : intval($product['Cantidad']),
+                        intval($product['Almacen']),
                         $product['comprobante'] == "null" ? NULL : $product['comprobante'],
-                        $product['fechaVencimiento'] == "null" ? NULL : $product['fechaVencimiento'],
-                        $product['descripcionEstacional'] == "null" ? NULL : $product['descripcionEstacional'],
-                        $product['fechaInicioEstacional'] == "null" ? NULL : $product['fechaInicioEstacional'],
-                        $product['fechaFinalEstacional'] == "null" ? NULL : $product['fechaFinalEstacional'],
+                        $product['Fecha de vencimiento'] == "null" ? NULL : $product['Fecha de vencimiento'],
+                        $product['Descripcion de la temporada'] == "null" ? NULL : $product['Descripcion de la temporada'],
+                        $product['Fecha de inicio de la temporada'] == "null" ? NULL : $product['Fecha de inicio de la temporada'],
+                        $product['Fecha final de la temporada'] == "null" ? NULL : $product['Fecha final de la temporada'],
                 );
-                DB::statement('CALL pa_nuevo_producto(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', $params);       
+                DB::statement('CALL pa_nuevo_producto(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', $params);     
+                $countNew++;  
             }
-            return JsonHelper::jsonResponse(200, ['data'=> 'Transaccion Exitosa']);
+            return JsonHelper::jsonResponse(200, ['data'=> 'Transaccion Exitosa', 'count'=>$countNew, 'found'=>$disabledProducts]);
         }, 'Error al guardar los productos');
     }
 
@@ -80,6 +121,11 @@ class Productos extends Model
             foreach ($payload as $field => $value) {
                 // Construir consulta dinamicamente(No se pueden usar parametros para las columnas)
                 $sql = sprintf('UPDATE Productos SET %s = ? WHERE productoId = ?', $field);
+                if ($field === 'img') {
+                    if (!preg_match('/^0x[0-9A-Fa-f]+$/', $value)) {
+                        $value = ImgProccessor::binToHex($value);
+                    }  
+                }
                 DB::statement($sql, [$value, $id]);
             }
             return JsonHelper::jsonResponse(200, ['data'=> 'Producto actualizado con exito']);

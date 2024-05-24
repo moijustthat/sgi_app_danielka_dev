@@ -1,0 +1,94 @@
+.textField, .customSelect, .customDate {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+
+.textField label, .customSelect label, .customDate label{
+    font-family: 'Inter';
+    font-size: 13px;
+    color: #364152;
+    font-weight: 500;
+}
+
+.textField input, .customDate input {
+    outline: none;
+    background: #F8FAFC;
+    border: 1px solid #AAA;
+    border-radius: 5px;
+    font-weight: 400;
+    font-size: 14px;
+    color: #333;
+    padding: 0 15px;
+    height: 42px;
+}
+
+.textField textarea {
+    outline: none;
+    background: #F8FAFC;
+    border: 1px solid #AAA;
+    border-radius: 5px;
+    font-weight: 400;
+    font-family: 'Inter';
+    font-size: 14px;
+    color: #333;
+    padding: 10px 15px;
+    resize: none;
+}
+
+.textField input:is(:focus), .textField textarea:is(:focus), .customSelect select:is(:focus){
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.20);
+}
+
+.customSelect {
+    position: relative;
+}
+
+.customSelect select {
+    background: #F8FAFC;
+    border: 1px solid #AAA;
+    font-size: 14px;
+    color: #757575;
+    border: 1px solid #AAA;
+    border-radius: 5px;
+    padding: 1em 1.5em;
+}
+
+.customArrow {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    position: absolute;
+    top: 1.5rem;
+    right: 0;
+    display: block;
+    background-color: #AAAAAA;
+    height: 64.5%;
+    width: 1rem;
+}
+
+.customArrow::before,
+.customArrow::after {
+    --size: 6px;
+
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);   
+}
+
+.customArrow::before {
+    border-left: var(--size) solid transparent;
+    border-right: var(--size) solid transparent;
+    border-bottom: var(--size) solid rgba(0, 0, 0, 0.5);
+    top: 40%;
+}
+
+.customArrow::after {
+    border-left: var(--size) solid transparent;
+    border-right: var(--size) solid transparent;
+    border-top: var(--size) solid rgba(0, 0, 0, 0.5);
+    top: 60%;
+}

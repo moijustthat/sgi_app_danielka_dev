@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 // Controladores:
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\ProductosController;
+use App\Http\Controllers\ProveedoresController;
+use App\Http\Controllers\ItemsController;
 
 
 
@@ -35,3 +37,17 @@ Route::controller(ProductosController::class)->group(function () {
     });
 });
 
+Route::controller(ProveedoresController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/proveedores', 'index');
+    });
+});
+
+Route::controller(ItemsController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/categoria', 'insert_categoria');
+        Route::post('/marca', 'insert_marca');
+        Route::post('/unidad_medida', 'insert_unidad_medida');
+
+    });
+});

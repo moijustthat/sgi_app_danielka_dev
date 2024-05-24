@@ -1,0 +1,25 @@
+
+.mainData {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+.secondaryData {
+    display: flex;
+    gap: 2rem;
+    margin-top: 10px;
+}
+
+.secondaryData > * {
+    width: 50%;
+}
+
+.btnActualizar {
+    position: fixed;
+    width: 47%;
+    top: 89.3%;
+    left: 26.5%;
+}

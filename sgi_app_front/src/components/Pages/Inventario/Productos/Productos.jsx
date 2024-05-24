@@ -10,7 +10,7 @@ import { UilStopCircle } from '@iconscout/react-unicons'
 import { UilEdit } from '@iconscout/react-unicons'
 import { UimCheckCircle } from '@iconscout/react-unicons-monochrome'
 import { UilEye } from '@iconscout/react-unicons'
-import hexToDataURL from '../../../../utils/HexToDataUrl'
+import hexToDataURL, { isHex, base64ToHex } from '../../../../utils/HexToDataUrl'
 import axiosClient from '../../../../axios-client'
 import { Avatar } from '@mui/material'
 import {NotificationContext} from '../../../Notifications/NotificationProvider'
@@ -18,14 +18,38 @@ import { v4, validate } from 'uuid'
 import DBParser from '../../../../utils/DbFieldsConverter'
 import validateAPI from '../../../../utils/textValidation'
 import Resume from '../../../Common/Resume/Resume.'
+import FormDialog from '../../../Common/FormDialog/FormDialog'
+import FormEdit from './FormEdit'
+import { UilColumns } from '@iconscout/react-unicons'
+import CheckMenu from '../../../Common/CheckMenu/CheckMenu'
+import CircularProgress from '@mui/material/CircularProgress';
+import AlertDialog from '../../../Common/AlertDialog/AlertDialog'
+// console
+const configTable = (table, columns) => {
+
+  const configuredTable = []
+
+  for (let row of table) {
+    let configuredRow = {}
+    for (let {label, checked} of columns) {
+      if (checked) configuredRow[label] = row[label]
+    }
+    configuredTable.push(configuredRow)
+  }
+
+  return configuredTable
+}
 
 const formatTable = (table, estados, metodos, categorias, marcas, unidades_medida) => {
     const formatedTable = []
     for (let row of table) {
       let copyRow = {...row}  
     
-      if (copyRow.Imagen != '' || copyRow.Imagen != null) {
-        copyRow.Imagen = <Avatar alt={'producto'} src={hexToDataURL(copyRow.Imagen)}/> 
+      if (!(copyRow.Imagen === '' || copyRow.Imagen === null)) {
+        copyRow.Imagen = <Avatar alt={'producto'} style={{ 
+          width: '3.5rem',
+          height: '3.5rem', 
+      }}  src={hexToDataURL(copyRow.Imagen)}/> 
       }
 
       try { /*  Como las categorias, marcas y medidas vienen de una peticion 
@@ -48,182 +72,286 @@ const formatTable = (table, estados, metodos, categorias, marcas, unidades_medid
     return formatedTable
   }
 
-const requestUpdate = (id, payload) => {
-  const formatedPayload = {}
-  for (let key of Object.keys(payload)) {
-    formatedPayload[DBParser.Productos[key]] = payload[key] // Convertir los nombres de los campos a los validos en la base de datos
-  }
-  const finalPayload = {id: id, payload: formatedPayload}
-  axiosClient.post('updateProducto', finalPayload)
-    .then(({data}) => {
-      console.log('Actualizado: '+ data.data)
-    })
-    .catch(err=> {
-      const messageErr = err.response.data.messageError
-      console.log('Error en la respuesta del servidor al actualizar el producto '+messageErr);
-    })
-}
+
 
 
 const Productos = () => {
 
 
-    const [loading, setLoading] = useState(false)
-    const [edit, setEdit] = useState(null)
+      const [loading, setLoading] = useState(false)
+      const [edit, setEdit] = useState(null)
 
-    const [formOpen, setFormOpen] = useState(false)
-    const [productos, setProductos] = useState([])
+      const [formOpen, setFormOpen] = useState(false)
+      const [productos, setProductos] = useState([])
 
-    const [categorias, setCategorias] = useState([])
-    const [marcas, setMarcas] = useState([])
-    const [unidades_medida, setUnidadesMedida] = useState([])
-    const [almacenes, setAlmacenes] = useState([])
+      const [categorias, setCategorias] = useState([])
+      const [marcas, setMarcas] = useState([])
+      const [unidades_medida, setUnidadesMedida] = useState([])
+      const [almacenes, setAlmacenes] = useState([])
+      const [columnas, setColumnas] = useState([])
 
-    const dispatch = useContext(NotificationContext)
+      const dispatch = useContext(NotificationContext)
 
-    const generalActions = [
-        {
-            icon: <UilStopCircle />,
-            label: 'desactivar-producto/s',
-            condition: (numSelected) => numSelected > 0,
-            action: (selected) => {
-                const payload = {productos: selected}
-                console.log(payload)
-                axiosClient.post('/desactivate-productos', payload)
-                    .then(({data})=> {
-                      dispatch({
-                        type: 'ADD_NOTIFICATION',
-                        payload: {
-                          id: v4(),
-                          type: 'success',
-                          title: 'Exito',
-                          icon: <UimCheckCircle />,
-                          message: data.data
-                        }
-                      })
-                      getProductos()
-                    }).catch(err=> {
-                        console.log('Error en la respues al desabilitar los productos: '+err)
-                    })
+      // Confirmaciones(No se como hacer un provider todavia :()
+      const [desactivar, setDesactivar] = useState(null)
+
+      const localUpdate = (id, payload) => {
+        setProductos((prev) => {
+          const productoActualizarIndex = prev.findIndex(producto => producto.id === id)
+          const copiaProductos = prev.slice()
+          const productoActualizado = {...copiaProductos[productoActualizarIndex]}
+          const keys = Object.keys(payload)
+          for (let key of keys) {
+            let val
+              if (key === 'Imagen' && !!!isHex(payload[key])) {
+                  val = base64ToHex(payload[key])
+              } else {
+                val = payload[key]
+              }
+              productoActualizado[key] = val
+          }
+          copiaProductos[productoActualizarIndex] = productoActualizado
+          return copiaProductos
+        })
+      }
+
+      const requestUpdate = (id, payload) => {
+        const formatedPayload = {}
+        for (let key of Object.keys(payload)) {
+          formatedPayload[DBParser.Productos[key]] = payload[key] // Convertir los nombres de los campos a los validos en la base de datos
+        }
+        const finalPayload = {id: id, payload: formatedPayload}
+        axiosClient.post('updateProducto', finalPayload)
+          .then(({data}) => {
+            // Una vez actualizado en el backend, actualizar en el front end para no recargar la pagina
+            localUpdate(id, payload)
+            setEdit(null)
+          })
+          .catch(err=> {
+            const messageErr = err.response.data.messageError
+            console.log('Error en la respuesta del servidor al actualizar el producto '+messageErr);
+          })
+      }
+
+      const generalActions = [
+          {
+              icon: <UilStopCircle />,
+              label: 'desactivar-producto/s',
+              condition: (numSelected) => numSelected > 0,
+              action: (selected) => setDesactivar(selected)
+          },
+          {
+              icon: <UilPlus />,
+              label: 'Nuevos productos',
+              condition: () => true,
+              action: () => setFormOpen(true)
+          },
+          {
+              icon: <UilFilter />,
+              label: 'Filtrar producos',
+              condition: () => true,
+              action: () => alert('Filtrar Productos  ')
+          },
+          {
+            icon: <CheckMenu columns={columnas} setColumns={setColumnas} icon={<UilColumns />}/>,
+            label: '',
+            condition: () => true,
+            action: () => null
+        }
+      ]
+      
+      const actions = [
+          {
+              label: 'Editar',
+              icon: <UilEdit />,
+              action: (id) => {
+                setEdit(id)
+              }
+          },
+          {
+              label: 'Ver detalles',
+              icon: <UilEye />,
+              action: (i) => alert('Ver detalles '+i)
+          }
+      ]
+
+
+
+    // Retribuir datos seleccionables de la BD  
+
+    const getProductos = async () => {
+      setLoading(true)
+      axiosClient.get('/productos')
+      .then(({data}) => {
+          const productos = data.data
+          const columnas = productos.length > 0 ? Object.keys(productos[0]) : []
+          const unchecked = ['Categoria', 'Marca', 'Unidad de medida', 'Estado', 'Caducidad', 'Codigo de barra', 'Minimo', 'Maximo', 'Metodo', 'Perdidas Totales']
+          const state = []
+          for (let columna of columnas) {
+            state.push({label: columna, checked: unchecked.findIndex(u=>u==columna) != -1 ? false : true})
+          }
+          setColumnas(state)
+          setProductos(productos)
+          setLoading(false)
+      })
+      .catch(error=> {
+          const messageErr = error.response.data.messageError
+          setLoading(false)
+      })  
+
+    }
+
+    const getItems = async () => {
+      setLoading(true)
+      axiosClient.get('/seleccionables')
+        .then(({data}) => {
+          setCategorias(data.categorias.map((categoria, index)=> {
+            return {
+              label: categoria.nombre,
+              value: categoria.categoriaId
             }
-        },
-        {
-            icon: <UilPlus />,
-            label: 'nuevo-producto',
-            condition: () => true,
-            action: () => setFormOpen(true)
-        },
-        {
-            icon: <UilFilter />,
-            label: 'filtrar-productos',
-            condition: () => true,
-            action: () => alert('Filtrar Productos  ')
-        }
-    ]
-    
-    const actions = [
-        {
-            label: 'Editar',
-            icon: <UilEdit />,
-            action: (id) => setEdit(id)
-        },
-        {
-            label: 'Ver detalles',
-            icon: <UilEye />,
-            action: (i) => alert('Ver detalles '+i)
-        }
-    ]
+          }))
+          setMarcas(data.marcas.map((marca,index)=> {
+            return {
+              label: marca.nombre,
+              value: marca.marcaId
+            }
+          }))
+          setUnidadesMedida(data.unidades_medida.map((medida, index)=> {
+            return {
+              label: medida.nombre,
+              value: medida.unidadMedidaId
+            }
+          }))
+          setAlmacenes(data.almacenes.map((almacen, index)=> {
+            return {
+              label: almacen.nombre,
+              value: almacen.almacenId
+            }
+          }))
+          setLoading(false)
+        })
+        .catch((e) => {
+          console.log('Error en la respuesta: '+e);
+          setLoading(false)
+        }) 
+    }
 
     useEffect(() => {
         getProductos()
-        getItems()
+        getItems()    
     }, [])
 
 
-  // Retribuir datos seleccionables de la BD  
+    const producto = productos.find(p=>p.id == edit)
+    const productoEditado = {}
+    try {
+      productoEditado['Nombre'] = producto['Nombre']
+      productoEditado['Descripcion'] = producto['Descripcion']
+      productoEditado['Codigo de barra'] = producto['Codigo de barra']
+      productoEditado['Precio de venta'] = producto['Precio de venta']
+      productoEditado['Categoria'] = producto['Categoria']
+      productoEditado['Marca'] = producto['Marca']
+      productoEditado['Unidad de medida'] = producto['Unidad de medida']
+      productoEditado['Metodo'] = producto['Metodo']
+      productoEditado['Minimo'] = producto['Minimo']
+      productoEditado['Maximo'] = producto['Maximo']
+      productoEditado['Imagen'] = producto['Imagen']
+    } catch(e) {
+      console.log('cargando...')
+    }
 
-  const getProductos = () => {
-    axiosClient.get('/productos')
-    .then(({data}) => {
-        setProductos(data.data)
-        console.log(data.data)
-    })
-    .catch(error=> {
-        const messageErr = error.response.data.messageError
-        console.log(messageErr)
-    })  
+    const productoNombre = producto ? producto['Nombre'] : ''
+    const productoImagen = producto ? producto['Imagen'] : null
 
-  }
-
-  const getItems = () => {
-
-    axiosClient.get('/seleccionables')
-      .then(({data}) => {
-        setCategorias(data.categorias.map((categoria, index)=> {
-          return {
-            label: categoria.nombre,
-            value: categoria.categoriaId
-          }
-        }))
-        setMarcas(data.marcas.map((marca,index)=> {
-          return {
-            label: marca.nombre,
-            value: marca.marcaId
-          }
-        }))
-        setUnidadesMedida(data.unidades_medida.map((medida, index)=> {
-          return {
-            label: medida.nombre,
-            value: medida.unidadMedidaId
-          }
-        }))
-        setAlmacenes(data.almacenes.map((almacen, index)=> {
-          return {
-            label: almacen.nombre,
-            value: almacen.almacenId
-          }
-        }))
-
-      })
-      .catch((e) => {
-        console.log('Error en la respuesta: '+e);
-      }) 
-  }
-
-  useEffect(() => {
-    getItems()
-  },[])
-
+    if (loading) {
+      return <CircularProgress 
+              size='4rem'
+              sx={{
+                position: 'relative',
+                top:'50%',
+                left: '40%',
+                color: '#6AD096'
+              }}/>
+    }
 
     return (
         <>
+
+        <AlertDialog 
+          open={desactivar ? true : false}
+          contentText={desactivar ? `Seguro deseas eliminar ${desactivar.length > 1 ? `estos ${desactivar.length} productos` : 'este producto'}` : ''}
+          cancelText='Cancelar'
+          acceptText='Eliminar'
+          acceptAction={() => {
+            const payload = {productos: desactivar}
+            axiosClient.post('/desactivate-productos', payload)
+                .then(({data})=> {
+                  dispatch({
+                    type: 'ADD_NOTIFICATION',
+                    payload: {
+                      id: v4(),
+                      type: 'success',
+                      title: 'Exito',
+                      icon: <UimCheckCircle />,
+                      message: data.data
+                    }
+                  })
+                  setDesactivar(null)
+                  getProductos()
+                }).catch(err=> {
+                    console.log('Error en la respues al desabilitar los productos: '+err)
+                })
+        }}
+          cancelAction={()=>setDesactivar(null)}
+        />
+
         <div className='CatalogoProductos'>
             {/** AddProducto(Metete a AddProducto.jsx y el css en AddProducto.css) es el formulario de nuevos productos */}
+            <FormDialog 
+              title={
+              <div style={{
+                display: 'flex',
+              }}>
+                <p style={{
+                  fontSize: '12px',
+                  fontFamily: 'Inter'
+                }}>
+                  {`Editar ${productoNombre}`}
+                </p>
+              
+                <Avatar
+                  src={productoImagen ? hexToDataURL(productoImagen) : ''}
+                  style={{
+                    display: productoImagen ? '' : 'none',
+                    width: '25%',
+                    height: '25%',
+                  }}
+                />
+
+              </div>
+            } 
+            content={<FormEdit 
+                        id={edit}
+                        setUpdate={setEdit}
+                        requestUpdate={requestUpdate}
+                        productoEditado={productoEditado} 
+                        seleccionables={{categorias, marcas, unidades_medida, metodos: [{value: 'peps', label: 'Peps'}, {value: 'ueps', label: 'Ueps'}]}}
+                        />} 
+            open={edit ? true : false} 
+            setOpen={setEdit}
+            />
             <RightDrawer width={'100vw'} content={<AddProducto refresh={getProductos} productos={productos} setProductos={setProductos} categorias={categorias} marcas={marcas} unidades_medida={unidades_medida} almacenes={almacenes} setOpen={setFormOpen}/>} open={formOpen}/>
-            <Banner>Catalogo de Productos</Banner>
+          
             <div className='catalogo'>
                 <Table 
-                    requestUpdate={requestUpdate}
-                    edit={edit}
+                    dense={true}
                     pagination={false}
-                    setEdit={setEdit}
-                    editables={[
-                      {label: 'Categoria', type: 'select', validation: () => categorias},
-                      {label: 'Marca', type: 'select', validation: () => marcas},
-                      {label: 'Unidad de medida', type: 'select', validation: () => unidades_medida},
-                      {label: 'Nombre', type: 'text', validation: () =>  (input) => [validateAPI.name(input), `Simbolo: ${input} no valido`]},
-                      {label: 'Descripcion', type: 'text', validation:  (input) => [validateAPI.everything(input), `Simbolo: ${input} no valido`]},
-                      {label: 'Precio de venta', type: 'text', validation: (input) => [validateAPI.positiveReal(input), `Simbolo: ${input} no valido`]},
-                      {label: 'Codigo de barra', type:'text', validation: (input) => [validateAPI.numeric(input), `Simbolo: ${input} no valido`]},
-                      {label: 'Minimo', type:'text', validation: (input) => [validateAPI.number(input), `Simbolo: ${input} no valido`]},
-                      {label: 'Maximo', type:'text', validation: (input) => [validateAPI.number(input), `Simbolo: ${input} no valido`]},
-                      {label: 'Metodo', type:'select', validation: (input) =>  [{value: 'peps', label: 'Peps'}, {value: 'ueps', label: 'Ueps'}] }
-                    ]}
                     empty='Agrega productos al catalogo!!!'
-                    dense={false}
-                    actions={actions}
                     generalActions={generalActions}
-                    rows={formatTable(productos, [{value: 't', label: 'Activo'}, {value: 'f', label: 'Inactivo'}],  [{value: 'peps', label: 'Peps'}, {value: 'ueps', label: 'Ueps'}], categorias, marcas, unidades_medida)}
+                    actions={actions}
+                    setEdit={setEdit}
+                    rows={configTable(formatTable(productos, [{value: 't', label: 'Activo'}, {value: 'f', label: 'Inactivo'}],  [{value: 'peps', label: 'Peps'}, {value: 'ueps', label: 'Ueps'}], categorias, marcas, unidades_medida), columnas)}
                     setRows={setProductos}
                     footer={<Resume 
                       dataSet={productos}

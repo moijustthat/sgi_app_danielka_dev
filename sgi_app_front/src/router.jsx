@@ -9,6 +9,7 @@ import NotFound from "./components/Pages/NotFound/NotFound";
 import Perfil from "./components/Pages/Perfil/Perfil";
 import Productos from "./components/Pages/Inventario/Productos/Productos";
 import Ordenes from "./components/Pages/Facturacion/Ordenes/Ordenes";
+import Inventario from "./components/Pages/Inventario/Inventario";
 
 const router = createBrowserRouter([
     {
@@ -18,6 +19,14 @@ const router = createBrowserRouter([
             {
                 path: '/',
                 element: <Navigate to='/inicio' />
+            },
+            {
+                path: '/facturacion',
+                element: <Ordenes />
+            },
+            {
+                path: '/inventario',
+                element: <Inventario />
             },
             {
                 path: '/inicio',

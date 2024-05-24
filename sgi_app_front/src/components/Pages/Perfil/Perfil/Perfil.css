@@ -1,10 +1,10 @@
 .PerfilContainer {
-    display: flex !important;
-    flex-direction: column !important;
+    display: flex;
+    flex-direction: column;
 }
 
 .PerfilContent{
-    background-color: #fff !important;
+    background-color: #fff;
     border-radius: 0.5rem;
     padding: 1rem;
     margin: 0 1rem 1rem 1rem;
