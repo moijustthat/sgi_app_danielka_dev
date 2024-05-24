@@ -1,0 +1,127 @@
+@import url("https://fonts.googleapis.com/css2?family=Istok+Web:wght@400;700&display=swap");
+
+/* Font */
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "Istok Web", sans-serif;
+}
+
+/* Background */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #212121;
+}
+
+/* CardView */
+.card {
+  position: relative;
+  width: 900px;
+  height: 550px;
+  background: #191919;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* CardView elements::view-transition-group*/
+.card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  width: 100%;
+  height: 100%;
+  background: #0f8fafbb;
+  transform: skewY(345deg);
+  transition: 0.5s;
+}
+
+.card:hover::before {
+  top: -70%;
+  transform: skewY(390deg);
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-weight: 600;
+  font-size: 6em;
+  color: rgba(0, 0, 0, 0.1);
+}
+
+/* Animation */
+.card .animationBox {
+  position: relative;
+  width: 80%; /* Cambiar el ancho */
+  height: 65%; /* Cambiar la altura */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 20px;
+  z-index: 1;
+}
+
+/*
+.card .animationBox img {
+    max-width: 100%;
+
+    transition: .5s;
+}
+
+.card:hover .animationBox img {
+    max-width: 50%;
+
+}
+*/
+
+
+/* Messages within the CardView */
+.card .contentBox {
+  position: relative;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 2;
+}
+
+/* Cardview Content */
+.card .contentBox h1 {
+  font-size: 18px;
+  color: white;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Popup message on hover */
+.card .contentBox .message {
+  position: relative;
+  top: 100px;
+  opacity: 0;
+  padding: 10px 30px;
+  margin-top: 15px;
+  color: #000000;
+  text-decoration: none;
+  background: #ffce00;
+  border-radius: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: 0.5s;
+}
+
+.card:hover .contentBox .message {
+  top: 0;
+  opacity: 1;
+}
+
+/* mouse (Set the height of the element to 300 pixels) */
+.mouse {
+  height: 300px;
+  width: auto;
+}
