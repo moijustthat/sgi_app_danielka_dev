@@ -642,7 +642,7 @@ const AddProducto = React.memo((props) => {
       </div>
 
 
-        <div className='form'>
+        <div className='formAddProducto'>
 
             <div>            
               <div className='mainData'>
