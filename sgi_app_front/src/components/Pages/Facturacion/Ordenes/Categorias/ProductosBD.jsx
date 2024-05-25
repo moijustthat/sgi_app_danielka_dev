@@ -11,10 +11,17 @@ import CardView from '../../../../Common/CardView/CardView'
 const ProductosBD = (props) => {
     
     const {
-        productos=[]
+        productos=[],
+        categorias=[],
+        marcas=[],
+        unidades_medida=[]
     } = props
     const [searchNombre, setSearchNombre] = useState('')
     const [searchCodigoBarra, setSearchCodigoBarra] = useState('')   
+    const [categoria, setCategoria] = useState('all')
+    const [marca, setMarca] = useState('all')
+    const [medida, setMedida] = useState('all')
+
 
 
     if (productos.length === 0 ) return <h1>No tienes productos</h1>
@@ -35,13 +42,34 @@ const ProductosBD = (props) => {
                 </div>
             </div>
             <div className="selectContainer">
-                <SelectField label='Categorias'/>
+                <SelectField 
+                    value={categoria}
+                    label='Categorias'
+                    options={[{value: 'all', label: 'Todas las categorias'}, ...categorias]}
+                    onChange={(value)=> {
+                        setCategoria(value)
+                    }}
+                />
             </div>
             <div className="selectContainer">
-                <SelectField label='Marcas'/>
+                <SelectField 
+                    value={marca}
+                    label='Marcas'
+                    options={[{value: 'all', label: 'Todas las marcas'}, ...marcas]}
+                    onChange={(value)=> {
+                        setMarca(value)
+                    }}
+                />
             </div>
             <div className="selectContainer">
-                <SelectField label='Medidas'/>
+                <SelectField 
+                    value={medida}
+                    label='Medidas'
+                    options={[{value: 'all', label: 'Todas las medidas'}, ...unidades_medida]}
+                    onChange={(value)=> {
+                        setMedida(value)
+                    }}
+                />
             </div>
         </div>
 
@@ -52,7 +80,13 @@ const ProductosBD = (props) => {
                     const producto = p.info
                     const nombre = producto['Nombre'].toLowerCase()
                     const codBarra = producto['Codigo de barra'] !== '' && producto['Codigo de barra'] ? String(producto['Codigo de barra']) : ''
-                   if (nombre.includes(searchNombre.toLowerCase()) && codBarra.includes(searchCodigoBarra)) {
+                    const filtroCategoria = categoria === 'all' ? true : categoria === String(producto['Categoria'])
+                    const filtroMarca = marca === 'all' ? true : marca === String(producto['Marca'])
+                    const filtroMedida = medida === 'all' ? true : medida === String(producto['Unidad de medida'])
+                    const filtroTextual = nombre.includes(searchNombre.toLowerCase()) && codBarra.includes(searchCodigoBarra)
+                    console.log(categoria, marca, medida)
+                    console.log(filtroCategoria, filtroMarca, filtroMedida)
+                   if (filtroTextual && filtroCategoria && filtroMarca && filtroMedida) {
                     item = <CardView 
                     seeMore={false}
                     name={nombre}

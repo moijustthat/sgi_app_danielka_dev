@@ -5,6 +5,9 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import CloseIcon from '@mui/icons-material/Close';
+import { IconButton } from '@mui/material';
+
 export default function FormDialog(props) {
 
   const {
@@ -42,7 +45,18 @@ export default function FormDialog(props) {
             paddingTop: 0,
             height: '2.5rem'
           }}
-        >{title}</DialogTitle>
+        >
+          <div>
+            {title}
+            <IconButton 
+            onClick={handleClose}
+            sx={{
+              float: 'right'
+            }}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+        </DialogTitle>
         <DialogContent> 
           {content}
         </DialogContent>

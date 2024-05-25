@@ -292,7 +292,7 @@ return <>
                                 id: value
                             })
                             if (value === 'bd') {
-                                setRequestBd(<ProductosBD productos={productos} />)
+                                setRequestBd(<ProductosBD productos={productos} categorias={categorias} marcas={marcas} unidades_medida={unidades_medida}/>)
                             }
                             else {
                                 setRequestBd(null)
