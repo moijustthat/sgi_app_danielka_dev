@@ -15,7 +15,8 @@ export default function FormDialog(props) {
     setOpen,
     content,
     title,
-    onAccept
+    onAccept,
+    fullScreen=false
   } = props
 
   const handleClose = () => {
@@ -24,8 +25,8 @@ export default function FormDialog(props) {
 
   return (
       <Dialog
-        maxWidth='xl'
-        fullWidth
+       
+        fullScreen={fullScreen}
         open={open}
         onClose={handleClose}
         PaperProps={{

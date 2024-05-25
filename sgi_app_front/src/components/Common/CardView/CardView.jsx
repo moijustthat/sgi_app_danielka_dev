@@ -14,7 +14,8 @@ const CardView = (props) => {
         value1,
         value2,
         value3,
-        seeMore=true
+        seeMore=true,
+        btnText = 'Ver mas'
     } = props
 
     return <div className="card_container">
@@ -28,7 +29,7 @@ const CardView = (props) => {
                             <div className="gitDetail"><span>{detail2}</span>{value2}</div>
                             <div className="gitDetail"><span>{detail3}</span>{value3}</div>
                         </div>
-                        <button style={{display: seeMore ? '' : 'none'}} className="seeMore">See More</button>
+                        <button style={{display: seeMore ? '' : 'none'}} className="seeMore">{btnText}</button>
                     </div>
                 </div>
             </div>

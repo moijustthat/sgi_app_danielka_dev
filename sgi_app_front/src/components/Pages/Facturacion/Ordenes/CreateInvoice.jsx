@@ -73,6 +73,7 @@ return <>
     <div className='container'>
 
         <FormDialog 
+            fullScreen={true}
             open={requestBd}
             setOpen={(close) => {
                 setRequestBd(close)

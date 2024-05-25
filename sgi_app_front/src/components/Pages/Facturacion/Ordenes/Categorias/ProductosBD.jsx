@@ -25,7 +25,34 @@ const ProductosBD = (props) => {
 
 
     if (productos.length === 0 ) return <h1>No tienes productos</h1>
-    console.log(productos);
+    const productosFiltrados = (
+        productos
+        .filter(p=> {
+            const producto = p.info
+            const nombre = producto['Nombre'].toLowerCase()
+            const codBarra = producto['Codigo de barra'] !== '' && producto['Codigo de barra'] ? String(producto['Codigo de barra']) : ''
+            const filtroCategoria = categoria === 'all' ? true : categoria === String(producto['Categoria'])
+            const filtroMarca = marca === 'all' ? true : marca === String(producto['Marca'])
+            const filtroMedida = medida === 'all' ? true : medida === String(producto['Unidad de medida'])
+            const filtroTextual = nombre.includes(searchNombre.toLowerCase()) && codBarra.includes(searchCodigoBarra)
+            return filtroTextual && filtroCategoria && filtroMarca && filtroMedida
+        })
+        .map(({info})=> (
+                <CardView 
+                    name={info['Nombre']}
+                    description={info['Codigo de barra']}
+                    img={info['Imagen']}
+                    detail1='Precio al publico'
+                    value1={'C$'+ info['Precio de venta']}
+                    detail2='Disponible'
+                    value2={info['Disponible']}
+                    detail3='Importe'
+                    value3={'C$ '+info['Total vendido']}
+                    btnText='Ordenar'
+                />
+         
+        ))
+    )
     return (
         <div className='containerCategory'>
         <div className="headerCategory">
@@ -75,34 +102,7 @@ const ProductosBD = (props) => {
 
         <div className='contentWrapper'>
             <div className='galleryCategory'>
-                {productos.map(p=> {
-                    let item = null
-                    const producto = p.info
-                    const nombre = producto['Nombre'].toLowerCase()
-                    const codBarra = producto['Codigo de barra'] !== '' && producto['Codigo de barra'] ? String(producto['Codigo de barra']) : ''
-                    const filtroCategoria = categoria === 'all' ? true : categoria === String(producto['Categoria'])
-                    const filtroMarca = marca === 'all' ? true : marca === String(producto['Marca'])
-                    const filtroMedida = medida === 'all' ? true : medida === String(producto['Unidad de medida'])
-                    const filtroTextual = nombre.includes(searchNombre.toLowerCase()) && codBarra.includes(searchCodigoBarra)
-                    console.log(categoria, marca, medida)
-                    console.log(filtroCategoria, filtroMarca, filtroMedida)
-                   if (filtroTextual && filtroCategoria && filtroMarca && filtroMedida) {
-                    item = <CardView 
-                    seeMore={false}
-                    name={nombre}
-                    description={codBarra}
-                    img={producto['Imagen']}
-                    detail1='Precio al publico'
-                    value1={'C$'+ producto['Precio de venta']}
-                    detail2='Disponible'
-                    value2={producto['Disponible']}
-                    detail3='Importe'
-                    value3={'C$ '+producto['Total vendido']}
-                    />
-                   }
-                   return item
-                })}
-                
+                {productosFiltrados.length > 0 ? productosFiltrados : <h1>No hay productos con los filtros proporcionados</h1>}
             </div>
         </div>
     </div>
