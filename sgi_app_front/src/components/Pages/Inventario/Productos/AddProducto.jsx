@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Divider, IconButton }  from '@mui/material';
 import { Alert } from '@mui/material';
@@ -22,7 +22,10 @@ import CheckMenu from '../../../Common/CheckMenu/CheckMenu';
 import { AiOutlineProduct } from "react-icons/ai";
 import { BsBoxes } from "react-icons/bs";
 import AlertDialog from '../../../Common/AlertDialog/AlertDialog';
-
+import '../../../Common/Styles/buttons.css'
+import CardView from '../../../Common/CardViews/CardView'
+import { debounce } from 'lodash';
+// go
 const formatTable = (table, categorias, marcas, unidadesMedida, almacenes, estados, tipos) => {
   const formatedTable = []
   for (let row of table) {
@@ -76,9 +79,6 @@ const init ={
   Metodo: 'peps',
   Caducidad: 'f',
   'Fecha de vencimiento': '',
-  'Descripcion de la temporada': '',
-  'Fecha de inicio de la temporada': '',
-  'Fecha final de la temporada': '',
   comprobante: ''
 }
 
@@ -99,21 +99,14 @@ const AddProducto = React.memo((props) => {
   const {
     setOpen,
     refresh,
-    categorias,
-    marcas,
-    unidades_medida,
-    almacenes,
-    productos
+    categorias=[],
+    marcas=[],
+    unidades_medida=[],
+    almacenes=[],
+    productos=[]
   } = props
 
 
-
-  const codigos_de_barra = productos.map(producto=> {
-    return {
-      Nombre: producto['Nombre'],
-      'Codigo de barra': producto['Codigo de barra']
-    }
-  })
 
   const [nuevoProducto, setNuevoProducto] = useState(init)
   const [listaNuevosProductos, setListaNuevosProductos] = useState([])
@@ -123,7 +116,16 @@ const AddProducto = React.memo((props) => {
   const [nuevoStock, setNuevoStock] = useState('f')
 
   const [columnas, setColumnas] = useState(establecerColumnasPersonalizadas(nuevoProducto))
-  
+  const [rollbacks, setRollbacks] = useState({
+    'Nombre': false,
+    'Codigo de barra': false,
+    'Minimo': false,
+    'Maximo': false,
+    'Fecha de vencimiento': false,
+    'Imagen': false
+  }) /* rollbacks indica que campos tienen errores logicos, si al menos un campo es true entonces se hara un rollback
+        antes de ingresar el producto a la lista y en los campos que sean true se mostrar una alerta al usuario sobre su error*/
+
   const dispatch = useContext(NotificationContext)
   
   const [items, setItems] = useState({
@@ -132,6 +134,62 @@ const AddProducto = React.memo((props) => {
     'Unidad de medida': ''
   })
 
+
+  const handleDoubleCostValidation = debounce((constraint1, constraint2, validation) => {
+    if (validation(constraint1.value, constraint2.value)) {
+      setRollbacks({
+        ...rollbacks,
+        [constraint1.label]: true,
+        [constraint2.label]: true
+      })
+    } else {
+      setRollbacks({
+        ...rollbacks,
+        [constraint1.label]: false,
+        [constraint2.label]: false
+      })
+    }
+  }, 300)
+  
+  const handleConditionalCostValidation = debounce((constraint, value, validation) => {
+    if (validation(value)) setRollbacks({
+      ...rollbacks,
+      [constraint]: true
+    })
+    else setRollbacks({
+      ...rollbacks,
+      [constraint]: false
+    })
+  }, 50)
+
+  const handleFoundCostValidation = debounce((constraint, value, setWarning)=>{
+    function myConcat(arr1, arr2) {
+      let concatenated = []
+      for (let e1 of arr1) {
+        concatenated.push(e1)
+      }
+      for (let e2 of arr2) {
+        concatenated.push(e2)
+      }
+      return concatenated
+    }
+    let matrix = myConcat(productos, listaNuevosProductos)
+    let prod = matrix.find(producto=> String(producto[constraint]) === value)
+    if (prod) {
+      setWarning(`Producto con el mismo valor de "${constraint}" encontrado en la matriz de productos`)
+      setRollbacks({
+        ...rollbacks,
+        [constraint]: true
+      })
+    } else {
+        setWarning('')
+        setRollbacks({
+          ...rollbacks,
+          [constraint]: false
+        })
+    }
+  }, 300)
+  console.log(rollbacks)
   const [edit, setEdit] = useState(null)
 
   const [eliminar, setEliminar] = useState(null)
@@ -179,8 +237,6 @@ const AddProducto = React.memo((props) => {
   }
 
   const handleAgregarNuevoProducto = (producto) => {
-
-    let logicError = false
     const required = ['Nombre', 'Descripcion', 'Categoria', 'Marca', 'Unidad de medida', 'Precio de venta', 'Minimo', 'Maximo', 'Metodo']
     const incompletes = []
 
@@ -188,12 +244,6 @@ const AddProducto = React.memo((props) => {
     if (nuevoStock === 't') {
       required.push('Cantidad')
       required.push('Almacen')
-
-      // Si Descripcion estacional tiene contenido las fechas son requeridas
-      if (producto['Descripcion de la temporada'] !== '') {
-        required.push('Fecha de inicio de la temporada')
-        required.push('Fecha final de la temporada')
-      }
     } 
 
 
@@ -212,154 +262,10 @@ const AddProducto = React.memo((props) => {
       return
     } 
 
-    // Condiciones logicas:
-    if (producto.Caducidad == 't' && !producto['Fecha de vencimiento']) {
-      dispatch({
-        type: 'ADD_NOTIFICATION',
-        payload: {
-          id: v4(),
-          type: 'error',
-          title: 'Producto sin fecha de vencimiento',
-          icon: <UilExclamationTriangle />,
-          message: 'Especifica la fecha de vencimiento de este stock'
-        }
-      })
-      logicError = true
+    // Revisar si se hara un rollback logico
+    for (let rollback of Object.keys(rollbacks)) { 
+      if (rollbacks[rollback]) return // Si al menos existe un error logico realizar rollback
     }
-
-    if (producto.Caducidad == 'f' && producto['Fecha de vencimiento'] !== '') {
-      dispatch({
-        type: 'ADD_NOTIFICATION',
-        payload: {
-          id: v4(),
-          type: 'error',
-          title: 'Producto no Caducidad',
-          icon: <UilExclamationTriangle />,
-          message: 'Si el producto no vence no ingreses una fecha de vencimiento'
-        }
-      })
-      logicError = true
-    }
-
-    if (Number(producto.Minimo) >= Number([producto.Maximo])) {
-      dispatch({
-        type: 'ADD_NOTIFICATION',
-        payload: {
-          id: v4(),
-          type: 'error',
-          title: 'Error en las cantidades',
-          icon: <UilExclamationTriangle />,
-          message: 'El Minimo no puede ser mayor al Maximo'
-        }
-      })
-      logicError = true
-    }
-
-    if (producto['Fecha de vencimiento'] !== '' && producto.Caducidad === 't') {
-      if (DateHandler.isLesserOrEqual(producto['Fecha de vencimiento'], DateHandler.getCurrentDate())) {
-        dispatch({
-          type: 'ADD_NOTIFICATION',
-          payload: {
-            id: v4(),
-            type: 'error',
-            title: 'Error en la fecha de vencimiento',
-            icon: <UilExclamationTriangle />,
-            message: 'La fecha de vencimiento no puede ser anterior al dia de hoy'
-          }
-        })
-        logicError = true
-      }
-    }
-
-    if (producto['Descripcion de la temporada'] !== '') {
-      if (producto['Fecha de inicio de la temporada'] == '' || producto['Fecha final de la temporada'] == '') {
-        dispatch({
-          type: 'ADD_NOTIFICATION',
-          payload: {
-            id: v4(),
-            type: 'error',
-            title: 'Ingresa las fechas de la temporada',
-            icon: <UilExclamationTriangle />,
-            message: 'Ingresa las fechas correspondientes a la temporada'
-          }
-        })
-        logicError = true
-      } else {
-        if (DateHandler.isLesser(producto['Fecha de inicio de la temporada'], DateHandler.getCurrentDate())) {
-          dispatch({
-            type: 'ADD_NOTIFICATION',
-            payload: {
-              id: v4(),
-              type: 'error',
-              title: 'Inicio de la temporada invalido',
-              icon: <UilExclamationTriangle />,
-              message: 'La fecha de inicio de la temporada no puede ser anterior a hoy'
-            }
-          })
-          logicError = true
-        } else if(DateHandler.isLesser(producto['Fecha final de la temporada'], DateHandler.getCurrentDate())) {
-          dispatch({
-            type: 'ADD_NOTIFICATION',
-            payload: {
-              id: v4(),
-              type: 'error',
-              title: 'Final de la temporada invalido',
-              icon: <UilExclamationTriangle />,
-              message: 'La fecha de final de la temporada no puede ser anterior a hoy'
-            }
-          })
-          logicError = true
-        } else if (DateHandler.isLesser(producto['Fecha final de la temporada'], producto['Fecha de inicio de la temporada'])) {
-          dispatch({
-            type: 'ADD_NOTIFICATION',
-            payload: {
-              id: v4(),
-              type: 'error',
-              title: 'Rango de fechas invalido',
-              icon: <UilExclamationTriangle />,
-              message: 'La fecha final de la temporada no puede ser anterior al inicio'
-            }
-          })
-          logicError = true
-        }
-      }
-
-    } else {
-      if (producto['Fecha de inicio de la temporada'] !== '' || producto['Fecha final de la temporada'] !== '') {
-        dispatch({
-          type: 'ADD_NOTIFICATION',
-          payload: {
-            id: v4(),
-            type: 'error',
-            title: 'Ingresa la Descripcion de la temporada',
-            icon: <UilExclamationTriangle />,
-            message: 'Ingresa la Descripcion de la temporada que escogiste'
-          }
-        })
-        logicError = true
-      }
-    }
-
-
-    // Verificar que el codigo de barra no exista ya en la lista
-    if (!edit && listaNuevosProductos.findIndex(p=> p['Codigo de barra'] === producto['Codigo de barra']) !== -1) {
-      dispatch({
-        type: 'ADD_NOTIFICATION',
-        payload: {
-          id: v4(),
-          type: 'error',
-          title: 'Codigo de barra existente',
-          icon: <UilExclamationTriangle />,
-          message: 'Verifica que el codigo de barra no exista ya en en la lista'
-        }
-      })
-      logicError = true
-    }
-
-    /* console.log
-    if (listaNuevosProductos.some(prev => prev['Codigo de barra'] === producto['Codigo de barra'])) {
-
-    }*/
 
     // Warnings
     if (nuevoStock) {
@@ -390,10 +296,6 @@ const AddProducto = React.memo((props) => {
       }
   
     }
-
-    // Si existe un error logico cancelar la operacion
-    if (logicError) return
-
     
     // Condiciones validadadas(en este punto la entrada es correcta y se manejara para mandarse a la lista de nuevos productos)
     // Quitar alertas de incompletitud
@@ -517,6 +419,7 @@ const AddProducto = React.memo((props) => {
           message: messageErr
         }
       })
+      console.log(messageErr)
     })
     
   }
@@ -552,10 +455,8 @@ const AddProducto = React.memo((props) => {
       }  
       
       // Validar tipos permitidos en la imagen
-      if (value.type !== 'image/avif' && value.type !== 'image/png' && value.type !== 'image/jpeg') {
-        setErr(`Tipo de archivo incorrecto.Solo se permiten: png, jpeg y avif`)
-        return
-      }
+      if (value.type !== 'image/avif' && value.type !== 'image/png' && value.type !== 'image/jpeg') return
+      
 
       const file = value // Esta es la  ruta de la imagen
       const reader = new FileReader()
@@ -663,45 +564,41 @@ const AddProducto = React.memo((props) => {
               <Divider />
             </div>
 
-            <div className='secondaryData'>
-              <TextField 
+          <div className='mainData'>
+             <TextField 
                   value={nuevoProducto.Nombre} 
                   incomplete={markAsIncomplete.find(l=>l=='Nombre')} 
-                  onChange={(value, setErr)=> {
+                  onChange={(value, setErr, setWarning)=> {
+                    if (!edit) handleFoundCostValidation('Nombre', value, setWarning)
                     handleChangeNuevoProducto(value, setErr, 'Nombre', validateAPI.everything)
                   }} 
                   label='Nombre del producto' 
                   placeholder='Requerido'
                 />
+          </div>
 
+          <div className='secondaryData'>
                 <TextField 
                   value={nuevoProducto['Codigo de barra']} 
                   onChange={(value, setErr, setWarning)=> {
-                  
-                    const prod = codigos_de_barra.find(producto=> Number(producto['Codigo de barra']) === Number(value))
-                    // Codigo de barra encontrado en la base de datos: console
-                    
-                    if (prod) {
-                      setWarning(`Producto con el mismo codigo de barra encontrado: ${prod.Nombre}`)
-                    } else {
-                      setWarning('')
-                    }
-
-                    if (listaNuevosProductos.length > 0) {
-                      const newProd = listaNuevosProductos.find(producto=> producto['Codigo de barra'] === value)
-                    // Codigo de barra encontrado en la lista de nuevos productos
-                      if (newProd) {
-                        setWarning(`Producto con el mismo codigo de barra encontrado: ${newProd.Nombre}`)
-                      } else {
-                        setWarning('')
-                      }
-                    }
-                    
+                    if (!edit) handleFoundCostValidation('Codigo de barra', value, setWarning)
                     handleChangeNuevoProducto(value, setErr, 'Codigo de barra', validateAPI.numeric, 'Maximo de digitos: 15. Solo digitos permitidos')
                   }} 
                   label='Codigo de barra' 
                   placeholder='**********'
                   />
+
+                <TextField 
+                  value={nuevoProducto['Precio de venta']} 
+                  incomplete={markAsIncomplete.find(l=>l=='Precio de venta')} 
+                  onChange={(value, setErr)=> {
+                    if(validateAPI.priceTruncated(value)) {
+                      handleChangeNuevoProducto(value, setErr, 'Precio de venta', validateAPI.positiveReal)
+                    }
+                  }} 
+                  label='Precio de venta'
+                  placeholder='C$'
+                />
             </div>
 
             <div className='mainData'>
@@ -715,6 +612,68 @@ const AddProducto = React.memo((props) => {
                   placeholder='Requerido'
                 />
             </div>
+
+            <div className='secondaryData'>
+                
+              <TextField 
+                  value={nuevoProducto.Maximo} 
+                  incomplete={markAsIncomplete.find(l=>l=='Maximo')} 
+                  desactiveManually={!rollbacks['Maximo']}
+                  onChange={(value, setErr, setWarning)=> {
+                    if (nuevoProducto.Minimo !== '') {
+                      const Maximo = Number(value)
+                      const Minimo = Number(nuevoProducto.Minimo)
+                      handleDoubleCostValidation({label: 'Maximo', value: Maximo}, {label: 'Minimo', value: Minimo}, (val1, val2) => {
+                        if(val1 < val2) { 
+                          setWarning('Maximo no puede ser menor al minimo')
+                          return true
+                        }
+                        else if (val1 === val2) {
+                          setWarning('Debes dejar un margen entre el maximo y minimo')
+                          return true
+                        }
+                        else {
+                          setWarning('')
+                          return false
+                        }
+                      })
+                    }
+                    handleChangeNuevoProducto(value, setErr, 'Maximo', validateAPI.number)
+                  }} 
+                  label='Maximo de existencias' 
+                  placeholder='Requerido'
+                  />
+
+                <TextField 
+                  value={nuevoProducto.Minimo} 
+                  incomplete={markAsIncomplete.find(l=>l=='Minimo')} 
+                  desactiveManually={!rollbacks['Minimo']}
+                  onChange={(value, setErr, setWarning)=> {
+                    if (nuevoProducto.Maximo !== '') {
+                      const Minimo = Number(value)
+                      const Maximo = Number(nuevoProducto.Maximo)
+                      handleDoubleCostValidation( {label: 'Minimo', value: Minimo}, {label: 'Maximo', value: Maximo}, (val1, val2) => {
+                        if(val1 > val2) { 
+                          setWarning('Minimo no puede ser mayor al maximo')
+                          return true
+                        }
+                        else if (val1 === val2) {
+                          setWarning('Debes dejar un margen entre el maximo y minimo')
+                          return true
+                        }
+                        else {
+                          setWarning('')
+                          return false
+                        }
+                      })
+                    }
+
+                    handleChangeNuevoProducto(value, setErr, 'Minimo', validateAPI.number)
+                  }} 
+                  label='Minimo de existencias' 
+                  placeholder='Requerido'
+                  />     
+              </div>
 
               <div className='secondaryData'>
                 
@@ -851,9 +810,8 @@ const AddProducto = React.memo((props) => {
                       </div>
                     </div>
                   </div>
-              </div>
-
-              <div className='secondaryData'>
+                </div>
+                <div className='secondaryData'>
                 <div style={{display: nuevoProducto['Unidad de medida'] === 'new' ? 'none' : ''}}>
                   <SelectField 
                     incomplete={markAsIncomplete.find(l=>l=='Unidad de medida')} 
@@ -865,7 +823,7 @@ const AddProducto = React.memo((props) => {
                     />
                 </div>
 
-              <div style={{display: nuevoProducto['Unidad de medida'] === 'new' ? '' : 'none'}} className='campoNuevaUnidadMedida nuevoItem'>
+                <div style={{display: nuevoProducto['Unidad de medida'] === 'new' ? '' : 'none'}} className='campoNuevaUnidadMedida nuevoItem'>
                     <div className='secondaryData'>
                       <TextField 
                         value={items['Unidad de medida']} 
@@ -919,72 +877,45 @@ const AddProducto = React.memo((props) => {
                       </button>
                       </div>
                     </div>
-                  </div>
+                </div>
 
-                  <TextField 
-                  value={nuevoProducto['Precio de venta']} 
-                  incomplete={markAsIncomplete.find(l=>l=='Precio de venta')} 
-                  onChange={(value, setErr)=> {
-                    handleChangeNuevoProducto(value, setErr, 'Precio de venta', validateAPI.positiveReal)
-                  }} 
-                  label='Precio de venta'
-                  placeholder='C$'
-                />  
-              </div>
-
-              <div className='secondaryData'>
-              <TextField 
-                  value={nuevoProducto.Maximo} 
-                  incomplete={markAsIncomplete.find(l=>l=='Maximo')} 
-                  onChange={(value, setErr, setWarning)=> {
-                    if (nuevoProducto.Minimo !== '') {
-                      const Maximo = Number(value)
-                      const Minimo = Number(nuevoProducto.Minimo)
-                      if (Maximo < Minimo) {
-                        setWarning(`La Cantidad maxima no puede ser menor a la minima`)
-                      } else if (Minimo === Maximo){
-                        setWarning(`Debes dejar un margen entre la Cantidad minima y maxima`)
-                      } else {
-                        setWarning('')
-                      }
-                    }
-                    handleChangeNuevoProducto(value, setErr, 'Maximo', validateAPI.number)
-                  }} 
-                  label='Maximo de existencias' 
-                  placeholder='Requerido'
+                <SelectField 
+                    value={nuevoProducto.Metodo} 
+                    options={[{label: 'peps', value: 'peps'}, {label: 'ueps', value: 'ueps'}]} 
+                    onChange={(value, setErr)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Metodo', (n)=>true)
+                    }} 
+                    label='Metodo de inventario'
                   />
+                </div>
+             
 
-                <TextField 
-                  value={nuevoProducto.Minimo} 
-                  incomplete={markAsIncomplete.find(l=>l=='Minimo')} 
-                  onChange={(value, setErr, setWarning)=> {
-                    if (nuevoProducto.Maximo !== '') {
-                      const Minimo = Number(value)
-                      const Maximo = Number(nuevoProducto.Maximo)
-                      if (Minimo > Maximo) {
-                        setWarning(`La Cantidad minima no puede ser mayor a la maxima`)
-                      } else if (Minimo === Maximo){
-                        setWarning(`Debes dejar un margen entre la Cantidad minima y maxima`)
-                      } else {
-                        setWarning('')
-                      }
-                    }
 
-                    handleChangeNuevoProducto(value, setErr, 'Minimo', validateAPI.number)
-                  }} 
-                  label='Minimo de existencias' 
-                  placeholder='Requerido'
-                  />     
-              </div>
 
           
 
-              <div className='mainData'>
+              <div className='secondaryData'>
             
-    
+                <SelectField 
+                    value={nuevoProducto.Caducidad} 
+                    options={[{label: 'no', value: 'f'}, {label: 'si', value: 't'}]} 
+                    onChange={(value, setErr)=> {
+                      handleChangeNuevoProducto(value, setErr, 'Caducidad', (n)=>true)
+                    }}
+                    label='Tiene fecha de caducidad?'
+                  />
+
                 <ImgField 
                   incomplete={markAsIncomplete.find(l=>l=='Imagen')} 
-                  onChange={(value, setErr)=> {
+                  onChange={(value, setErr, setWarning)=> {
+                    handleConditionalCostValidation('Imagen', value, (img)=> {
+                      if (img.type !== 'image/avif' && img.type !== 'image/png' && img.type !== 'image/jpeg') {
+                        setWarning('Formato de archivo invalido')
+                        return true
+                      } 
+                      setWarning('')
+                      return false
+                    })
                     handleChangeNuevoProducto(value, setErr, 'Imagen', validateAPI.everything)
                   }} 
                   label='Imagen del producto' 
@@ -996,7 +927,7 @@ const AddProducto = React.memo((props) => {
               <div className='mainData'>
                 <SelectField 
                   value={nuevoStock}
-                  label='¿Quieres ingresar un stock inicial sin orden?'
+                  label='¿Quieres ingresar un stock inicial sin hacer una orden?'
                   options={[
                     {value: 't', label: 'Si'},
                     {value: 'f', label: 'No'},
@@ -1039,17 +970,8 @@ const AddProducto = React.memo((props) => {
                   />                    
                 </div>
 
-                <div className='secondaryData'>
-                  <SelectField 
-                    value={nuevoProducto.Metodo} 
-                    options={[{label: 'peps', value: 'peps'}, {label: 'ueps', value: 'ueps'}]} 
-                    onChange={(value, setErr)=> {
-                      handleChangeNuevoProducto(value, setErr, 'Metodo', (n)=>true)
-                    }} 
-                    label='Metodo de inventario'
-                  />
-      
-                  <SelectField 
+                <div className='mainData'>
+                 <SelectField 
                     incomplete={markAsIncomplete.find(l=>l=='Almacen')} 
                     value={nuevoProducto.Almacen} options={almacenes} 
                     onChange={(value, setErr)=> {
@@ -1059,50 +981,26 @@ const AddProducto = React.memo((props) => {
                   />
                 </div>
 
-                <div className='secondaryData'>
-                  <SelectField 
-                    value={nuevoProducto.Caducidad} 
-                    options={[{label: 'no', value: 'f'}, {label: 'si', value: 't'}]} 
-                    onChange={(value, setErr)=> {
-                      handleChangeNuevoProducto(value, setErr, 'Caducidad', (n)=>true)
-                    }}
-                    label='Es Caducidad?'
-                  />
-      
+                <div style={{display: nuevoProducto['Caducidad'] === 'f' ? 'none' : ''}} className='mainData'>
                   <DateField
                     value={nuevoProducto['Fecha de vencimiento']}
-                    onChange={(value, setErr)=>handleChangeNuevoProducto(value, setErr, 'Fecha de vencimiento', (n)=>true)} 
+                    onChange={(value, setErr, setWarning)=> {
+                      handleConditionalCostValidation('Fecha de vencimiento', value, (date)=> {
+                        if (DateHandler.isLesserOrEqual(date, DateHandler.getCurrentDate())) {
+                          setWarning('Fecha de vencimiento invalida')
+                          return true
+                        }
+                        else {
+                          setWarning('')
+                          return false
+                        }
+                      })
+                      handleChangeNuevoProducto(value, setErr, 'Fecha de vencimiento', (n)=>true)
+                    }
+                  }
                     label='Fecha de vencimiento'/>
                 </div>
 
-                <div className='mainData'>  
-                  <TextArea 
-                    value={nuevoProducto['Descripcion de la temporada']} 
-                    onChange={(value, setErr)=> {
-                      handleChangeNuevoProducto(value, setErr, 'Descripcion de la temporada', validateAPI.everything)
-                    }} 
-                    label='Descripcion de temporada' 
-                    placeholder='Opcional'
-                  />  
-                </div>
-
-                <div className='secondaryData'>
-                  <DateField 
-                    value={nuevoProducto['Fecha de inicio de la temporada']} 
-                    onChange={(value, setErr)=> {
-                      handleChangeNuevoProducto(value, setErr, 'Fecha de inicio de la temporada', (n)=>true)
-                    }} 
-                    label='Fecha inicio de temporada'
-                  />
-      
-                  <DateField 
-                    value={nuevoProducto['Fecha final de la temporada']} 
-                    onChange={(value, setErr)=> {
-                      handleChangeNuevoProducto(value, setErr, 'Fecha final de la temporada', (n)=>true)
-                    }} 
-                    label='Fecha final de temporada'
-                  />
-                </div>
               </div>
 
         </div>
@@ -1111,7 +1009,7 @@ const AddProducto = React.memo((props) => {
           <TableListaProductos 
             dense={true}
             pagination={false}
-            empty='Agrega nuevos productos a la lista!!' 
+            empty={<CardView type='almacenVacio' loop={listaNuevosProductos.length === 0}/>}
             generalActions={generalActions}
             actions={actions}
             setEdit={setEdit}

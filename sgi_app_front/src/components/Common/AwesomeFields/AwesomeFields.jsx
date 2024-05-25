@@ -1,5 +1,6 @@
-import { useState } from "react"
+import React, { useState, useCallback } from "react"
 import { Alert } from "@mui/material"
+import { debounce } from "lodash"
 
 export const DateField = ({value='', blocked=false, label, onChange=() => null}) => {
 
@@ -8,6 +9,7 @@ export const DateField = ({value='', blocked=false, label, onChange=() => null})
     return (
       <div className='customDate'>
         <label>{label}</label>
+        <input value={value} onChange={(e) => onChange(e.target.value, setErr, setWarning)} id='dateField' type='date' disabled={blocked}></input>
         <Alert 
           onClose={()=>setErr('')}
           sx={{
@@ -17,7 +19,6 @@ export const DateField = ({value='', blocked=false, label, onChange=() => null})
           sx={{
             display: warning == '' ? 'none' : ''
           }} severity="warning">{warning}</Alert>
-        <input value={value} onChange={(e) => onChange(e.target.value, setErr, setWarning)} id='dateField' type='date' disabled={blocked}></input>
       </div>
     )
   }
@@ -41,68 +42,85 @@ export const DateField = ({value='', blocked=false, label, onChange=() => null})
  export const ImgField = ({label, blocked=false, placeholder, onChange, incomplete=null}) => {
   
     const [err, setErr] = useState('')
-  
+    const [warning, setWarning] = useState('')
+
     return (
       <div className='textField'>
         <label>{label}*</label>
-        <Alert 
-          sx={{
-            display: err == '' ? 'none' : ''
-          }} severity="error">{err}</Alert>
         <input
           className={incomplete ? 'markAsIncomplete' : ''}
           type="file"
           onChange={(e) => {
-            onChange(e.target.files[0], setErr)
+            onChange(e.target.files[0], setErr, setWarning)
           }} 
-         
           placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
+          <Alert 
+          sx={{
+            display: warning == '' ? 'none' : ''
+          }} severity="warning">{warning}</Alert>
+          <Alert 
+          sx={{
+            display: err == '' ? 'none' : ''
+          }} severity="error">{err}</Alert>
       </div>
     )
   }
   
- export const TextField = ({value='', blocked=false, label='', placeholder='', onChange=()=>null, incomplete=null}) => {
+ export const TextField = React.memo(({desactiveManually=false, value='', blocked=false, label='', placeholder='', onChange=()=>null, incomplete=null}) => {
   
     const [err, setErr] = useState('')
     const [warning, setWarning] = useState('')
+
+    const debouncedOnChange = useCallback(
+      debounce((value, setErr, setWarning)=> {
+        onChange(value, setErr, setWarning)
+      }, 15),
+      [onChange]
+    )
+
     return (
       <div className='textField'>
         <label>{label}*</label>
-        <Alert 
+        <input
+          className={incomplete ? 'markAsIncomplete' : ''}
+          value={value}
+          disabled={false}
+          onChange={(e) => debouncedOnChange(e.target.value, setErr, setWarning)}
+          type="text" 
+          placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
+          <Alert 
           onClose={()=>setErr('')}
           sx={{
             display: err == '' ? 'none' : ''
           }} severity="error">{err}</Alert>
           <Alert 
           sx={{
-            display: warning == '' ? 'none' : ''
+            display: warning == '' || desactiveManually ? 'none' : ''
           }} severity="warning">{warning}</Alert>
-        <input
-          className={incomplete ? 'markAsIncomplete' : ''}
-          value={value}
-          disabled={false}
-          onChange={(e) => {
-            onChange(e.target.value, setErr, setWarning)
-          }} 
-          type="text" 
-          placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
       </div>
     )
-  }
+  })
   
- export const TextArea = ({value='', blocked=false, label, placeholder, onChange=()=>null, incomplete=null}) => {
+ export const TextArea = React.memo(({value='', blocked=false, label, placeholder, onChange=()=>null, incomplete=null}) => {
   
     const [err, setErr] = useState('')
-  
+    const [warning, setWarning] = useState('')
+    const debouncedOnChange = useCallback(
+      debounce((value, setErr, setWarning)=> {
+        onChange(value, setErr, setWarning)
+      }, 15),
+      [onChange]
+    )
+
     return (
       <div className='textField'>
         <label>{label}*</label>
+        <textarea className={incomplete ? 'markAsIncomplete' : ''} value={value} onChange={(e) => debouncedOnChange(e.target.value, setErr, setWarning)} placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder} rows={4} cols={50}></textarea>
         <Alert 
           onClose={()=>setErr('')}
           sx={{
             display: err == '' ? 'none' : ''
           }} severity="error">{err}</Alert>
-        <textarea className={incomplete ? 'markAsIncomplete' : ''} value={value} onChange={(e) => onChange(e.target.value, setErr)} placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder} rows={4} cols={50}></textarea>
       </div>
     )
-  }
+  })

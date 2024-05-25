@@ -21,9 +21,10 @@ export default function FormDialog(props) {
 
   return (
       <Dialog
+        maxWidth='xl'
+        fullWidth
         open={open}
         onClose={handleClose}
-        
         PaperProps={{
           onSubmit: (event) => {
             event.preventDefault();

@@ -7,6 +7,7 @@ use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\ProductosController;
 use App\Http\Controllers\ProveedoresController;
 use App\Http\Controllers\ItemsController;
+use App\Http\Controllers\OrdenesController;
 
 
 
@@ -49,5 +50,11 @@ Route::controller(ItemsController::class)->group(function () {
         Route::post('/marca', 'insert_marca');
         Route::post('/unidad_medida', 'insert_unidad_medida');
 
+    });
+});
+
+Route::controller(OrdenesController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/orden', 'insert_orden');
     });
 });

@@ -7,6 +7,7 @@ import { UilInvoice } from '@iconscout/react-unicons'
 import CreateInvoice from './CreateInvoice'
 import CircularProgress from '../../../Common/CircularProgess/CircularProgress'
 import axiosClient from '../../../../axios-client'
+import CardView from '../../../Common/CardViews/CardView'
 
 const Ordenes = () => {
 
@@ -126,6 +127,11 @@ const Ordenes = () => {
                     <Table 
                         pagination={false}
                         rows={[]}
+                        empty={<CardView type='shopping' text='Realiza compras a tus proveedores para llenar tu inventario'   style={{
+                            marginLeft: '35%',
+                            width: '30%',
+                            height: '100%'
+                          }}/>}
                         generalActions={generalActions}
                     />
                 </div>

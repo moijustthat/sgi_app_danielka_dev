@@ -1,0 +1,62 @@
+.containerCategory {
+    position: relative;
+}
+
+
+.headerCategory {
+    display: flex;
+    flex-direction: row; /* Alinea los elementos horizontalmente */
+    position: fixed;
+    z-index: 1000;
+    width: 80%;
+    background-color: white;
+    font-family: 'Inter';
+    font-size: 13px;
+    color: #364152;
+    font-weight: 500;
+}
+
+.fieldContainer {
+    display: flex;
+    flex-direction: column; /* Alinea los elementos verticalmente */
+    gap: 10px; /* Espacio entre los elementos */
+}
+
+.searchContainer {
+    display: flex;
+    flex-direction: column; /* Alinea los elementos verticalmente */
+}
+
+.searchContainer label {
+    margin-bottom: 5px; /* Añade un espacio entre el label y el SearchField */
+}
+
+.SearchField, .SelectField {
+    flex: 1; /* Los SearchField y SelectField se expanden para llenar el espacio restante */
+    max-width: 300px; /* Ancho máximo para SearchField y SelectField */
+}
+
+.selectContainer {
+    margin-left: 10px; /* Margen a la izquierda del primer SelectField */
+}
+
+.selectContainer:not(:first-child) {
+    margin-left: 20px; /* Margen adicional entre los SelectField */
+}
+
+.contentWrapper {
+    padding-top: 50px; /* Ajusta este valor según la altura de .headerCategory */
+}
+
+.galleryCategory {
+    display: flex;
+    flex-wrap: wrap;
+    width: 110%;
+    gap: 1rem;
+    margin-top: 1rem; /* Añade margen superior si es necesario */
+}
+
+.infoProducto {
+    display: flex;
+    flex-direction: column;
+}

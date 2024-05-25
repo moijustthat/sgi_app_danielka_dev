@@ -24,6 +24,9 @@ import { UilColumns } from '@iconscout/react-unicons'
 import CheckMenu from '../../../Common/CheckMenu/CheckMenu'
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertDialog from '../../../Common/AlertDialog/AlertDialog'
+
+import CardView from '../../../Common/CardViews/CardView'
+
 // console
 const configTable = (table, columns) => {
 
@@ -347,7 +350,11 @@ const Productos = () => {
                 <Table 
                     dense={true}
                     pagination={false}
-                    empty='Agrega productos al catalogo!!!'
+                    empty={<CardView type='box'    style={{
+                      marginLeft: '35%',
+                      width: '30%',
+                      height: '100%'
+                    }} text='No tienes productos en el sistema'/>}
                     generalActions={generalActions}
                     actions={actions}
                     setEdit={setEdit}

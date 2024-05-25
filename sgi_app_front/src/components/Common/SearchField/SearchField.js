@@ -22,7 +22,7 @@ const SearchField = ({setSearchText}) => {
       <OutlinedInput
         onChange={(e) => setSearchText(e.target.value)}
         sx={{
-            backgroundColor: '#F8FAFC'
+            backgroundColor: '#F8FAFC',
         }}
         placeholder="Buscar"
         startAdornment={

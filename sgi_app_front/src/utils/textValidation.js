@@ -16,6 +16,11 @@ const validateApi = {
         return /^(?:(?:0\\d*[1-9]\d*|[1-9]\d*(?:\.\d*)?)|\.\d*[1-9]\d*|null|\b)$/.test(input)
     },
 
+    priceTruncated: (input) => {
+        if (input == '') return true
+        return /^(?:0|[1-9]\d{0,})(?:\.\d{0,2})?$/.test(input)
+    },
+
     number: (input) => {
         if (input == '') return true
         return /^(|[1-9]\d*)$/.test(input)

@@ -336,7 +336,9 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
   return (
     <Box sx={{ width: '99%' }}>
       <Paper elevation={0} square={false} sx={{ width: '99%', mb: 2, borderRadius: '13px' }}>
+        
         <EnhancedTableToolbar setSearchText={setSearchText} generalActions={generalActions} setSelected={setSelected} selected={selected} numSelected={selected.length} />
+        {rows.length === 0 ? empty :
         <TableContainer
           style={{
             height: '100vh',
@@ -353,7 +355,7 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
               transition: 'opacity 0.3s',
             },
           }}>
-          {rows.length === 0 ? empty :
+          {
             (
               <Table
                 stickyHeader
@@ -484,6 +486,7 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
               </Table>)
           }
         </TableContainer>
+        }
         {pagination ? (
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}

@@ -105,11 +105,8 @@ class Productos extends Model
                         intval($product['Almacen']),
                         $product['comprobante'] == "null" ? NULL : $product['comprobante'],
                         $product['Fecha de vencimiento'] == "null" ? NULL : $product['Fecha de vencimiento'],
-                        $product['Descripcion de la temporada'] == "null" ? NULL : $product['Descripcion de la temporada'],
-                        $product['Fecha de inicio de la temporada'] == "null" ? NULL : $product['Fecha de inicio de la temporada'],
-                        $product['Fecha final de la temporada'] == "null" ? NULL : $product['Fecha final de la temporada'],
                 );
-                DB::statement('CALL pa_nuevo_producto(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', $params);     
+                DB::statement('CALL pa_nuevo_producto(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', $params);     
                 $countNew++;  
             }
             return JsonHelper::jsonResponse(200, ['data'=> 'Transaccion Exitosa', 'count'=>$countNew, 'found'=>$disabledProducts]);
