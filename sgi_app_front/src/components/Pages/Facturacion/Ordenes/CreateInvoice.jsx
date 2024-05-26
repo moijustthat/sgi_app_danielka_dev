@@ -12,7 +12,7 @@ import CardView from '../../../Common/CardViews/CardView';
 import '../../../Common/Styles/buttons.css'
 
 import FormDialog from '../../../Common/FormDialog/FormDialog'
-import ProductosBD from './Categorias/ProductosBD' 
+import ProductosBD from './CarritoProveedores/ProductosBD' 
 
 const CreateInvoice = (props) => {
 const {
@@ -67,8 +67,7 @@ const [nuevoDetalle, setNuevoDetalle] = useState(initNewDetalle)
 const [listaDetalles, setListaDetalles] = useState([])
 const [edit, setEdit] = useState(null)
 const [requestBd, setRequestBd] = useState(null)
-
-
+console.log(nuevoDetalle.id)
 return <>
     <div className='container'>
 
@@ -288,62 +287,28 @@ return <>
                         label='Producto'
                         options={[{value: 'new', label: 'Nuevo producto'}, {value: 'bd', label: 'Buscar en la base de datos'}]}
                         onChange={(value, setErr) => {
-                            setNuevoDetalle({
-                                ...nuevoDetalle,
-                                id: value
-                            })
                             if (value === 'bd') {
-                                setRequestBd(<ProductosBD productos={productos} categorias={categorias} marcas={marcas} unidades_medida={unidades_medida}/>)
+                                setRequestBd(<ProductosBD selectProducto={(id)=> {
+                                    setNuevoDetalle({
+                                        ...nuevoDetalle,
+                                        id: id
+                                    })
+                                    setRequestBd(null)
+                                }} 
+                                productos={productos} 
+                                categorias={categorias} 
+                                marcas={marcas} 
+                                unidades_medida={unidades_medida}/>)
                             }
                             else {
                                 setRequestBd(null)
+                                setNuevoDetalle({
+                                    ...nuevoDetalle,
+                                    id: value
+                                })
                             }
                         }}
                     />
-                </div>
-                <div className='secondaryData'>
-                        <TextField 
-                            label='Cantidad'
-                            value={nuevoDetalle.Cantidad}
-                            onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
-                                    ...nuevoDetalle,
-                                    Cantidad: value
-                                })
-                            }}
-                        />
-                        <TextField 
-                            label='Precio de compra'
-                            value={nuevoDetalle['Precio de compra']}
-                            onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
-                                    ...nuevoDetalle,
-                                    ['Precio de compra']: value
-                                })
-                            }}
-                        />
-                </div>
-                <div className='secondaryData'>
-                        <TextField 
-                            label='Aplicar descuento a'
-                            value={nuevoDetalle['Cantidad con descuento']}
-                            onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
-                                    ...nuevoDetalle,
-                                    ['Cantidad con descuento']: value
-                                })
-                            }}
-                        />
-                        <TextField 
-                            label='Porcentaje de descuento'
-                            value={nuevoDetalle['Porcentaje de descuento']}
-                            onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
-                                    ...nuevoDetalle,
-                                    ['Porcentaje de descuento']: value
-                                })
-                            }}
-                        />
                 </div>
                 <div style={{display: nuevoDetalle.id === 'new' ? '' : 'none'}}>
                     <div className='secondaryData'>
@@ -470,7 +435,50 @@ return <>
                         />
                     </div>
                 </div>
-                
+                <div style={{display: nuevoDetalle.id === 'new' ? '' : 'none'}} className='secondaryData'>
+                        <TextField 
+                            label='Cantidad'
+                            value={nuevoDetalle.Cantidad}
+                            onChange={(value, setErr, setWarning)=>{
+                                setNuevoDetalle({
+                                    ...nuevoDetalle,
+                                    Cantidad: value
+                                })
+                            }}
+                        />
+                        <TextField 
+                            label='Precio de compra'
+                            value={nuevoDetalle['Precio de compra']}
+                            onChange={(value, setErr, setWarning)=>{
+                                setNuevoDetalle({
+                                    ...nuevoDetalle,
+                                    ['Precio de compra']: value
+                                })
+                            }}
+                        />
+                </div>
+                <div style={{display: nuevoDetalle.id === 'new' ? '' : 'none'}} className='secondaryData'>
+                        <TextField 
+                            label='Aplicar descuento a'
+                            value={nuevoDetalle['Cantidad con descuento']}
+                            onChange={(value, setErr, setWarning)=>{
+                                setNuevoDetalle({
+                                    ...nuevoDetalle,
+                                    ['Cantidad con descuento']: value
+                                })
+                            }}
+                        />
+                        <TextField 
+                            label='Porcentaje de descuento'
+                            value={nuevoDetalle['Porcentaje de descuento']}
+                            onChange={(value, setErr, setWarning)=>{
+                                setNuevoDetalle({
+                                    ...nuevoDetalle,
+                                    ['Porcentaje de descuento']: value
+                                })
+                            }}
+                        />
+                </div>
             </div>
 
             <div className='ticket'>
