@@ -189,7 +189,7 @@ const AddProducto = React.memo((props) => {
         })
     }
   }, 300)
-  console.log(rollbacks)
+
   const [edit, setEdit] = useState(null)
 
   const [eliminar, setEliminar] = useState(null)

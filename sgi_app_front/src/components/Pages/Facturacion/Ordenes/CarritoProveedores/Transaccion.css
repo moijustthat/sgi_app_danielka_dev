@@ -1,0 +1,11 @@
+.marco {
+    border: 1px solid #DFE6DC;
+    text-align: center;
+    height: 120%;
+}
+
+.imgMarco {
+    margin-top: 10%;
+    width: 250px;
+    height: 250px;
+}

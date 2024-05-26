@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react"
 import { Alert } from "@mui/material"
 import { debounce } from "lodash"
 
-export const DateField = ({value='', blocked=false, label, onChange=() => null}) => {
+export const DateField = ({desactiveManually=false, value='', blocked=false, label, onChange=() => null}) => {
 
     const [err, setErr] = useState('')
     const [warning, setWarning] = useState('')
@@ -11,13 +11,12 @@ export const DateField = ({value='', blocked=false, label, onChange=() => null})
         <label>{label}</label>
         <input value={value} onChange={(e) => onChange(e.target.value, setErr, setWarning)} id='dateField' type='date' disabled={blocked}></input>
         <Alert 
-          onClose={()=>setErr('')}
           sx={{
             display: err == '' ? 'none' : ''
           }} severity="error">{err}</Alert>
         <Alert 
           sx={{
-            display: warning == '' ? 'none' : ''
+            display: warning == '' || desactiveManually ? 'none' : ''
           }} severity="warning">{warning}</Alert>
       </div>
     )

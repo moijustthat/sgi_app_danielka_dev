@@ -8,16 +8,18 @@ import hexToDataURL from '../../../../../utils/HexToDataUrl'
 import { SelectField } from '../../../../Common/AwesomeFields/AwesomeFields'
 import CardView from '../../../../Common/CardView/CardView'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-
+import Transaccion from './Transaccion'
 
 const ProductosBD = (props) => {
     
     const {
+        listaDetalles=[],
         productos=[],
         categorias=[],
         marcas=[],
         unidades_medida=[],
-        selectProducto=()=>null
+        selectProducto=()=>null,
+        setNuevoDetalle
     } = props
     const [searchNombre, setSearchNombre] = useState('')
     const [searchCodigoBarra, setSearchCodigoBarra] = useState('')   
@@ -31,6 +33,7 @@ const ProductosBD = (props) => {
 
     if (productos.length === 0 ) return <h1>No tienes productos</h1>
 
+
     const productosFiltrados = (
         productos
         .filter(p=> {
@@ -43,22 +46,22 @@ const ProductosBD = (props) => {
             const filtroTextual = nombre.includes(searchNombre.toLowerCase()) && codBarra.includes(searchCodigoBarra)
             return filtroTextual && filtroCategoria && filtroMarca && filtroMedida
         })
-        .map(({info})=> (
-                <CardView 
-                    name={info['Nombre']}
-                    description={info['Codigo de barra']}
-                    img={info['Imagen']}
-                    detail1='Precio al publico'
-                    value1={'C$'+ info['Precio de venta']}
-                    detail2='Disponible'
-                    value2={info['Disponible']}
-                    detail3='Importe'
-                    value3={'C$ '+info['Total vendido']}
-                    btnText='Ver'
-                    onBtnClick={() => setTransaccion(info.id)}
-                />
-         
-        ))
+        .map(({info})=> {
+                const detalle = listaDetalles.find(detalle=> detalle.id = info.id)
+                return (<CardView 
+                        name={info['Nombre']}
+                        description={info['Codigo de barra']}
+                        img={info['Imagen']}
+                        detail1='Precio al publico'
+                        value1={'C$'+ info['Precio de venta']}
+                        detail2='Disponible'
+                        value2={info['Disponible']}
+                        detail3={<ShoppingCartOutlinedIcon />}
+                        value3={detalle ? detalle['Cantidad'] : '0'}
+                        btnText='Ver'
+                        onBtnClick={() => setTransaccion(info)}
+                />)
+        })
     )
 
     const carritoContent = <div className='containerCategory'>
@@ -119,7 +122,25 @@ const ProductosBD = (props) => {
     </div>
 
     if (transaccion) {
-        mainContent = <h1>{`Transaccion de ${transaccion}`}</h1>
+        const marca = marcas.find(marca=> marca.value === transaccion['Marca']).label
+        const categoria = categorias.find(categoria=> categoria.value === transaccion['Categoria']).label
+        const medida = unidades_medida.find(medida=> medida.value === transaccion['Unidad de medida']).label
+
+        mainContent = <Transaccion 
+                            producto={transaccion}
+                            marca={marca}
+                            categoria={categoria}
+                            medida={medida}
+                            onAddCarrito={(amount, detalle)=>{
+                                setNuevoDetalle(prev=>({
+                                    ...prev,
+                                    ...detalle
+                                }))
+                                setCarrito(carrito+amount)
+                                setTransaccion(null)
+                            }}
+                            onClose={()=> setTransaccion(null)}
+                        />
     } else {
         mainContent = carritoContent
     }

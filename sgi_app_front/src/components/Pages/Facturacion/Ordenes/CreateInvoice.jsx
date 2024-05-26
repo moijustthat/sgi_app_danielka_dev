@@ -7,12 +7,27 @@ import { LiaFileInvoiceSolid } from "react-icons/lia";
 import { FiTool } from "react-icons/fi";
 import {TextField, TextArea, SelectField, ImgField, DateField} from '../../../Common/AwesomeFields/AwesomeFields'
 import TablaNuevaOrden from '../../../Common/Table/Table'
+import validateApi from '../../../../utils/textValidation';
 // producto
 import CardView from '../../../Common/CardViews/CardView';
 import '../../../Common/Styles/buttons.css'
 
 import FormDialog from '../../../Common/FormDialog/FormDialog'
 import ProductosBD from './CarritoProveedores/ProductosBD' 
+import {Button} from '@mui/material';
+import { handleFoundCostValidation, handleConditionalCostValidation } from '../../../../utils/Searching'
+import { validate } from 'uuid';
+import * as dateHandler from '../../../../utils/DatesHelper'
+
+
+const handleRollbacks = (setRollbacks, label, bool) => {
+    setRollbacks(prev=>(
+        {
+            ...prev,
+            [label]: bool
+        }
+    ))
+}
 
 const CreateInvoice = (props) => {
 const {
@@ -67,7 +82,22 @@ const [nuevoDetalle, setNuevoDetalle] = useState(initNewDetalle)
 const [listaDetalles, setListaDetalles] = useState([])
 const [edit, setEdit] = useState(null)
 const [requestBd, setRequestBd] = useState(null)
-console.log(nuevoDetalle.id)
+const [rollbacks, setRollbacks] = useState({
+    'Razon Social': false,
+    'Correo': false,
+    'Correo/Formato': false,
+    'Numero RUT': false,
+    'Telefono': false,
+    'Fecha limite de pago': false,
+    'Fecha de entrega': false,
+    'Nombre': false,
+    'Codigo de barra': false,
+    'Minimo': false,
+    'Maximo': false,
+    'Fecha de vencimiento': false,
+    'Imagen': false
+})
+console.log(rollbacks)
 return <>
     <div className='container'>
 
@@ -83,6 +113,7 @@ return <>
             }}
             title='Productos en la base de datos'
             content={requestBd ? requestBd : ''}
+            closeIcon={<Button variant='outlined'>Volver a la factura</Button>}
         />
 
         <div className={`glass ${listFullSize ? 'fullGlass' : 'partialGlass'}`}>
@@ -132,7 +163,20 @@ return <>
                             <TextField 
                                 value={proveedor['Razon social']}
                                 label='Razon social'
-                                onChange={(value, setErr) => {
+                                onChange={(value, setErr, setWarning) => {
+                                    handleFoundCostValidation(
+                                        proveedores,
+                                        'Razon Social',
+                                        value,
+                                        ()=>{
+                                            setWarning('Proveedor encontrado en la base de datos')
+                                            handleRollbacks(setRollbacks, 'Razon Social', true)
+                                        },
+                                        () => {
+                                            setWarning('')
+                                            handleRollbacks(setRollbacks, 'Razon Social', false)
+                                        }
+                                    )
                                     setProveedor({
                                         ...proveedor,
                                         'Razon social': value
@@ -143,11 +187,27 @@ return <>
                             <TextField 
                                 value={proveedor['Numero RUT']}
                                 label='Numero RUT'
-                                onChange={(value, setErr) => {
-                                    setProveedor({
-                                        ...proveedor,
-                                        'Numero RUT': value
-                                    })
+                                placeholder='*************'
+                                onChange={(value, setErr, setWarning) => {
+                                    handleFoundCostValidation(
+                                        proveedores,
+                                        'Numero RUT',
+                                        value,
+                                        ()=>{
+                                            setWarning('RUT encontrado en la base de datos')
+                                            handleRollbacks(setRollbacks, 'Numero RUT', true)
+                                        },
+                                        () => {
+                                            setWarning('')
+                                            handleRollbacks(setRollbacks, 'Numero RUT', false)
+                                        }
+                                    )
+                                    if (validateApi.numeric(value)) {
+                                        setProveedor({
+                                            ...proveedor,
+                                            'Numero RUT': value
+                                        })
+                                    }
                                 }}
                             />
                        </div>
@@ -156,7 +216,35 @@ return <>
                             <TextField 
                                 value={proveedor['Correo']}
                                 label='Correo'
-                                onChange={(value, setErr) => {
+                                onChange={(value, setErr, setWarning) => {
+                                    
+                                    handleConditionalCostValidation(value, correo=>validateApi.email(correo), ()=>{
+                                        setWarning('')
+                                        handleRollbacks(setRollbacks, 'Correo/Formato', false)
+                                    }, ()=>{
+                                        setWarning('Formato incorrecto')
+                                        handleRollbacks(setRollbacks, 'Correo/Formato', true)
+                                    })
+
+                                   
+
+                                    if (!!!!!rollbacks['Correo/Formato']) {
+                                        handleFoundCostValidation(
+                                            proveedores,
+                                            'Correo',
+                                            value,
+                                            ()=>{
+                                                setWarning('Correo encontrado en la base de datos')
+                                                handleRollbacks(setRollbacks, 'Correo', true)
+                                            },
+                                            () => {
+                                                setWarning('')
+                                                handleRollbacks(setRollbacks, 'Correo', false)
+                                            }
+                                        )
+                                    }
+                                
+                                    
                                     setProveedor({
                                         ...proveedor,
                                         'Correo': value
@@ -166,11 +254,26 @@ return <>
                             <TextField 
                                 value={proveedor['Telefono']}
                                 label='Telefono'
-                                onChange={(value, setErr) => {
-                                    setProveedor({
-                                        ...proveedor,
-                                        'Telefono': value
-                                    })
+                                onChange={(value, setErr, setWarning) => {
+                                    handleFoundCostValidation(
+                                        proveedores,
+                                        'Telefono',
+                                        value,
+                                        ()=>{
+                                            setWarning('Telefono encontrado en la base de datos')
+                                            handleRollbacks(setRollbacks, 'Telefono', true)
+                                        },
+                                        () => {
+                                            setWarning('')
+                                            handleRollbacks(setRollbacks, 'Telefono', false)
+                                        }
+                                    )
+                                    if (validateApi.numeric(value) && value.length <= 8) {
+                                        setProveedor({
+                                            ...proveedor,
+                                            'Telefono': value
+                                        })
+                                    }
                                 }}
                             />
                        </div>
@@ -214,23 +317,49 @@ return <>
                 <div>
                     <div className='secondaryData'>
                         <DateField 
-                            label='Fecha de pago limite'
+                            label='Fecha limite de pago(no requerida)'
                             value={orden['Fecha de pago limite']}
+                            desactiveManually={!!!rollbacks['Fecha limite de pago']}
                             onChange={(value, setErr, setWarning) => {
-                                setOrden({
-                                    ...orden,
-                                    'Fecha de pago limite': value
-                                })
+                                // Lambda rollback
+                                if (dateHandler.isLesserOrEqual(value, orden['Fecha de entrega'])) {
+                                    setWarning('La fecha limite no puede ser anterior a la de entrega')
+                                    setRollbacks({
+                                        ...rollbacks,
+                                        'Fecha limite de pago': true,
+                                        'Fecha de entrega': true
+                                    })
+                                } else {
+                                    setWarning('')
+                                    setRollbacks({
+                                        ...rollbacks,
+                                        'Fecha limite de pago': false,
+                                        'Fecha de entrega': false
+                                    })
+                                }
+
+                                if (dateHandler.isLesserOrEqual(value, dateHandler.getCurrentDate())) {
+                                    setErr('Fecha invalida')
+                                } else {
+                                    setOrden({
+                                        ...orden,
+                                        'Fecha de pago limite': value
+                                    })
+                                    setErr('')
+                                }
+                                
                             }}
                         />
                         <TextField 
                             label='Porcentaje de mora'
                             value={orden['Porcentaje de mora']}
                             onChange={(value, setErr, setWarning) => {
-                                setOrden({
-                                    ...orden,
-                                    'Porcentaje de mora': value
-                                })
+                                if (validateApi.positiveReal(value) && validateApi.priceTruncated(value) && Number(value) < 100) {
+                                    setOrden({
+                                        ...orden,
+                                        'Porcentaje de mora': value
+                                    })
+                                }
                             }}
                         />
                     </div>
@@ -238,17 +367,41 @@ return <>
                         <DateField 
                             label='Fecha de entrega'
                             value={orden['Fecha de entrega']}
+                            desactiveManually={!!!rollbacks['Fecha de entrega']}
                             onChange={(value, setErr, setWarning) => {
-                                setOrden({
-                                    ...orden,
-                                    'Fecha de entrega': value
-                                })
+                                // Lambda rollback
+                                if (dateHandler.isGreaterOrEqual(value, orden['Fecha de pago limite'])) {
+                                    setWarning('La fecha de entrega no puede ser despues de haber cobrado mora')
+                                    setRollbacks({
+                                        ...rollbacks,
+                                        'Fecha limite de pago': true,
+                                        'Fecha de entrega': true
+                                    })
+                                } else {
+                                    setWarning('')
+                                    setRollbacks({
+                                        ...rollbacks,
+                                        'Fecha limite de pago': false,
+                                        'Fecha de entrega': false
+                                    })
+                                }
+
+                                if (dateHandler.isLesserOrEqual(value, dateHandler.getCurrentDate())) {
+                                    setErr('Fecha invalida')
+                                } else {
+                                    setOrden({
+                                        ...orden,
+                                        'Fecha de entrega': value
+                                    })
+                                    setErr('')
+                                }
+                                
                             }}
                         />  
                         <SelectField 
                             label='Estado'
                             value={orden['Estado']}
-                            options={[{value: 'pendiente', label: 'Pendiente'}, {value: 'pagada', label: 'Pagada'}, {value: 'cancelada', label: 'Cancelada'}]}
+                            options={[{value: 'pendiente', label: 'Pendiente'}, {value: 'pagada', label: 'Pagada'}]}
                             onChange={(value, setErr, setWarning) => {
                                 setOrden({
                                     ...orden,
@@ -295,10 +448,13 @@ return <>
                                     })
                                     setRequestBd(null)
                                 }} 
+                                listaDetalles={listaDetalles}
                                 productos={productos} 
                                 categorias={categorias} 
                                 marcas={marcas} 
-                                unidades_medida={unidades_medida}/>)
+                                unidades_medida={unidades_medida}
+                                setNuevoDetalle={setNuevoDetalle}
+                                />)
                             }
                             else {
                                 setRequestBd(null)

@@ -16,7 +16,8 @@ export default function FormDialog(props) {
     content,
     title,
     onAccept,
-    fullScreen=false
+    fullScreen=false,
+    closeIcon=<CloseIcon />
   } = props
 
   const handleClose = () => {
@@ -54,7 +55,7 @@ export default function FormDialog(props) {
             sx={{
               float: 'right'
             }}>
-              <CloseIcon />
+              {closeIcon}
             </IconButton>
           </div>
         </DialogTitle>
