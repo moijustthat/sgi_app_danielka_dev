@@ -1,7 +1,8 @@
 import React from 'react'
 import BasicTabs from '../../Common/BasicTabs/BasicTabs';
 import Ordenes from './Ordenes/Ordenes';
-
+import Ventas from './Ventas/Ventas';
+import SellOutlinedIcon from '@mui/icons-material/SellOutlined';
 import { UilBill } from '@iconscout/react-unicons'
 
 const Inventario = () => {
@@ -12,7 +13,12 @@ const Inventario = () => {
                 label: 'Ordenes',
                 component: <Ordenes />,
                 icon: <UilBill />
-            }
+            },
+            {
+              label: 'Ventas',
+              component: <Ventas />,
+              icon: <SellOutlinedIcon />
+          }
         ]}
     />
   )

@@ -8,8 +8,6 @@ import {Button} from '@mui/material'
 import validateApi from '../../../../../utils/textValidation'
 import { debounce } from 'lodash'
 
-
-
 const handleNewTransaccion = (field, value, setNewTransaccion) => {
     setNewTransaccion(prev=>({
         ...prev,
@@ -19,6 +17,7 @@ const handleNewTransaccion = (field, value, setNewTransaccion) => {
 
 const Transaccion = ({
     producto,
+    current,
     marca,
     categoria,
     medida,
@@ -27,17 +26,40 @@ const Transaccion = ({
 }) => {
     const init = {
         id: producto.id,
-        Cantidad: '',
-        'Precio de compra': '',
-        'Cantidad con descuento': '',
-        'Porcentaje con descuento': ''
+        Cantidad: current ? current['Cantidad'] : '',
+        'Precio de compra': current ? current['Precio de compra'] : '',
+        'Cantidad con descuento': current ? current['Cantidad con descuento'] : '',
+        'Porcentaje de descuento': current ? current['Porcentaje de descuento'] : ''
     }
+    const [emptyFields, setEmptyFields] = useState([])
     const [newTransaccion, setNewTransaccion] = useState(init)
     const [rollbacks, setRollbacks] = useState({
         'Cantidad': false,
         'Cantidad con descuento': false,
-        'Porcentaje con descuento': false
+        'Porcentaje de descuento': false
     })
+
+    const handleAgregar = () => {
+        const required = ['Cantidad', 'Precio de compra']
+        const empty = []
+        let rollback = false
+
+        for (let req of required) {
+            if (newTransaccion[req] === '') empty.push(req)
+        }
+
+        setEmptyFields(empty)
+    
+        if (empty.length > 0) {
+            rollback = true
+        }
+
+        if (rollback) {
+            return null
+        } else {
+            onAddCarrito(Number(newTransaccion['Cantidad']), newTransaccion)
+        }
+    }
 
     const handleDoubleCostValidation = debounce((constraint1, constraint2, validation) => {
         if (validation(constraint1.value, constraint2.value)) {
@@ -73,6 +95,7 @@ const Transaccion = ({
                             <TextField 
                                 value={newTransaccion['Cantidad']}
                                 desactiveManually={!rollbacks['Cantidad']}
+                                incomplete={emptyFields.find(field=> field==='Cantidad')}
                                 label='Cantidad'
                                 onChange={(value, setErr, setWarning)=> {
                                     const cantidad = Number(value)
@@ -90,7 +113,8 @@ const Transaccion = ({
                             />
                             <TextField 
                                 value={newTransaccion['Precio de compra']}
-                                label='Precio de compra'
+                                label='Precio de compra por unidad'
+                                incomplete={emptyFields.find(field=> field==='Precio de compra')}
                                 onChange={(value)=> {
                                     if (validateApi.positiveReal(value) && validateApi.priceTruncated(value)) handleNewTransaccion('Precio de compra', value, setNewTransaccion)
                                 }}
@@ -116,13 +140,13 @@ const Transaccion = ({
                                 }}
                             />
                             <TextField 
-                                value={newTransaccion['Porcentaje con descuento']}
-                                desactiveManually={!rollbacks['Porcentaje con descuento']}
-                                label='Porcentaje con descuento'
+                                value={newTransaccion['Porcentaje de descuento']}
+                                desactiveManually={!rollbacks['Porcentaje de descuento']}
+                                label='Porcentaje de descuento'
                                 onChange={(value, setErr, setWarning)=> {
                                     if (validateApi.positiveReal(value) &&
                                         validateApi.priceTruncated(value) &&
-                                        Number(value) < 100) handleNewTransaccion('Porcentaje con descuento', value, setNewTransaccion)
+                                        Number(value) < 100) handleNewTransaccion('Porcentaje de descuento', value, setNewTransaccion)
                                 }}
                             />
                         </div>
@@ -131,7 +155,7 @@ const Transaccion = ({
                                 sx={{
                                     background: '#7C6EBB !important'
                                 }}
-                                onClick={()=>onAddCarrito(Number(newTransaccion['Cantidad']), newTransaccion)}
+                                onClick={handleAgregar}
                             >
                                 Añadir a la factura 
                             </Button>

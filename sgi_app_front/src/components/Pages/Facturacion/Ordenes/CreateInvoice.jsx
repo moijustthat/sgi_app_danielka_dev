@@ -9,8 +9,6 @@ import {TextField, TextArea, SelectField, ImgField, DateField} from '../../../Co
 import TablaNuevaOrden from '../../../Common/Table/Table'
 import validateApi from '../../../../utils/textValidation';
 import axiosClient from '../../../../axios-client';
-// producto
-import CardView from '../../../Common/CardViews/CardView';
 import '../../../Common/Styles/buttons.css'
 
 import FormDialog from '../../../Common/FormDialog/FormDialog'
@@ -20,20 +18,25 @@ import { handleFoundCostValidation, handleConditionalCostValidation, handleDoubl
 import { validate } from 'uuid';
 import * as dateHandler from '../../../../utils/DatesHelper'
 import { Avatar } from '@mui/material';
-import hexToDataURL from '../../../../utils/HexToDataUrl';
+import hexToDataURL, { isHex } from '../../../../utils/HexToDataUrl';
 import logo from '../../../../imgs/logo.png'
+import { useStateContext } from '../../../../Contexts/ContextProvider';
+
+import onChangeSize from './InvoiceGeneralActions/FullSize';
 
 // Cambiar esta funcion de ayuda de fichero
 import { myConcat } from '../../../../utils/Searching';
 
 const formatTable = (table) => {
     const formatedTable = []
-    const filteredColumns = ['id', 'Nombre', 'Cantidad', 'Precio de compra', 'Cantidad con descuento', 'Porcentaje con descuento']
+    const filteredColumns = ['id', 'Nombre', 'Cantidad', 'Precio de compra', 'Cantidad con descuento', 'Porcentaje de descuento']
      for (let row of table) {
         let copyRow = {}
-
-        if (copyRow.Imagen != '') {
-            copyRow.Imagen = <Avatar alt={'producto'} src={row.Imagen ? hexToDataURL(row.Imagen) : logo}/> 
+        
+        if (row.Imagen !== '') {
+            copyRow.Imagen = <Avatar alt={'producto'} src={isHex(row.Imagen) ? hexToDataURL(row.Imagen) : `data:image/jpeg;base64,${row.Imagen}`}/>
+        } else {
+            copyRow.Imagen = <Avatar alt={'producto'} src={logo}/>
         }
         
         for (let column of filteredColumns) {
@@ -100,6 +103,8 @@ const initNewDetalle = {
     'Porcentaje de descuento': ''
 }
 
+const { getUser } = useStateContext()
+const currentUser = getUser().usuarioId
 const [listFullSize, setListFullSize] = useState(false)
 const [proveedor, setProveedor] = useState(initProveedor)
 const [orden, setOrden] = useState(initOrden)
@@ -129,6 +134,7 @@ const [items, setItems] = useState({
     'Unidad de medida': ''
   })
 
+const generalActions = [onChangeSize(listFullSize, setListFullSize, edit)]
 
 const handleChangeNuevoProducto = (value, setErr, key, validate, personalized='') => {
 
@@ -186,27 +192,59 @@ const handleChangeNuevoProducto = (value, setErr, key, validate, personalized=''
 
 }
 
-const handleAgregarNuevoDetalle = (detalle) => {
+const onRealizarOrden = (listaDetalles, proveedor, orden) => {
+    let rollback = false
+    // Validar campos requeridos que vinieron vacios
     let required = ['Fecha de entrega', 'Estado']
     const incompletes = []
-    // Si el proveedor es nuevo
     if (proveedor.id === 'new') {
         required = myConcat(required, ['Razon social', 'Telefono', 'Direccion'])
     }
+    // Crear un objeto que contenga los campos del proveedor y la orden
+    const all = {
+        ...proveedor,
+        ...orden
+    }
+     // Buscar campos requeridos que vienen vacios:
+     for (let require of required) {
+        if (!!!all[require] || all[require] === '' || all[require] === 'empty') {
+          incompletes.push(require)
+        }
+      }
+
+      if (incompletes.length > 0) {
+        setMarkAsIncomplete(incompletes)
+        rollback = true
+      } 
+
+      if (listaDetalles.length < 1) rollback = true
+
+      if (rollback) return null
+      else {
+        const payload = {proveedor: proveedor, orden: orden, detalles: listaDetalles, usuario: currentUser} 
+        axiosClient.post('/orden', payload)
+            .then(({ data }) => {
+                const response = data.data
+                console.log(response)
+            })       
+            .catch(error=>{
+                const messageErr = error.response.data.messageError
+                console.log(messageErr)
+            })
+      }
+}
+
+const handleAgregarNuevoDetalle = (detalle) => {
+    let required = []
+    const incompletes = []
     // Si el producto es nuevo
     if (nuevoDetalle.id === 'new') {
         required = myConcat(required, ['Cantidad', 'Precio de compra','Nombre', 'Descripcion', 'Categoria', 'Marca', 'Unidad de medida', 'Precio de venta', 'Minimo', 'Maximo', 'Metodo'])
     }
 
-    // Crear un objeto que contenga a todos los campos
-    const all = {
-        ...nuevoDetalle,
-        ...proveedor,
-        ...orden
-    }
     // Buscar campos requeridos que vienen vacios:
     for (let require of required) {
-      if (!!!all[require] || all[require] === '' || all[require] === 'empty') {
+      if (!!!nuevoDetalle[require] || nuevoDetalle[require] === '' || nuevoDetalle[require] === 'empty') {
         incompletes.push(require)
       }
     }
@@ -221,10 +259,12 @@ const handleAgregarNuevoDetalle = (detalle) => {
       if (rollbacks[rollback]) return // Si al menos existe un error logico realizar rollback
     }
 
-    setListaDetalles(prev=>([
-        nuevoDetalle,
-        ...prev
-    ]))
+    setListaDetalles(prev=>{
+        let id = nuevoDetalle.id
+        if (id === 'new') id = `new-${nuevoDetalle['Nombre']}`
+        nuevoDetalle.id = id
+        return [nuevoDetalle, ...prev]
+    })
 } 
 
 return <>
@@ -1087,6 +1127,7 @@ return <>
                     pagination={false}     
                     empty={<h1>Agrega items a la orden</h1>}
                     rows={formatTable(listaDetalles)}
+                    generalActions={generalActions}
                 />
             </div>
 
@@ -1098,7 +1139,7 @@ return <>
                 <button>Actualizar</button>
                 <button>Cancelar</button>
             </div>
-            <button  className={`btnAgregarOrden ${!listFullSize ? 'partialBtn' : 'fullBtn'}`}>Realizar orden</button>
+            <button onClick={()=>onRealizarOrden(listaDetalles, proveedor, orden)}  className={`btnAgregarOrden ${!listFullSize ? 'partialBtn' : 'fullBtn'}`}>Realizar orden</button>
         </div>
     </div>
 </>

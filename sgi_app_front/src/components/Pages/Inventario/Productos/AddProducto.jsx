@@ -241,6 +241,9 @@ const AddProducto = React.memo((props) => {
     if (nuevoStock === 't') {
       required.push('Cantidad')
       required.push('Almacen')
+      if (producto['Caducidad']==='t') {
+        required.push('Fecha de vencimiento')
+      }
     } 
 
 
@@ -291,7 +294,7 @@ const AddProducto = React.memo((props) => {
           }
         })
       }
-  
+
     }
     
     // Condiciones validadadas(en este punto la entrada es correcta y se manejara para mandarse a la lista de nuevos productos)
@@ -981,6 +984,7 @@ const AddProducto = React.memo((props) => {
                 <div style={{display: nuevoProducto['Caducidad'] === 'f' ? 'none' : ''}} className='mainData'>
                   <DateField
                     value={nuevoProducto['Fecha de vencimiento']}
+                    incomplete={markAsIncomplete.find(l=>l=='Fecha de vencimiento')}
                     onChange={(value, setErr, setWarning)=> {
                       handleConditionalCostValidation('Fecha de vencimiento', value, (date)=> {
                         if (DateHandler.isLesserOrEqual(date, DateHandler.getCurrentDate())) {

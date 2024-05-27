@@ -1,0 +1,16 @@
+.ListaVentas {
+    padding-top: 1.5rem;
+    display: grid;
+    height: 97%;
+    width: 100%;
+    grid-template-columns: auto;
+}
+
+.ventas {
+    position: relative;
+    overflow: scroll;
+}
+
+.ventas::-webkit-scrollbar {
+    display: none;
+}

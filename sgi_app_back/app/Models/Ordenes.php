@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use App\Lib\JsonHelper;
 use App\Lib\HandleDbResponse;
 
+use App\Lib\ImgProccessor;
+
 class Ordenes extends Model
 {
     use HasFactory;
@@ -19,39 +21,76 @@ class Ordenes extends Model
 
     public $timestamps = false;
 
-    public static function nueva_orden($proveedor, $producto, $orden, $detalles) {
-        return JsonHelper::jsonResponse(200, ['proveedor'=>$proveedor, 'producto'=>$producto, 'orden'=>$orden, 'detalles'=>$detalles]);
-        /*return HandleDbResponse::handleResponse(function() use ($proveedor, $producto, $orden, $detalles){
-            return DB::transaction(function () use ($proveedor, $producto, $orden, $detalles){
+    public static function nueva_orden($proveedor, $orden, $detalles, $usuario) {
+        return HandleDbResponse::handleResponse(function() use ($proveedor, $orden, $detalles, $usuario){
+            return DB::transaction(function () use ($proveedor, $orden, $detalles, $usuario){
                 $proveedorId;
-                $productoId;
-                $ordenId;
+                // Verificar si el proveedor es nuevo o ya existe
                 if ($proveedor['id'] == 'new') {
                     // Crear el nuevo proveedor
-                    DB::select('CALL pa_nuevo_proveedor(?, ?, ?, ?, ?, @proveedor)');
+                    $nuevoProveedor = array();
+                    array_push($nuevoProveedor,
+                        $proveedor['Razon social'],
+                        $proveedor['Numero RUT'] !== '' ? $proveedor['Numero RUT'] : NULL,
+                        $proveedor['Correo'] !== '' ? $proveedor['Correo'] : NULL,
+                        $proveedor['Telefono'],
+                        $proveedor['Direccion'],
+                        't'
+                    );
+                    DB::select('CALL pa_nuevo_proveedor(?, ?, ?, ?, ?, ?, @proveedor)', $nuevoProveedor);
                     $proveedorId = DB::select('select @proveedor as proveedorId');
                 } else {
                     $proveedorId = $proveedor['id'];
                 }
 
-                if ($producto['id'] == 'new') {
-                    // Crear el nuevo produc$producto
-                    DB::select('CALL pa_nuevo_producto(?, ?, ?, ?, ?, @producto)');
-                    $productoId = DB::select('SELECT @producto as productoId');
-                } else {
-                    $productoId = $producto['id'];
-                }
-
                 // Insertar la nueva orden
+                $nuevaOrden = array();
+                array_push($nuevaOrden,
+                    intval($proveedorId),
+                    $usuario,
+                    $orden['Fecha de pago limite'] !== '' ? $orden['Fecha de pago limite'] : NULL,
+                    $orden['Porcentaje de mora'] !== '' ? $orden['Porcentaje de mora'] : NULL          
+                );
 
-                DB::select('CALL pa_nuava_orden(?, ?, ?, ?, ?, @orden)');
+                DB::select('CALL pa_nueva_orden(?, ?, ?, ?, @orden)', $nuevaOrden);
                 $ordenId = DB::select('SELECT @orden AS orden');
-                foreach ($detalles as $key => $value) {
-                    // Convertir tipos a los indicados en la base de datos
-                    // Insertar registro por registro
+                foreach ($detalles as $detalle) {
+                    $nuevoProducto = array();
+                    if (preg_match('/^new/', $detalle['id'])) { // Si es un nuevo producto
+                        array_push($nuevoProducto,
+                            $detalle['Nombre'],
+                            $detalle['Descripcion'],
+                            $detalle['Precio de venta'],
+                            't',
+                            $detalle['Caducidad'],
+                            $detalle['Codigo de barra'] !== '' ? $detalle['Codigo de barra'] : NULL,
+                            $detalle['Minimo'],
+                            $detalle['Maximo'],
+                            $detalle['Imagen'] !== '' ? ImgProccessor::binToHex($detalle['Imagen']) : NULL,
+                            $detalle['Categoria'],
+                            $detalle['Marca'],
+                            $detalle['Unidad de medida'],
+                            $detalle['Metodo']
+                        );
+                        DB::select('CALL pa_producto(?,?,?,?,?,?,?,?,?,?,?,?,?, @producto)', $nuevoProducto);
+                        $productoId = DB::select('select @producto as productoId');
+                    } else {
+                        $productoId = $detalle['id'];
+                    }
+                    $nuevoDetalle = array();
+                    array_push($nuevoDetalle,
+                        intval($ordenId),
+                        intval($productoId),
+                        intval($detalle['Cantidad']),
+                        $orden['Fecha de entrega'],
+                        floatval($detalle['Precio de compra']),
+                        $detalle['Cantidad con descuento'] !== NULL ? intval($detalle['Cantidad con descuento']) : NULL,
+                        $detalle['Porcentaje de descuento'] !== NULL ? floatval($detalle['Porcentaje de descuento']) : NULL
+                    );
+                    DB::select('CALL pa_nuevo_detalle_orden(?,?,?,?,?,?,?)', $nuevoDetalle);
                 }   
                 
             });
-        }, 'Error al crear la  nueva orden');*/
+        }, 'Error al crear la  nueva orden');
     }
 }

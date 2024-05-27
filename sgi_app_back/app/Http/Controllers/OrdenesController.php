@@ -9,9 +9,10 @@ class OrdenesController extends Controller
     public function insert_orden(Request $request) {
         // Validar tipos de la peticion
         $proveedor = $request['proveedor']; // Object
-        $producto = $request['producto']; // Object
+        $orden = $request['orden']; // Object
         $detalles = $request['detalles']; // Object
+        $usuario = $request['usuario']; // Int
 
-        Ordenes::nueva_orden($proveedor, $producto, $orden, $detalles);
+        return Ordenes::nueva_orden($proveedor, $orden, $detalles, $usuario);
     }
 }

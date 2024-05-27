@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import './Ordenes.css'
+import './Ventas.css'
 import Table from '../../../Common/Table/Table'
 import RightDrawer from '../../../Common/RightDrawer/RightDrawer'
 import { UilInvoice } from '@iconscout/react-unicons'
@@ -8,13 +8,15 @@ import CircularProgress from '../../../Common/CircularProgess/CircularProgress'
 import axiosClient from '../../../../axios-client'
 import CardView from '../../../Common/CardViews/CardView'
 
-const Ordenes = () => {
+
+
+const Ventas = () => {
 
     const [loading, setLoading] = useState(false)
     const [openForm, setFormOpen] = useState(false)
     
     // Datos a pedir a la bd
-    const [proveedores, setProveedores] = useState([])
+    const [clientes, setClientes] = useState([])
     const [productos, setProductos] = useState([])
     const [categorias, setCategorias] = useState([])
     const [marcas, setMarcas] = useState([])
@@ -29,16 +31,16 @@ const Ordenes = () => {
         }
     ]
 
-    const getProveedores = () => {
+    const getClientes = () => {
         setLoading(true)
-        axiosClient.get('/proveedores')
+        axiosClient.get('/clientes')
             .then(({data}) => {
                 const response = data.data
-                const formatedProveedores = []
-                for (let proveedor of response) {
-                    formatedProveedores.push({label: proveedor['Razon Social'], value: proveedor['id'], info:proveedor})
+                const formatedClientes = []
+                for (let cliente of response) {
+                    formatedClientes.push({label: cliente['Nombre']+' '+cliente['Apellido'], value: cliente['id'], info:cliente})
                 }
-                setProveedores(formatedProveedores)
+                setClientes(formatedClientes)
                 setLoading(false)
             })
             .catch(error=> {
@@ -96,25 +98,23 @@ const Ordenes = () => {
       }
 
     useEffect(()=>{
-        getProveedores()
+        //getClientes()
         getProductos()
         getItems()
     }, [])
 
     if(loading) return <CircularProgress />
-    
-
 
     return (
         <>
-            <div className='ListaOrdenes'>
+            <div className='ListaVentas'>
 
                 <RightDrawer 
                     width={'100vw'} 
                     content={
                     <CreateInvoice 
                         setOpen={setFormOpen}
-                        proveedores={proveedores}
+                        clientes={clientes}
                         productos={productos}
                         categorias={categorias}
                         marcas={marcas}
@@ -122,11 +122,11 @@ const Ordenes = () => {
                         />
                     }  
                     open={openForm}/>
-                <div className='ordenes'>
+                <div className='ventas'>
                     <Table 
                         pagination={false}
                         rows={[]}
-                        empty={<CardView type='shopping' text='Realiza compras a tus proveedores para llenar tu inventario'   style={{
+                        empty={<CardView type='shopping' text='Aqui veras las ventas que tus clientes realizan!'   style={{
                             marginLeft: '35%',
                             width: '30%',
                             height: '100%'
@@ -140,4 +140,4 @@ const Ordenes = () => {
     )
 }
 
-export default Ordenes
+export default Ventas

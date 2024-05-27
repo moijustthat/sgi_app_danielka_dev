@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import SearchField from '../../../../Common/SearchField/SearchField'
 import { Avatar } from '@mui/material'
 import './ProductosBD.css'
@@ -26,13 +26,13 @@ const ProductosBD = (props) => {
     const [categoria, setCategoria] = useState('all')
     const [marca, setMarca] = useState('all')
     const [medida, setMedida] = useState('all')
-    const [carrito, setCarrito] = useState(0)
+    const [carrito, setCarrito] = useState(listaDetalles.reduce((a,b)=>Number(a)+Number(b['Cantidad']),0))
     const [transaccion, setTransaccion] = useState(null)
+    const [lista, setLista] = useState(listaDetalles)
 
     let mainContent = null
 
     if (productos.length === 0 ) return <h1>No tienes productos</h1>
-
 
     const productosFiltrados = (
         productos
@@ -47,7 +47,7 @@ const ProductosBD = (props) => {
             return filtroTextual && filtroCategoria && filtroMarca && filtroMedida
         })
         .map(({info})=> {
-                const detalle = listaDetalles.find(detalle=> detalle.id = info.id)
+                const detalle = lista.find(detalle=> detalle.id === info.id)
                 return (<CardView 
                         name={info['Nombre']}
                         description={info['Codigo de barra']}
@@ -125,22 +125,23 @@ const ProductosBD = (props) => {
         const marca = marcas.find(marca=> marca.value === transaccion['Marca']).label
         const categoria = categorias.find(categoria=> categoria.value === transaccion['Categoria']).label
         const medida = unidades_medida.find(medida=> medida.value === transaccion['Unidad de medida']).label
-
+        const current = listaDetalles.find(detalle=> detalle.id === transaccion.id)
         mainContent = <Transaccion 
                             producto={transaccion}
+                            current={current}
                             marca={marca}
                             categoria={categoria}
                             medida={medida}
                             onAddCarrito={(amount, detalle)=>{
                                 const producto = transaccion
-                                console.log(producto)
                                 const newDetalle = {
                                     'Nombre': producto['Nombre'],
                                     'Imagen': producto['Imagen'] ? producto['Imagen'] : logo,
                                     ...detalle
                                 }
-                                setListaDetalles(prev=>([newDetalle, ...prev]))
                                 setCarrito(carrito+amount)
+                                setListaDetalles(prev=>([newDetalle, ...prev]))
+                                setLista(prev=>([newDetalle, ...prev]))
                                 setTransaccion(null)
                             }}
                             onClose={()=> setTransaccion(null)}
