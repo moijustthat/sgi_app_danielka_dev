@@ -494,7 +494,7 @@ return <>
                             desactiveManually={!!!rollbacks['Fecha limite de pago']}
                             onChange={(value, setErr, setWarning) => {
                                 // Lambda rollback
-                                if (dateHandler.isLesserOrEqual(value, orden['Fecha de entrega'])) {
+                                if (dateHandler.isLesser(value, orden['Fecha de entrega'])) {
                                     setWarning('La fecha limite no puede ser anterior a la de entrega')
                                     setRollbacks({
                                         ...rollbacks,
@@ -543,7 +543,7 @@ return <>
                             desactiveManually={!!!rollbacks['Fecha de entrega']}
                             onChange={(value, setErr, setWarning) => {
                                 // Lambda rollback
-                                if (dateHandler.isGreaterOrEqual(value, orden['Fecha de pago limite'])) {
+                                if (dateHandler.isGreater(value, orden['Fecha de pago limite'])) {
                                     setWarning('La fecha de entrega no puede ser despues de haber cobrado mora')
                                     setRollbacks({
                                         ...rollbacks,

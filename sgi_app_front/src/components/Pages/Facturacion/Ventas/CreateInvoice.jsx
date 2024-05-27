@@ -105,8 +105,8 @@ const CreateInvoice = React.memo((props) => {
         'Correo': false,
         'Correo/Formato': false,
         'Cedula': false,
+        'Cedula/Formato': false,
         'Telefono': false,
-        'Correo': false,
     })
 
     const generalActions = [onChangeSize(listFullSize, setListFullSize, edit)]
@@ -119,7 +119,7 @@ const CreateInvoice = React.memo((props) => {
         if (cliente.id === 'new') {
             required = myConcat(required, ['Nombre', 'Apellido'])
         }
-        // Crear un objeto que contenga los campos del proveedor y la venta
+        // Crear un objeto que contenga los campos del cliente y la venta
         const all = {
             ...cliente,
             ...venta
@@ -182,7 +182,298 @@ const CreateInvoice = React.memo((props) => {
                         <Divider />
                     </div>
 
-                    {/* Datos del proveedor*/}
+                    {/* Datos del cliente*/}
+                    <div>
+                        <div className='mainData'>
+                            <SelectField 
+                                value={cliente.id}
+                                label='Cliente*'
+                                options={[{value: 'new', label: 'Nuevo cliente'}, ...clientes]}
+                                onChange={(value) => {
+                                    setCliente({
+                                        ...cliente,
+                                        id: value
+                                    })
+                                }}
+                            />
+                        </div>
+                        <div style={{display: cliente.id === 'new' ? '' : 'none'}}>
+                            <div className='secondaryData'>
+                                <TextField 
+                                    value={cliente['Nombre']}
+                                    incomplete={markAsIncomplete.find(l=>l=='Nombre')}
+                                    label='Nombre'
+                                    onChange={(value, setErr, setWarning) => {
+                                        if (validateApi.name(value)) {
+                                            setCliente({
+                                                ...cliente,
+                                                'Nombre': value
+                                            })
+                                            setWarning('')
+                                        } else {
+                                            setWarning('Entrada incorrecta: '+value)
+                                        }
+                                        
+                                    }}
+                                />
+                                    <TextField 
+                                    value={cliente['Apellido']}
+                                    incomplete={markAsIncomplete.find(l=>l=='Apellido')}
+                                    label='Apellido'
+                                    onChange={(value, setErr, setWarning) => {
+                                        if (validateApi.name(value)) {
+                                            setCliente({
+                                                ...cliente,
+                                                'Apellido': value
+                                            })
+                                            setWarning('')
+                                        } else {
+                                            setWarning('Entrada incorrecta: '+value)
+                                        }
+                                        
+                                    }}
+                                />
+                            </div>
+
+                            <div className='secondaryData'>
+                                <TextField 
+                                    value={cliente['Correo']}
+                                    label='Correo'
+                                    onChange={(value, setErr, setWarning) => {
+                                        
+                                        handleConditionalCostValidation(value, correo=>validateApi.email(correo), ()=>{
+                                            setWarning('')
+                                            handleRollbacks(setRollbacks, 'Correo/Formato', false)
+                                        }, ()=>{
+                                            setWarning('Formato incorrecto')
+                                            handleRollbacks(setRollbacks, 'Correo/Formato', true)
+                                        })
+
+                                    
+
+                                        if (!!!!!rollbacks['Correo/Formato']) {
+                                            handleFoundCostValidation(
+                                                clientes,
+                                                'Correo',
+                                                value,
+                                                ()=>{
+                                                    setWarning('Correo encontrado en la base de datos')
+                                                    handleRollbacks(setRollbacks, 'Correo', true)
+                                                },
+                                                () => {
+                                                    setWarning('')
+                                                    handleRollbacks(setRollbacks, 'Correo', false)
+                                                }
+                                            )
+                                        }
+                                    
+                                        setCliente({
+                                            ...cliente,
+                                            'Correo': value
+                                        })
+                                    }}
+                                />
+                                <TextField 
+                                    value={cliente['Telefono']}
+                                    label='Telefono'
+                                    incomplete={markAsIncomplete.find(l=>l=='Telefono')}
+                                    onChange={(value, setErr, setWarning) => {
+                                        handleFoundCostValidation(
+                                            clientes,
+                                            'Telefono',
+                                            value,
+                                            ()=>{
+                                                setWarning('Telefono encontrado en la base de datos')
+                                                handleRollbacks(setRollbacks, 'Telefono', true)
+                                            },
+                                            () => {
+                                                setWarning('')
+                                                handleRollbacks(setRollbacks, 'Telefono', false)
+                                            }
+                                        )
+                                        if (validateApi.numeric(value) && value.length <= 8) {
+                                            setCliente({
+                                                ...cliente,
+                                                'Telefono': value
+                                            })
+                                        }
+                                    }}
+                                />
+                            </div>
+
+                            <div className='secondaryData'>
+                                <TextField 
+                                    value={cliente['Cedula']}
+                                    label='Cedula'
+                                    placeholder='xxx-xxxxxx-xxxxY'
+                                    onChange={(value, setErr, setWarning) => {
+                                        
+                                        handleConditionalCostValidation(value, cedula=>validateApi.cedula(cedula), ()=>{
+                                            handleRollbacks(setRollbacks, 'Cedula/Formato', false)
+                                            setWarning('')
+                                        }, ()=>{
+                                            setWarning('Formato incorrecto')
+                                            handleRollbacks(setRollbacks, 'Cedula/Formato', true)
+                                        })
+
+                                    
+
+                                        if (!!!!!rollbacks['Cedula/Formato']) {
+                                            handleFoundCostValidation(
+                                                clientes,
+                                                'Cedula',
+                                                value,
+                                                ()=>{
+                                                    setWarning('Cedula encontrada en la base de datos')
+                                                    handleRollbacks(setRollbacks, 'Cedula', true)
+                                                },
+                                                () => {
+                                                    if (!!!rollbacks['Cedula/Formato']) setWarning('') // Arreglar el parpadeo del warning
+                                                    handleRollbacks(setRollbacks, 'Cedula', false)
+                                                }
+                                            )
+                                        }
+                                    
+                                        setCliente({
+                                            ...cliente,
+                                            'Cedula': value
+                                        })
+                                    }}
+                                />
+                                <TextArea 
+                                value={cliente['Direccion']}
+                                incomplete={markAsIncomplete.find(l=>l=='Direccion')}
+                                label='Direccion'
+                                onChange={(value, setErr) => {
+                                    setCliente({
+                                        ...cliente,
+                                        'Direccion': value
+                                    })
+                                }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>            
+                        <div className='mainData'>
+                            <div className='TitleContainer'>
+                            <div className='Title'>
+                                <h3>Datos generales de la venta</h3>
+                                <span style={{
+                                background: '#D8FFF5',
+                                color: '#21A97F',
+                                }}><LiaFileInvoiceSolid /></span>
+                            </div>
+                            <p>*Ingrese la informacion necesaria para crear la venta</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className='mainData'>
+                        <Divider />
+                    </div>
+
+                    {/* Datos de la venta */}
+                    <div>
+                        <div className='secondaryData'>
+                            <DateField 
+                                label='Fecha limite de pago(no requerida)'
+                                value={venta['Fecha de pago limite']}
+                                desactiveManually={!!!rollbacks['Fecha limite de pago']}
+                                onChange={(value, setErr, setWarning) => {
+                                    // Lambda rollback
+                                    if (dateHandler.isLesser(value, venta['Fecha de entrega'])) {
+                                        setWarning('La fecha limite no puede ser anterior a la de entrega')
+                                        setRollbacks({
+                                            ...rollbacks,
+                                            'Fecha limite de pago': true,
+                                            'Fecha de entrega': true
+                                        })
+                                    } else {
+                                        setWarning('')
+                                        setRollbacks({
+                                            ...rollbacks,
+                                            'Fecha limite de pago': false,
+                                            'Fecha de entrega': false
+                                        })
+                                    }
+
+                                    if (dateHandler.isLesserOrEqual(value, dateHandler.getCurrentDate())) {
+                                        setErr('Fecha invalida')
+                                    } else {
+                                        setVenta({
+                                            ...venta,
+                                            'Fecha de pago limite': value
+                                        })
+                                        setErr('')
+                                    }
+                                    
+                                }}
+                            />
+                            <TextField 
+                                label='Porcentaje de mora'
+                                value={venta['Porcentaje de mora']}
+                                onChange={(value, setErr, setWarning) => {
+                                    if (validateApi.positiveReal(value) && validateApi.priceTruncated(value) && Number(value) < 100) {
+                                        setVenta({
+                                            ...venta,
+                                            'Porcentaje de mora': value
+                                        })
+                                    }
+                                }}
+                            />
+                        </div>
+                        <div className='secondaryData'>
+                            <DateField 
+                                label='Fecha de entrega'
+                                incomplete={markAsIncomplete.find(l=>l=='Fecha de entrega')}
+                                value={venta['Fecha de entrega']}
+                                desactiveManually={!!!rollbacks['Fecha de entrega']}
+                                onChange={(value, setErr, setWarning) => {
+                                    // Lambda rollback
+                                    if (dateHandler.isGreater(value, venta['Fecha de pago limite'])) {
+                                        setWarning('La fecha de entrega no puede ser despues de haber cobrado mora')
+                                        setRollbacks({
+                                            ...rollbacks,
+                                            'Fecha limite de pago': true,
+                                            'Fecha de entrega': true
+                                        })
+                                    } else {
+                                        setWarning('')
+                                        setRollbacks({
+                                            ...rollbacks,
+                                            'Fecha limite de pago': false,
+                                            'Fecha de entrega': false
+                                        })
+                                    }
+
+                                    if (dateHandler.isLesserOrEqual(value, dateHandler.getCurrentDate())) {
+                                        setErr('Fecha invalida')
+                                    } else {
+                                        setVenta({
+                                            ...venta,
+                                            'Fecha de entrega': value
+                                        })
+                                        setErr('')
+                                    }
+                                    
+                                }}
+                            />  
+                            <SelectField 
+                                label='Estado'
+                                value={venta['Estado']}
+                                options={[{value: 'pendiente', label: 'Pendiente'}, {value: 'pagada', label: 'Pagada'}]}
+                                onChange={(value, setErr, setWarning) => {
+                                    setVenta({
+                                        ...venta,
+                                        'Estado': value
+                                    })
+                                }}
+                            />      
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

@@ -2,6 +2,8 @@ const validateApi = {
 
     everything: (input) => true,
 
+    cedula: (input) => /^(\d{0,3})(-\d{0,6})?(-\d{0,4})?([A-Z]?)$/.test(input),
+
     numeric: (input) => {
         if(input == '') return true
         return /^\d{1,15}$/.test(input)
