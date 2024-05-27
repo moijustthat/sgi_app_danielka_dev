@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import React, {useState} from 'react'
 import './CreateInvoice.css'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton, Divider } from '@mui/material';
@@ -8,6 +8,7 @@ import { FiTool } from "react-icons/fi";
 import {TextField, TextArea, SelectField, ImgField, DateField} from '../../../Common/AwesomeFields/AwesomeFields'
 import TablaNuevaOrden from '../../../Common/Table/Table'
 import validateApi from '../../../../utils/textValidation';
+import axiosClient from '../../../../axios-client';
 // producto
 import CardView from '../../../Common/CardViews/CardView';
 import '../../../Common/Styles/buttons.css'
@@ -15,10 +16,34 @@ import '../../../Common/Styles/buttons.css'
 import FormDialog from '../../../Common/FormDialog/FormDialog'
 import ProductosBD from './CarritoProveedores/ProductosBD' 
 import {Button} from '@mui/material';
-import { handleFoundCostValidation, handleConditionalCostValidation } from '../../../../utils/Searching'
+import { handleFoundCostValidation, handleConditionalCostValidation, handleDoubleCostValidation } from '../../../../utils/Searching'
 import { validate } from 'uuid';
 import * as dateHandler from '../../../../utils/DatesHelper'
+import { Avatar } from '@mui/material';
+import hexToDataURL from '../../../../utils/HexToDataUrl';
+import logo from '../../../../imgs/logo.png'
 
+// Cambiar esta funcion de ayuda de fichero
+import { myConcat } from '../../../../utils/Searching';
+
+const formatTable = (table) => {
+    const formatedTable = []
+    const filteredColumns = ['id', 'Nombre', 'Cantidad', 'Precio de compra', 'Cantidad con descuento', 'Porcentaje con descuento']
+     for (let row of table) {
+        let copyRow = {}
+
+        if (copyRow.Imagen != '') {
+            copyRow.Imagen = <Avatar alt={'producto'} src={row.Imagen ? hexToDataURL(row.Imagen) : logo}/> 
+        }
+        
+        for (let column of filteredColumns) {
+            copyRow[column] = row[column]
+        }
+
+        formatedTable.push(copyRow)
+    }
+    return formatedTable
+}
 
 const handleRollbacks = (setRollbacks, label, bool) => {
     setRollbacks(prev=>(
@@ -29,7 +54,7 @@ const handleRollbacks = (setRollbacks, label, bool) => {
     ))
 }
 
-const CreateInvoice = (props) => {
+const CreateInvoice = React.memo((props) => {
 const {
     setOpen,
     proveedores,
@@ -59,7 +84,7 @@ const initNewDetalle = {
     id: 'new',
     Nombre: '',
     'Codigo de barra': '',
-    Precio: '',
+    'Precio de venta': '',
     Descripcion: '',
     Categoria: categorias.length > 0 ? categorias[0].value : 'empty',
     Marca: marcas.length > 0 ? marcas[0].value : 'empty',
@@ -82,6 +107,7 @@ const [nuevoDetalle, setNuevoDetalle] = useState(initNewDetalle)
 const [listaDetalles, setListaDetalles] = useState([])
 const [edit, setEdit] = useState(null)
 const [requestBd, setRequestBd] = useState(null)
+const [markAsIncomplete, setMarkAsIncomplete] =  useState([])
 const [rollbacks, setRollbacks] = useState({
     'Razon Social': false,
     'Correo': false,
@@ -97,7 +123,110 @@ const [rollbacks, setRollbacks] = useState({
     'Fecha de vencimiento': false,
     'Imagen': false
 })
-console.log(rollbacks)
+const [items, setItems] = useState({
+    Categoria: '',
+    Marca: '',
+    'Unidad de medida': ''
+  })
+
+
+const handleChangeNuevoProducto = (value, setErr, key, validate, personalized='') => {
+
+    // Validar entrada actual
+    // Validar caracter por caracter
+    
+    if (key == 'Nombre' || key == 'Descripcion') {
+      setNuevoDetalle({
+        ...nuevoDetalle,
+        [key]: value
+      })
+      return
+    }
+
+    if (!validate(value)) {
+      // Mostrar mensaje
+      setErr(personalized!==''? personalized : `Entrada incorrecta: ${value}`)
+      return
+    } else {
+      setErr('')
+    }
+    
+    if (key === 'Imagen') {
+      if (value==='') {
+        setNuevoDetalle({
+          ...nuevoDetalle,
+          [key]: value
+        })
+        return
+      }  
+      
+      // Validar tipos permitidos en la imagen
+      if (value.type !== 'image/avif' && value.type !== 'image/png' && value.type !== 'image/jpeg') return
+      
+
+      const file = value // Esta es la  ruta de la imagen
+      const reader = new FileReader()
+      
+      reader.onloadend = () => {
+        setNuevoDetalle({
+          ...nuevoDetalle,
+          [key]: reader.result.replace("data:", "").replace(/^.+,/, "")
+        })
+      }
+
+      reader.readAsDataURL(file)
+
+    } else {
+      setNuevoDetalle({
+        ...nuevoDetalle,
+        [key]: value
+      })
+    }
+
+
+}
+
+const handleAgregarNuevoDetalle = (detalle) => {
+    let required = ['Fecha de entrega', 'Estado']
+    const incompletes = []
+    // Si el proveedor es nuevo
+    if (proveedor.id === 'new') {
+        required = myConcat(required, ['Razon social', 'Telefono', 'Direccion'])
+    }
+    // Si el producto es nuevo
+    if (nuevoDetalle.id === 'new') {
+        required = myConcat(required, ['Cantidad', 'Precio de compra','Nombre', 'Descripcion', 'Categoria', 'Marca', 'Unidad de medida', 'Precio de venta', 'Minimo', 'Maximo', 'Metodo'])
+    }
+
+    // Crear un objeto que contenga a todos los campos
+    const all = {
+        ...nuevoDetalle,
+        ...proveedor,
+        ...orden
+    }
+    // Buscar campos requeridos que vienen vacios:
+    for (let require of required) {
+      if (!!!all[require] || all[require] === '' || all[require] === 'empty') {
+        incompletes.push(require)
+      }
+    }
+   
+    if (incompletes.length > 0) {
+      setMarkAsIncomplete(incompletes)
+      return
+    } 
+
+    // Revisar si se hara un rollback logico
+    for (let rollback of Object.keys(rollbacks)) { 
+      if (rollbacks[rollback]) return // Si al menos existe un error logico realizar rollback
+    }
+
+    setListaDetalles(prev=>([
+        nuevoDetalle,
+        ...prev
+    ]))
+} 
+
 return <>
     <div className='container'>
 
@@ -163,6 +292,7 @@ return <>
                             <TextField 
                                 value={proveedor['Razon social']}
                                 label='Razon social'
+                                incomplete={markAsIncomplete.find(l=>l=='Razon social')}
                                 onChange={(value, setErr, setWarning) => {
                                     handleFoundCostValidation(
                                         proveedores,
@@ -254,6 +384,7 @@ return <>
                             <TextField 
                                 value={proveedor['Telefono']}
                                 label='Telefono'
+                                incomplete={markAsIncomplete.find(l=>l=='Telefono')}
                                 onChange={(value, setErr, setWarning) => {
                                     handleFoundCostValidation(
                                         proveedores,
@@ -281,6 +412,7 @@ return <>
                        <div className='mainData'>
                             <TextArea 
                                 value={proveedor['Direccion']}
+                                incomplete={markAsIncomplete.find(l=>l=='Direccion')}
                                 label='Direccion'
                                 onChange={(value, setErr) => {
                                     setProveedor({
@@ -366,6 +498,7 @@ return <>
                     <div className='secondaryData'>
                         <DateField 
                             label='Fecha de entrega'
+                            incomplete={markAsIncomplete.find(l=>l=='Fecha de entrega')}
                             value={orden['Fecha de entrega']}
                             desactiveManually={!!!rollbacks['Fecha de entrega']}
                             onChange={(value, setErr, setWarning) => {
@@ -453,7 +586,7 @@ return <>
                                 categorias={categorias} 
                                 marcas={marcas} 
                                 unidades_medida={unidades_medida}
-                                setNuevoDetalle={setNuevoDetalle}
+                                setListaDetalles={setListaDetalles}
                                 />)
                             }
                             else {
@@ -471,28 +604,70 @@ return <>
                         <TextField 
                             label='Nombre'
                             value={nuevoDetalle['Nombre']}
-                            onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
-                                    ...nuevoDetalle,
-                                    ['Nombre']: value
-                                })
-                            }}
+                            incomplete={markAsIncomplete.find(l=>l=='Nombre')}
+                            onChange={(value, setErr, setWarning)=> {
+                                const matrix  = myConcat(productos, listaDetalles)
+                                if (!edit) handleFoundCostValidation(matrix, 'Nombre', value, ()=>{
+                                    setWarning('Producto encontrado en el catalogo de productos')
+                                    setRollbacks({
+                                        ...rollbacks,
+                                        'Nombre': true
+                                    })
+                                },
+                                ()=>{
+                                    setWarning('')
+                                    setRollbacks({
+                                        ...rollbacks,
+                                        'Nombre': false
+                                    })
+                                }
+                                )
+                                handleChangeNuevoProducto(value, setErr, 'Nombre', validateApi.everything)
+                              }} 
                         />
                         
                         <TextField 
                             label='Codigo de barra'
                             value={nuevoDetalle['Codigo de barra']}
-                            onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
-                                    ...nuevoDetalle,
-                                    ['Codigo de barra']: value
-                                })
+                            onChange={(value, setErr, setWarning)=> {
+                                const matrix  = myConcat(productos, listaDetalles)
+                                if (!edit) handleFoundCostValidation(matrix, 'Codigo de barra', value, ()=>{
+                                    setWarning('Codigo de barra ya existente')
+                                    setRollbacks({
+                                        ...rollbacks,
+                                        'Codigo de barra': true
+                                    })
+                                },
+                                ()=>{
+                                    setWarning('')
+                                    setRollbacks({
+                                        ...rollbacks,
+                                        'Codigo de barra': false
+                                    })
+                                }
+                                )
+                                handleChangeNuevoProducto(value, setWarning, 'Codigo de barra', validateApi.numeric)
+                              }} 
+                        />
+
+                        <TextField 
+                            label='Precio de venta'
+                            value={nuevoDetalle['Precio de venta']}
+                            incomplete={markAsIncomplete.find(l=>l=='Precio de venta')}
+                            onChange={(value, setErr, setWarning) => {
+                                if(validateApi.positiveReal(value) && validateApi.priceTruncated(value)) {
+                                    setNuevoDetalle(prev=>({
+                                        ...prev,
+                                        'Precio de venta': value
+                                    }))
+                                }
                             }}
                         />
                     </div>
                     <div className='mainData'>
                         <TextArea 
                             label='Descripcion'
+                            incomplete={markAsIncomplete.find(l=>l=='Descripcion')}
                             value={nuevoDetalle['Descripcion']}
                             onChange={(value, setErr, setWarning)=>{
                                 setNuevoDetalle({
@@ -503,9 +678,12 @@ return <>
                         />
                     </div>
                     <div className='secondaryData'>
+                    <div style={{display: nuevoDetalle['Categoria'] === 'new' ? 'none' : ''}}>
                         <SelectField 
                             label='Categoria'
+                            incomplete={markAsIncomplete.find(l=>l=='Categoria')}
                             value={nuevoDetalle['Categoria']}
+                            options={myConcat([{label: 'Nueva categoria', value: 'new'}], categorias)}
                             onChange={(value, setErr, setWarning)=>{
                                 setNuevoDetalle({
                                     ...nuevoDetalle,
@@ -513,31 +691,210 @@ return <>
                                 })
                             }}
                         />
-                        <SelectField 
-                            label='Marca'
-                            value={nuevoDetalle['Marca']}
-                            onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
+                    </div>
+                    <div style={{display: nuevoDetalle['Categoria'] === 'new' ? '' : 'none'}} className='campoNuevaCategoria nuevoItem'>
+                    <div className='secondaryData'>
+                      <TextField 
+                        value={items.Categoria} 
+                        incomplete={markAsIncomplete.find(l=>l=='Categoria')}
+                        onChange={(value, setErr)=> {
+                          if (validateApi.name(value)) {
+                            setItems({
+                              ...items,
+                              Categoria: value
+                            })
+                          } 
+                        }} 
+                        label='Nueva Categoria' 
+                        placeholder='Requerido'
+                      />
+                      <div className='btnGroup'>
+                      <button onClick={() => {
+                        const payload = {categoria: items.Categoria}
+                        axiosClient.post('/categoria', payload)
+                          .then(({data}) => {
+                            const Categoria = data.data
+                            const value = Categoria.value.val
+                            const label = Categoria.label.label
+                            setNuevoDetalle({
+                              ...nuevoDetalle,
+                              Categoria: value
+                            })
+                            setItems({
+                              ...items,
+                              Categoria: ''
+                            })
+                            categorias.unshift({value, label})
+                          })
+                          .catch(error => {
+                            const messageError = error.response.data
+                            console.log(messageError);
+                          })
+                      }}>
+                        Crear
+                      </button>
+                      <button onClick={()=>{
+                        setNuevoDetalle({
+                          ...nuevoDetalle,
+                          ['Categoria']: 'empty'
+                        })
+                        setItems({
+                          ...items,
+                          Categoria: ''
+                        })
+                      }}>
+                        Cancelar
+                      </button>
+                      </div>
+                    </div>
+                    </div>
+                        <div style={{display: nuevoDetalle['Marca'] === 'new' ? 'none' : ''}}>
+                            <SelectField 
+                                label='Marca'
+                                value={nuevoDetalle['Marca']}
+                                incomplete={markAsIncomplete.find(l=>l=='Marca')}
+                                options={myConcat([{label: 'Nueva marca', value: 'new'}], marcas)}
+                                onChange={(value, setErr, setWarning)=>{
+                                    setNuevoDetalle({
+                                        ...nuevoDetalle,
+                                        ['Marca']: value
+                                    })
+                                }}
+                            />
+                        </div>
+                        <div style={{display: nuevoDetalle['Marca'] === 'new' ? '' : 'none'}} className='campoNuevaMarca nuevoItem'>
+                            <div className='secondaryData'>
+                            <TextField 
+                                value={items.Marca} 
+                                incomplete={markAsIncomplete.find(l=>l=='Marca')}
+                                onChange={(value, setErr)=> {
+                                if (validateApi.name(value)) {
+                                    setItems({
+                                    ...items,
+                                    Marca: value
+                                    })
+                                } 
+                                }} 
+                                label='Nueva Marca' 
+                                placeholder='Requerido'
+                            />
+                            <div className='btnGroup'>
+                            <button onClick={() => {
+                                const payload = {marca: items.Marca}
+                                axiosClient.post('/marca', payload)
+                                .then(({data}) => {
+                                    const Marca = data.data
+                                    const value = Marca.value.val
+                                    const label = Marca.label.label
+                                    setNuevoDetalle({
                                     ...nuevoDetalle,
-                                    ['Marca']: value
+                                    Marca: value
+                                    })
+                                    setItems({
+                                    ...items,
+                                    Marca: ''
+                                    })
+                                    marcas.unshift({value, label})
                                 })
-                            }}
-                        />
+                                .catch(error => {
+                                    const messageError = error.response.data
+                                    console.log(messageError);
+                                })
+                            }}>
+                                Crear
+                            </button>
+                            <button onClick={()=>{
+                                setNuevoDetalle({
+                                ...nuevoDetalle,
+                                ['Categoria']: 'empty'
+                                })
+                                setItems({
+                                ...items,
+                                Categoria: ''
+                                })
+                            }}>
+                                Cancelar
+                            </button>
+                            </div>
+                            </div>
+                        </div>
                     </div>
                     <div className='secondaryData'>
-                        <SelectField 
-                            label='Unidad de medida'
-                            value={nuevoDetalle['Unidad de medida']}
-                            onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
+                        <div style={{display: nuevoDetalle['Unidad de medida'] === 'new' ? 'none' : ''}}>
+                            <SelectField 
+                                label='Unidad de medida'
+                                value={nuevoDetalle['Unidad de medida']}
+                                incomplete={markAsIncomplete.find(l=>l=='Unidad de medida')}
+                                options={myConcat([{label: 'Nueva medida', value: 'new'}], unidades_medida)}
+                                onChange={(value, setErr, setWarning)=>{
+                                    setNuevoDetalle({
+                                        ...nuevoDetalle,
+                                        ['Unidad de medida']: value
+                                    })
+                                }}
+                            />
+                        </div>
+                        <div style={{display: nuevoDetalle['Unidad de medida'] === 'new' ? '' : 'none'}} className='campoNuevaMarca nuevoItem'>
+                            <div className='secondaryData'>
+                            <TextField 
+                                value={items['Unidad de medida']} 
+                                incomplete={markAsIncomplete.find(l=>l=='Unidad de medida')}
+                                onChange={(value, setErr)=> {
+                                if (validateApi.name(value)) {
+                                    setItems({
+                                    ...items,
+                                    'Unidad de medida': value
+                                    })
+                                } 
+                                }} 
+                                label='Nueva unidad de medida' 
+                                placeholder='Requerido'
+                            />
+                            <div className='btnGroup'>
+                            <button onClick={() => {
+                                const payload = {medida: items['Unidad de medida']}
+                                axiosClient.post('/unidad_medida', payload)
+                                .then(({data}) => {
+                                    const medida = data.data
+                                    const value = medida.value.val
+                                    const label = medida.label.label
+                                    setNuevoDetalle({
                                     ...nuevoDetalle,
-                                    ['Unidad de medida']: value
+                                    'Unidad de medida': value
+                                    })
+                                    setItems({
+                                    ...items,
+                                    'Unidad de medida': ''
+                                    })
+                                    unidades_medida.unshift({value, label})
                                 })
-                            }}
-                        />
+                                .catch(error => {
+                                    const messageError = error.response.data
+                                    console.log(messageError);
+                                })
+                            }}>
+                                Crear
+                            </button>
+                            <button onClick={()=>{
+                                setNuevoDetalle({
+                                ...nuevoDetalle,
+                                ['Categoria']: 'empty'
+                                })
+                                setItems({
+                                ...items,
+                                Categoria: ''
+                                })
+                            }}>
+                                Cancelar
+                            </button>
+                            </div>
+                            </div>
+                        </div>
                         <SelectField 
                             label='Metodo de inventario'
                             value={nuevoDetalle['Metodo']}
+                            incomplete={markAsIncomplete.find(l=>l=='Metodo')}
+                            options={[{label: 'peps', value: 'peps'}, {label: 'ueps', value: 'ueps'}]} 
                             onChange={(value, setErr, setWarning)=>{
                                 setNuevoDetalle({
                                     ...nuevoDetalle,
@@ -550,7 +907,27 @@ return <>
                         <TextField 
                             label='Minimo'
                             value={nuevoDetalle['Minimo']}
+                            desactiveManually={!!!rollbacks['Minimo']}
+                            incomplete={markAsIncomplete.find(l=>l=='Minimo')}
                             onChange={(value, setErr, setWarning)=>{
+                                if (nuevoDetalle.Maximo !== '') {
+                                    const Minimo = Number(value)
+                                    const Maximo = Number(nuevoDetalle.Maximo)
+                                    handleDoubleCostValidation( {label: 'Minimo', value: Minimo}, {label: 'Maximo', value: Maximo}, (val1, val2) => {
+                                      if(val1 > val2) { 
+                                        setWarning('Minimo no puede ser mayor al maximo')
+                                        return true
+                                      }
+                                      else if (val1 === val2) {
+                                        setWarning('Debes dejar un margen entre el maximo y minimo')
+                                        return true
+                                      }
+                                      else {
+                                        setWarning('')
+                                        return false
+                                      }
+                                    }, setRollbacks)
+                                  }
                                 setNuevoDetalle({
                                     ...nuevoDetalle,
                                     ['Minimo']: value
@@ -560,7 +937,27 @@ return <>
                         <TextField 
                             label='Maximo'
                             value={nuevoDetalle['Maximo']}
+                            desactiveManually={!!!rollbacks['Maximo']}
+                            incomplete={markAsIncomplete.find(l=>l=='Maximo')}
                             onChange={(value, setErr, setWarning)=>{
+                                if (nuevoDetalle.Minimo !== '') {
+                                    const Maximo = Number(value)
+                                    const Minimo = Number(nuevoDetalle.Minimo)
+                                    handleDoubleCostValidation({label: 'Maximo', value: Maximo}, {label: 'Minimo', value: Minimo}, (val1, val2) => {
+                                      if(val1 < val2) { 
+                                        setWarning('Maximo no puede ser menor al minimo')
+                                        return true
+                                      }
+                                      else if (val1 === val2) {
+                                        setWarning('Debes dejar un margen entre el maximo y minimo')
+                                        return true
+                                      }
+                                      else {
+                                        setWarning('')
+                                        return false
+                                      }
+                                    }, setRollbacks)
+                                  }
                                 setNuevoDetalle({
                                     ...nuevoDetalle,
                                     ['Maximo']: value
@@ -571,11 +968,12 @@ return <>
                     <div className='secondaryData'>
                         <SelectField 
                             label='Es un producto con fecha de caducidad?'
-                            value={nuevoDetalle['Maximo']}
+                            value={nuevoDetalle['Caducidad']}
+                            options={[{label: 'no', value: 'f'}, {label: 'si', value: 't'}]} 
                             onChange={(value, setErr, setWarning)=>{
                                 setNuevoDetalle({
                                     ...nuevoDetalle,
-                                    ['Maximo']: value
+                                    'Caducidad': value
                                 })
                             }}
                         />
@@ -583,10 +981,25 @@ return <>
                             label='Imagen del producto'
                             value={nuevoDetalle['Imagen']}
                             onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
-                                    ...nuevoDetalle,
-                                    ['Imagen']: value
-                                })
+                                handleConditionalCostValidation(value, (img)=> img.type !== 'image/avif' 
+                                                                        && img.type !== 'image/png' 
+                                                                        && img.type !== 'image/jpeg',
+                                                                ()=>{
+                                                                    setWarning('Formato de archivo incorrecto')
+                                                                    setRollbacks({
+                                                                        ...rollbacks,
+                                                                        'Imagen': true
+                                                                    })
+                                                                },
+                                                                ()=>{
+                                                                    setWarning('')
+                                                                    setRollbacks({
+                                                                        ...rollbacks,
+                                                                        'Imagen': false
+                                                                    })
+                                                                }
+                                )
+                                handleChangeNuevoProducto(value, setErr, 'Imagen', validateApi.everything)
                             }}
                         />
                     </div>
@@ -594,22 +1007,37 @@ return <>
                 <div style={{display: nuevoDetalle.id === 'new' ? '' : 'none'}} className='secondaryData'>
                         <TextField 
                             label='Cantidad'
+                            incomplete={markAsIncomplete.find(l=>l=='Cantidad')}
+                            desactiveManually={!!!rollbacks['Cantidad']}
                             value={nuevoDetalle.Cantidad}
-                            onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
+                            onChange={(value, setErr, setWarning)=> {
+                                const cantidad = Number(value)
+                                handleDoubleCostValidation({label: 'Cantidad', value: cantidad}, {label:'Cantidad con descuento', value: Number(nuevoDetalle['Cantidad con descuento'])}, (val1, val2) => {
+                                    if (val1 < val2) {
+                                        setWarning('Cantidad inferior a la del descuento')
+                                        return true
+                                    } else {
+                                        setWarning('')
+                                        return false
+                                    }
+                                }, setRollbacks)
+                                if (validateApi.number(value)) setNuevoDetalle({
                                     ...nuevoDetalle,
-                                    Cantidad: value
+                                    'Cantidad': value
                                 })
                             }}
                         />
                         <TextField 
                             label='Precio de compra'
                             value={nuevoDetalle['Precio de compra']}
+                            incomplete={markAsIncomplete.find(l=>l=='Precio de compra')}
                             onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
-                                    ...nuevoDetalle,
-                                    ['Precio de compra']: value
-                                })
+                                if (validateApi.positiveReal(value) && validateApi.priceTruncated(value)) {
+                                    setNuevoDetalle({
+                                        ...nuevoDetalle,
+                                        ['Precio de compra']: value
+                                    })
+                                }
                             }}
                         />
                 </div>
@@ -617,10 +1045,21 @@ return <>
                         <TextField 
                             label='Aplicar descuento a'
                             value={nuevoDetalle['Cantidad con descuento']}
-                            onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
+                            desactiveManually={!rollbacks['Cantidad con descuento']}
+                            onChange={(value, setErr, setWarning)=> {
+                                const cantidad = Number(value)
+                                handleDoubleCostValidation({label: 'Cantidad con descuento', value: cantidad}, {label:'Cantidad', value: Number(nuevoDetalle['Cantidad'])}, (val1, val2) => {
+                                    if (val1 > val2) {
+                                        setWarning('Esta cantidad sobrepasa a la de tu orden')
+                                        return true
+                                    } else {
+                                        setWarning('')
+                                        return false
+                                    }
+                                }, setRollbacks)
+                                if (validateApi.positiveIntegerOrZero(value)) setNuevoDetalle({
                                     ...nuevoDetalle,
-                                    ['Cantidad con descuento']: value
+                                    'Cantidad con descuento': value
                                 })
                             }}
                         />
@@ -628,10 +1067,16 @@ return <>
                             label='Porcentaje de descuento'
                             value={nuevoDetalle['Porcentaje de descuento']}
                             onChange={(value, setErr, setWarning)=>{
-                                setNuevoDetalle({
-                                    ...nuevoDetalle,
-                                    ['Porcentaje de descuento']: value
-                                })
+                                if (validateApi.positiveReal(value) &&
+                                    validateApi.priceTruncated(value) &&
+                                    Number(value) < 100
+                                    ) 
+                                {
+                                    setNuevoDetalle({
+                                        ...nuevoDetalle,
+                                        ['Porcentaje de descuento']: value
+                                    })
+                                }
                             }}
                         />
                 </div>
@@ -640,12 +1085,15 @@ return <>
             <div className='ticket'>
                 <TablaNuevaOrden 
                     pagination={false}     
-                    empty={<CardView type='delivery' loop={true}/>}
-                    rows={[]}
+                    empty={<h1>Agrega items a la orden</h1>}
+                    rows={formatTable(listaDetalles)}
                 />
             </div>
 
-            <button style={{display: edit ? 'none' : ''}} className={`btnAgregarItem ${!listFullSize ? 'partialBtn' : 'noneBtn'}`}>Agregar a la factura</button>
+            <button style={{display: edit ? 'none' : ''}}
+                    className={`btnAgregarItem ${!listFullSize ? 'partialBtn' : 'noneBtn'}`}
+                    onClick={()=>handleAgregarNuevoDetalle(nuevoDetalle)}
+                    >Agregar a la factura</button>
             <div style={{display: !edit ? 'none' : ''}} className='editBtns'>
                 <button>Actualizar</button>
                 <button>Cancelar</button>
@@ -654,6 +1102,6 @@ return <>
         </div>
     </div>
 </>
-}
+})
 
 export default CreateInvoice

@@ -95,7 +95,7 @@ function EnhancedTableHead(props) {
           <TableCell
             key={headCell.id}
             sortDirection={orderBy === headCell.id ? order : false}
-            sx={{ whiteSpace: 'nowrap', maxWidth: '200px' }} // Ajusta estos estilos según necesites
+            sx={{display: headCell.label ==='id' ? 'none' : '', whiteSpace: 'nowrap', maxWidth: '200px' }} // Ajusta estos estilos según necesites
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -180,7 +180,7 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searchText, setSearchText] = React.useState('');
   const [errorInput, setErrorInput] = React.useState([null, null, null]);
-
+  const columnCount = Object.keys(rows[0] || []).length;
   function initEditables(edit) {
     const fields = Object.create({});
 
@@ -336,13 +336,11 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
   return (
     <Box sx={{ width: '99%' }}>
       <Paper elevation={0} square={false} sx={{ width: '99%', mb: 2, borderRadius: '13px' }}>
-        
         <EnhancedTableToolbar setSearchText={setSearchText} generalActions={generalActions} setSelected={setSelected} selected={selected} numSelected={selected.length} />
-        {rows.length === 0 ? empty :
         <TableContainer
           style={{
             height: '100vh',
-            maxHeight: 'calc(100vh - 250px)',
+            maxHeight: 'calc(100vh - 100px)',
             overflowY: 'auto',
             width: '99%',
             maxWidth: '100%',
@@ -355,138 +353,142 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
               transition: 'opacity 0.3s',
             },
           }}>
-          {
+          {rows.length === 0 ? empty :
             (
               <Table
-                stickyHeader
-                aria-labelledby="tableTitle"
-                size={dense ? 'small' : 'medium'}
-              >
-                <EnhancedTableHead
-                  actionsShow={actions.length > 0}
-                  numSelected={selected.length}
-                  columns={Object.keys(rows[0] || [])}
-                  order={order}
-                  orderBy={orderBy}
-                  onSelectAllClick={handleSelectAllClick}
-                  onRequestSort={handleRequestSort}
-                  rowCount={rows.length}
-                />
-                <TableBody>
-                  {rows
-                    .filter(row => {
-                      const keys = Object.keys(row);
-                      for (let key of keys) {
-                        if (!row[key] || key === 'img' || key === 'Imagen') continue;
-                        if (row[key].toString().toLowerCase().includes(searchText.toLowerCase())) return true;
-                      }
-                      return false;
-                    })
-                    .map((row, index) => {
-                      const isItemSelected = isSelected(row.id);
-                      const labelId = `enhanced-table-checkbox-${index}`;
+      stickyHeader
+      aria-labelledby="tableTitle"
+      size={dense ? 'small' : 'medium'}
+    >
+      <EnhancedTableHead
+        actionsShow={actions.length > 0}
+        numSelected={selected.length}
+        columns={Object.keys(rows[0] || [])}
+        order={order}
+        orderBy={orderBy}
+        onSelectAllClick={handleSelectAllClick}
+        onRequestSort={handleRequestSort}
+        rowCount={rows.length}
+      />
+      <TableBody>
+        {rows
+          .filter(row => {
+            const keys = Object.keys(row);
+            for (let key of keys) {
+              if (!row[key] || key === 'img' || key === 'Imagen') continue;
+              if (row[key].toString().toLowerCase().includes(searchText.toLowerCase())) return true;
+            }
+            return false;
+          })
+          .map((row, index) => {
+            const isItemSelected = isSelected(row.id);
+            const labelId = `enhanced-table-checkbox-${index}`;
 
-                      return (
-                        <TableRow
-                          hover
-                          onClick={(event) => handleClick(event, row.id)}
-                          role="checkbox"
-                          aria-checked={isItemSelected}
-                          tabIndex={-1}
-                          key={row.id}
-                          selected={isItemSelected}
-                          sx={{ cursor: 'pointer' }}
-                        >
-                          <TableCell padding="checkbox">
-                            <Checkbox
-                              color="primary"
-                              checked={isItemSelected}
-                              inputProps={{
-                                'aria-labelledby': labelId,
-                              }}
-                            />
-                          </TableCell>
-                          {actions.length > 0 ?
-                            (
-                              <TableCell>
-                                {edit !== row.id ? (
-                                  <BasicMenu
-                                    id={row.id}
-                                    items={actions}
-                                    label={actionsButton}
-                                  />)
-                                  :
-                                  (
-                                    <div className='btnsUpdate'>
-                                      <button onClick={(e) => {
-                                        e.stopPropagation();
-                                        setEdit(false);
-                                        setUpdates(initEditables(null));
-                                      }}>
-                                        Cancelar
-                                      </button>
-                                      <button onClick={(e) => handleUpdate(e, requestUpdate)}>Actualizar</button>
-                                    </div>
-                                  )
-                                }
-                              </TableCell>
-                            ) :
-                            ''
-                          }
-                          {Object.keys(row || []).map(key => {
-                            return edit !== row.id ?
-                              (<TableCell sx={{ whiteSpace: 'nowrap', maxWidth: '200px' }}>
-                                <div className='textContainer'>
-                                  <div className='scrollableText'>
-                                    {key === 'id' ? '#fdnum-' + row[key] : row[key]}
-                                  </div>
-                                </div>
-                              </TableCell>)
-                              :
-                              (
-                                <TableCell>
-                                  {editables.some(e => e.label == key) ? (
-                                    <div class='editField'>
-                                      <TextField
-                                        autoComplete='off'
-                                        onChange={(e) => handleEdit(e.target.value, row, editables.find(e => e.label == key))}
-                                        onClick={(e) => e.stopPropagation()}
-                                        value={updates[editables.find(e => e.label == key).label]}
-                                        select={'select' == editables.find(e => e.label == key).type}
-                                        type={editables.find(e => e.label == key).type}
-                                      >
-                                        {editables.find(e => e.label == key).type == 'select' ? (
-                                          editables.find(e => e.label == key).validation().map((item, index) => (
-                                            <MenuItem key={index} value={item.value}>{item.label}</MenuItem>
-                                          ))
-                                        ) : null}
-                                      </TextField>
-                                      <Alert
-                                        style={{
-                                          display: errorInput[0] && (Number(errorInput[0]) === Number(row.id)) && errorInput[1] == editables.find(e => e.label == key).label ? '' : 'none',
-                                          position: 'relative'
-                                        }}
-                                        severity="error"
-                                      >{errorInput[2]}</Alert>
-                                    </div>
-                                  ) : (
-                                    <div className='textContainer'>
-                                      <div className='scrollableText'>
-                                        {row[key]}
-                                      </div>
-                                    </div>
-                                  )}
-                                </TableCell>
-                              );
-                          })}
-                        </TableRow>
-                      );
-                    })}
-                </TableBody>
-              </Table>)
+            return (
+              <TableRow
+                hover
+                onClick={(event) => handleClick(event, row.id)}
+                role="checkbox"
+                aria-checked={isItemSelected}
+                tabIndex={-1}
+                key={row.id}
+                selected={isItemSelected}
+                sx={{ cursor: 'pointer' }}
+              >
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    color="primary"
+                    checked={isItemSelected}
+                    inputProps={{
+                      'aria-labelledby': labelId,
+                    }}
+                  />
+                </TableCell>
+                {actions.length > 0 && (
+                  <TableCell>
+                    {edit !== row.id ? (
+                      <BasicMenu
+                        id={row.id}
+                        items={actions}
+                        label={actionsButton}
+                      />)
+                      :
+                      (
+                        <div className='btnsUpdate'>
+                          <button onClick={(e) => {
+                            e.stopPropagation();
+                            setEdit(false);
+                            setUpdates(initEditables(null));
+                          }}>
+                            Cancelar
+                          </button>
+                          <button onClick={(e) => handleUpdate(e, requestUpdate)}>Actualizar</button>
+                        </div>
+                      )
+                    }
+                  </TableCell>
+                )}
+                {Object.keys(row || []).map(key => {
+                  return edit !== row.id ? (
+                    <TableCell
+                      key={key}
+                      className={columnCount <= 3 ? 'left-aligned-cell' : ''}
+                      sx={{ display: key === 'id' ? 'none' : '', whiteSpace: 'normal', maxWidth: '200px' }}
+                    >
+                      <div className='textContainer'>
+                        <div className='scrollableText'>
+                          {row[key]}
+                        </div>
+                      </div>
+                    </TableCell>
+                  ) : (
+                    <TableCell
+                      key={key}
+                      className={columnCount <= 3 ? 'left-aligned-cell' : ''}
+                      sx={{ display: key === 'id' ? 'none' : '', whiteSpace: 'nowrap', maxWidth: '200px' }}
+                      style={{ height: 'auto' }}
+                    >
+                      {editables.some(e => e.label == key) ? (
+                        <div className='editField'>
+                          <TextField
+                            autoComplete='off'
+                            onChange={(e) => handleEdit(e.target.value, row, editables.find(e => e.label == key))}
+                            onClick={(e) => e.stopPropagation()}
+                            value={updates[editables.find(e => e.label == key).label]}
+                            select={'select' == editables.find(e => e.label == key).type}
+                            type={editables.find(e => e.label == key).type}
+                          >
+                            {editables.find(e => e.label == key).type == 'select' && (
+                              editables.find(e => e.label == key).validation().map((item, index) => (
+                                <MenuItem key={index} value={item.value}>{item.label}</MenuItem>
+                              ))
+                            )}
+                          </TextField>
+                          <Alert
+                            style={{
+                              display: errorInput[0] && (Number(errorInput[0]) === Number(row.id)) && errorInput[1] == editables.find(e => e.label == key).label ? '' : 'none',
+                              position: 'relative'
+                            }}
+                            severity="error"
+                          >{errorInput[2]}</Alert>
+                        </div>
+                      ) : (
+                        <div className='textContainer'>
+                          <div className='scrollableText'>
+                            {row[key]}
+                          </div>
+                        </div>
+                      )}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            );
+          })}
+      </TableBody>
+    </Table>)
           }
         </TableContainer>
-        }
         {pagination ? (
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}

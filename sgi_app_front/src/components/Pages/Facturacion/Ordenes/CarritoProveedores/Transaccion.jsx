@@ -29,7 +29,8 @@ const Transaccion = ({
         id: producto.id,
         Cantidad: '',
         'Precio de compra': '',
-        'Cantidad con descuento': ''
+        'Cantidad con descuento': '',
+        'Porcentaje con descuento': ''
     }
     const [newTransaccion, setNewTransaccion] = useState(init)
     const [rollbacks, setRollbacks] = useState({

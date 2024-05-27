@@ -106,15 +106,14 @@ const AddProducto = React.memo((props) => {
     productos=[]
   } = props
 
-
-
   const [nuevoProducto, setNuevoProducto] = useState(init)
   const [listaNuevosProductos, setListaNuevosProductos] = useState([])
   const [markAsIncomplete, setMarkAsIncomplete] =  useState([])
   const [listFullSize, setListFullSize] = useState(false)
-
   const [nuevoStock, setNuevoStock] = useState('f')
-
+  const [edit, setEdit] = useState(null)
+  const [eliminar, setEliminar] = useState(null)
+  
   const [columnas, setColumnas] = useState(establecerColumnasPersonalizadas(nuevoProducto))
   const [rollbacks, setRollbacks] = useState({
     'Nombre': false,
@@ -190,9 +189,7 @@ const AddProducto = React.memo((props) => {
     }
   }, 300)
 
-  const [edit, setEdit] = useState(null)
-
-  const [eliminar, setEliminar] = useState(null)
+  
 
   const generalActions = [
     {
@@ -678,14 +675,14 @@ const AddProducto = React.memo((props) => {
               <div className='secondaryData'>
                 
                 <div style={{display: nuevoProducto.Categoria === 'new' ? 'none' : ''}}>
-                <SelectField 
-                    incomplete={markAsIncomplete.find(l=>l=='Categoria')} 
-                    value={nuevoProducto.Categoria} options={categoriasUsable} 
-                    onChange={(value, setErr)=> {
-                      handleChangeNuevoProducto(value, setErr, 'Categoria', (n)=>true)
-                    }} 
-                    label='Categoria del producto'
-                  />
+                  <SelectField 
+                      incomplete={markAsIncomplete.find(l=>l=='Categoria')} 
+                      value={nuevoProducto.Categoria} options={categoriasUsable} 
+                      onChange={(value, setErr)=> {
+                        handleChangeNuevoProducto(value, setErr, 'Categoria', (n)=>true)
+                      }} 
+                      label='Categoria del producto'
+                    />
                 </div>
                 
                 <div style={{display: nuevoProducto.Categoria === 'new' ? '' : 'none'}} className='campoNuevaCategoria nuevoItem'>
@@ -844,9 +841,9 @@ const AddProducto = React.memo((props) => {
                         const payload = {medida: items['Unidad de medida']}
                         axiosClient.post('/unidad_medida', payload)
                           .then(({data}) => {
-                            const medidad = data.data
-                            const value = medidad.value.val
-                            const label = medidad.label.label
+                            const medida = data.data
+                            const value = medida.value.val
+                            const label = medida.label.label
                   
                             setNuevoProducto({
                               ...nuevoProducto,

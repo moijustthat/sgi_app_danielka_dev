@@ -2,14 +2,14 @@ import React, { useState, useCallback } from "react"
 import { Alert } from "@mui/material"
 import { debounce } from "lodash"
 
-export const DateField = ({desactiveManually=false, value='', blocked=false, label, onChange=() => null}) => {
+export const DateField = ({incomplete=false, desactiveManually=false, value='', blocked=false, label, onChange=() => null}) => {
 
     const [err, setErr] = useState('')
     const [warning, setWarning] = useState('')
     return (
       <div className='customDate'>
         <label>{label}</label>
-        <input value={value} onChange={(e) => onChange(e.target.value, setErr, setWarning)} id='dateField' type='date' disabled={blocked}></input>
+        <input className={incomplete ? 'markAsIncomplete' : ''} value={value} onChange={(e) => onChange(e.target.value, setErr, setWarning)} id='dateField' type='date' disabled={blocked}></input>
         <Alert 
           sx={{
             display: err == '' ? 'none' : ''
@@ -73,7 +73,7 @@ export const DateField = ({desactiveManually=false, value='', blocked=false, lab
     const debouncedOnChange = useCallback(
       debounce((value, setErr, setWarning)=> {
         onChange(value, setErr, setWarning)
-      }, 15),
+      }, 5),
       [onChange]
     )
 
@@ -84,7 +84,7 @@ export const DateField = ({desactiveManually=false, value='', blocked=false, lab
           className={incomplete ? 'markAsIncomplete' : ''}
           value={value}
           disabled={false}
-          onChange={(e) => debouncedOnChange(e.target.value, setErr, setWarning)}
+          onChange={(e) => onChange(e.target.value, setErr, setWarning)}
           type="text" 
           placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
           <Alert 
@@ -107,14 +107,16 @@ export const DateField = ({desactiveManually=false, value='', blocked=false, lab
     const debouncedOnChange = useCallback(
       debounce((value, setErr, setWarning)=> {
         onChange(value, setErr, setWarning)
-      }, 15),
+      }, 5),
       [onChange]
     )
 
     return (
       <div className='textField'>
         <label>{label}*</label>
-        <textarea className={incomplete ? 'markAsIncomplete' : ''} value={value} onChange={(e) => debouncedOnChange(e.target.value, setErr, setWarning)} placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder} rows={4} cols={50}></textarea>
+        <textarea className={incomplete ? 'markAsIncomplete' : ''} 
+        value={value} 
+        onChange={(e) => onChange(e.target.value, setErr, setWarning)} placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder} rows={4} cols={50}></textarea>
         <Alert 
           onClose={()=>setErr('')}
           sx={{

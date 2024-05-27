@@ -1,6 +1,6 @@
 import { debounce } from 'lodash';
 
-function myConcat(arr1, arr2) {
+export function myConcat(arr1, arr2) {
     let concatenated = []
     for (let e1 of arr1) {
       concatenated.push(e1)
@@ -25,6 +25,26 @@ export const handleFoundCostValidation = debounce((matrix, constraint, value, if
       ifFound()
     } else {
         ifNotFound()
+    }
+  }, 300)
+
+ export const handleDoubleCostValidation = debounce((constraint1, constraint2, validation, setRollbacks) => {
+    if (validation(constraint1.value, constraint2.value)) {
+      setRollbacks(rollbacks=>{
+        return {
+          ...rollbacks,
+        [constraint1.label]: true,
+        [constraint2.label]: true
+        }
+      })
+    } else {
+      setRollbacks(rollbacks=>{
+        return {
+          ...rollbacks,
+        [constraint1.label]: false,
+        [constraint2.label]: false
+        }
+      })
     }
   }, 300)
 

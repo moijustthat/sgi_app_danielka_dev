@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import SearchField from '../../../../Common/SearchField/SearchField'
 import { Avatar } from '@mui/material'
 import './ProductosBD.css'
-import a from '../../../../../imgs/logo.png'
+import logo from '../../../../../imgs/logo.png'
 import {IconButton} from '@mui/material'
 import hexToDataURL from '../../../../../utils/HexToDataUrl'
 import { SelectField } from '../../../../Common/AwesomeFields/AwesomeFields'
@@ -19,7 +19,7 @@ const ProductosBD = (props) => {
         marcas=[],
         unidades_medida=[],
         selectProducto=()=>null,
-        setNuevoDetalle
+        setListaDetalles=()=>null
     } = props
     const [searchNombre, setSearchNombre] = useState('')
     const [searchCodigoBarra, setSearchCodigoBarra] = useState('')   
@@ -132,10 +132,14 @@ const ProductosBD = (props) => {
                             categoria={categoria}
                             medida={medida}
                             onAddCarrito={(amount, detalle)=>{
-                                setNuevoDetalle(prev=>({
-                                    ...prev,
+                                const producto = transaccion
+                                console.log(producto)
+                                const newDetalle = {
+                                    'Nombre': producto['Nombre'],
+                                    'Imagen': producto['Imagen'] ? producto['Imagen'] : logo,
                                     ...detalle
-                                }))
+                                }
+                                setListaDetalles(prev=>([newDetalle, ...prev]))
                                 setCarrito(carrito+amount)
                                 setTransaccion(null)
                             }}
