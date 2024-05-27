@@ -614,19 +614,20 @@ return <>
                         options={[{value: 'new', label: 'Nuevo producto'}, {value: 'bd', label: 'Buscar en la base de datos'}]}
                         onChange={(value, setErr) => {
                             if (value === 'bd') {
-                                setRequestBd(<ProductosBD selectProducto={(id)=> {
-                                    setNuevoDetalle({
-                                        ...nuevoDetalle,
-                                        id: id
-                                    })
-                                    setRequestBd(null)
-                                }} 
-                                listaDetalles={listaDetalles}
-                                productos={productos} 
-                                categorias={categorias} 
-                                marcas={marcas} 
-                                unidades_medida={unidades_medida}
-                                setListaDetalles={setListaDetalles}
+                                setRequestBd(<ProductosBD 
+                                    selectProducto={(id)=> {
+                                        setNuevoDetalle({
+                                            ...nuevoDetalle,
+                                            id: id
+                                        })
+                                        setRequestBd(null)
+                                    }} 
+                                    listaDetalles={listaDetalles}
+                                    productos={productos} 
+                                    categorias={categorias} 
+                                    marcas={marcas} 
+                                    unidades_medida={unidades_medida}
+                                    setListaDetalles={setListaDetalles}
                                 />)
                             }
                             else {

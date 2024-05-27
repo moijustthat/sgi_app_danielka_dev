@@ -19,6 +19,7 @@ import hexToDataURL, { isHex } from '../../../../utils/HexToDataUrl';
 import logo from '../../../../imgs/logo.png'
 import { useStateContext } from '../../../../Contexts/ContextProvider';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 
 import onChangeSize from './InvoiceGeneralActions/FullSize';
 
@@ -155,6 +156,22 @@ const CreateInvoice = React.memo((props) => {
 
     return (
         <div className='container'>
+
+        <FormDialog 
+                    fullScreen={true}
+                    open={requestBd}
+                    setOpen={(close) => {
+                        setRequestBd(close)
+                        setNuevoDetalle({
+                            ...nuevoDetalle,
+                            id: 'new'
+                        })
+                    }}
+                    title='Productos en la base de datos'
+                    content={requestBd ? requestBd : ''}
+                    closeIcon={<Button variant='outlined'>Volver a la factura</Button>}
+            />
+
             <div className={`glass ${listFullSize ? 'fullGlass' : 'partialGlass'}`}>
                 <div className='exit'>
                     <IconButton  onClick={() => setOpen(false)}>
@@ -475,6 +492,28 @@ const CreateInvoice = React.memo((props) => {
                     </div>
 
                 </div>
+
+                <div className='ticket'>
+                    <TablaNuevaVenta 
+                        pagination={false}     
+                        empty={<h1>Agrega items a la venta</h1>}
+                        rows={formatTable(listaDetalles)}
+                        generalActions={generalActions}
+                    />
+                </div>
+
+                <button 
+                    onClick={()=>setRequestBd(<h1>El mero carrito</h1>)}
+                    style={{display: edit ? 'none' : ''}}
+                    className={`btnAgregarItem ${!listFullSize ? 'partialBtn' : 'noneBtn'}`}
+                >
+                    Pasar al carrito {<ShoppingCartOutlinedIcon />}
+                </button>
+                <div style={{display: !edit ? 'none' : ''}} className='editBtns'>
+                    <button>Actualizar</button>
+                    <button>Cancelar</button>
+                </div>
+                <button   className={`btnAgregarOrden ${!listFullSize ? 'partialBtn' : 'fullBtn'}`}>Realizar orden</button>
             </div>
         </div>
     )
