@@ -12,6 +12,10 @@ use Validator;
 class UsuariosController extends Controller
 {
     
+    public function indexClientes() {
+        return Usuarios::getAllClientes();
+    }
+
     public function loginUsuario(Request $request) {
         // Validar si los campos estan llenos
         $camposRequeridos = ['email', 'password'];

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Lib\JsonHelper;
+use App\Lib\HandleDbResponse;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -37,7 +38,10 @@ class Usuarios extends Authenticatable {
         return DB::select('select * from cargos where cargoId != 14');
     }
 
-    public static function tableShowClientes() {
-        //return DB::select('select * from table_show_clientes ORDER BY clienteId DESC');
+    public static function getAllClientes() {
+        return HandleDbResponse::handleResponse(function() {
+            $clientes = DB::select('select * from vw_clientes');
+            return JsonHelper::jsonResponse(200, ['data'=>$clientes]);
+        }, 'Error al traer todos los clientes');
     }
 }

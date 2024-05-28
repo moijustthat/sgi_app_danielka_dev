@@ -98,7 +98,7 @@ const Ventas = () => {
       }
 
     useEffect(()=>{
-        //getClientes()
+        getClientes()
         getProductos()
         getItems()
     }, [])

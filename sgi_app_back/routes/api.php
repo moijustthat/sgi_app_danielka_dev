@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductosController;
 use App\Http\Controllers\ProveedoresController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\OrdenesController;
+use App\Http\Controllers\VentasController;
 
 
 
@@ -18,6 +19,7 @@ Route::controller(UsuariosController::class)->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/logout', 'logout');
+        Route::get('/clientes', 'indexClientes');
         Route::post('/register', 'storeUsuario');
         //Route::patch('/usuarios/edit/{id}', 'editEmpleado');
 
@@ -56,5 +58,11 @@ Route::controller(ItemsController::class)->group(function () {
 Route::controller(OrdenesController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/orden', 'insert_orden');
+    });
+});
+
+Route::controller(VentasController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/venta', 'insert_venta');
     });
 });

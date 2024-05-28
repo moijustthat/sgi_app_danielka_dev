@@ -27,7 +27,7 @@ const Transaccion = ({
     const init = {
         id: producto.id,
         Cantidad: current ? current['Cantidad'] : '',
-        'Precio de compra': current ? current['Precio de compra'] : '',
+        'Precio de venta': current ? current['Precio de venta'] : '',
         'Cantidad con descuento': current ? current['Cantidad con descuento'] : '',
         'Porcentaje de descuento': current ? current['Porcentaje de descuento'] : ''
     }
@@ -40,7 +40,7 @@ const Transaccion = ({
     })
 
     const handleAgregar = () => {
-        const required = ['Cantidad', 'Precio de compra']
+        const required = ['Cantidad', 'Precio de venta']
         const empty = []
         let rollback = false
 
@@ -112,11 +112,11 @@ const Transaccion = ({
                                 }}
                             />
                             <TextField 
-                                value={newTransaccion['Precio de compra']}
-                                label='Precio de compra por unidad'
-                                incomplete={emptyFields.find(field=> field==='Precio de compra')}
+                                value={newTransaccion['Precio de venta']}
+                                label='Precio de venta por unidad'
+                                incomplete={emptyFields.find(field=> field==='Precio de venta')}
                                 onChange={(value)=> {
-                                    if (validateApi.positiveReal(value) && validateApi.priceTruncated(value)) handleNewTransaccion('Precio de compra', value, setNewTransaccion)
+                                    if (validateApi.positiveReal(value) && validateApi.priceTruncated(value)) handleNewTransaccion('Precio de venta', value, setNewTransaccion)
                                 }}
                             />
                         </div>

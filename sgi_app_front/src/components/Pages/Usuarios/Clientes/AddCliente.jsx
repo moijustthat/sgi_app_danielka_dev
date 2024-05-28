@@ -33,7 +33,8 @@ const init = {
     'Numero RUT': '',
     'Fecha de nacimiento': '',
     'Correo': '',
-    'Telefono': ''
+    'Telefono': '',
+    'Direccion': ''
 }
 
     const [nuevoCliente, setNuevoCliente] = useState(init)
@@ -79,6 +80,7 @@ const init = {
                 'cargoId': '14',
                 'numeroRut': nuevoCliente['Numero RUT'],
                 'email': nuevoCliente['Correo'],
+                'direccion': nuevoCliente['Direccion'],
                 'fechaNacimiento': nuevoCliente['Fecha de nacimiento'],
                 'fechaRegistro': dateHelper.getCurrentDate(),
                 'activo': 't'
@@ -307,6 +309,21 @@ const init = {
                         }}
                     />
                 </div>
+
+                <div className='mainData'>
+                    <TextArea 
+                        label='Direccion'
+                        placeholder='Opcional'
+                        value={nuevoCliente['Direccion']}
+                        onChange={(value)=> {
+                            setNuevoCliente({
+                                ...nuevoCliente,
+                                'Direccion': value
+                            })
+                        }}
+                    />
+                </div>
+
             </div>
             <button 
                 className='btnAgregarRight'
