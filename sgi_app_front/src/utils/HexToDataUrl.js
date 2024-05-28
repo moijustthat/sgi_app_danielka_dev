@@ -27,6 +27,8 @@ export function isHex(img) {
 }
 
 export default function hexToDataURL(hexString) {
+    console.log(hexString)
+    if (!hexString) hexString = ''
     const base64String = hexToBase64(hexString);
     return `data:image/png;base64,${base64String}`;
 }

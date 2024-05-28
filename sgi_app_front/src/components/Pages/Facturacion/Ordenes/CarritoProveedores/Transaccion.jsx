@@ -80,7 +80,7 @@ const Transaccion = ({
     return  <Grid container spacing={2}>
                 <Grid item xs={6}>
                     <div className='marco'>
-                        <img className='imgMarco' src={producto['Imagen'] ? hexToDataURL(producto['Imagen']) : defaultImg} />
+                        <img className='imgMarco' src={producto['Imagen'] && producto['Imagen'] !== '' ? hexToDataURL(producto['Imagen']) : defaultImg} />
                     </div>
                 </Grid>
                 <Grid item xs={6}>

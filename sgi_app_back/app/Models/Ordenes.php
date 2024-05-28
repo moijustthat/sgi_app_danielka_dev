@@ -31,14 +31,14 @@ class Ordenes extends Model
                     $nuevoProveedor = array();
                     array_push($nuevoProveedor,
                         $proveedor['Razon social'],
-                        $proveedor['Numero RUT'] !== '' ? $proveedor['Numero RUT'] : NULL,
-                        $proveedor['Correo'] !== '' ? $proveedor['Correo'] : NULL,
+                        $proveedor['Numero RUT'] && $proveedor['Numero RUT'] !== '' ? $proveedor['Numero RUT'] : NULL,
+                        $proveedor['Correo'] && $proveedor['Correo'] !== '' ? $proveedor['Correo'] : NULL,
                         $proveedor['Telefono'],
                         $proveedor['Direccion'],
                         't'
                     );
                     DB::select('CALL pa_nuevo_proveedor(?, ?, ?, ?, ?, ?, @proveedor)', $nuevoProveedor);
-                    $proveedorId = DB::select('select @proveedor as proveedorId');
+                    $proveedorId = DB::select('select @proveedor as proveedorId')[0]->proveedorId;
                 } else {
                     $proveedorId = $proveedor['id'];
                 }
@@ -48,12 +48,13 @@ class Ordenes extends Model
                 array_push($nuevaOrden,
                     intval($proveedorId),
                     $usuario,
-                    $orden['Fecha de pago limite'] !== '' ? $orden['Fecha de pago limite'] : NULL,
-                    $orden['Porcentaje de mora'] !== '' ? $orden['Porcentaje de mora'] : NULL          
+                    $orden['Fecha de pago limite'] && $orden['Fecha de pago limite'] !== '' ? $orden['Fecha de pago limite'] : NULL,
+                    $orden['Porcentaje de mora'] && $orden['Porcentaje de mora'] !== '' ? $orden['Porcentaje de mora'] : NULL          
                 );
 
                 DB::select('CALL pa_nueva_orden(?, ?, ?, ?, @orden)', $nuevaOrden);
-                $ordenId = DB::select('SELECT @orden AS orden');
+                $ordenId = DB::select('SELECT @orden AS orden')[0]->orden;
+
                 foreach ($detalles as $detalle) {
                     $nuevoProducto = array();
                     if (preg_match('/^new/', $detalle['id'])) { // Si es un nuevo producto
@@ -63,17 +64,17 @@ class Ordenes extends Model
                             $detalle['Precio de venta'],
                             't',
                             $detalle['Caducidad'],
-                            $detalle['Codigo de barra'] !== '' ? $detalle['Codigo de barra'] : NULL,
+                            $detalle['Codigo de barra'] && $detalle['Codigo de barra'] !== '' ? $detalle['Codigo de barra'] : NULL,
                             $detalle['Minimo'],
                             $detalle['Maximo'],
-                            $detalle['Imagen'] !== '' ? ImgProccessor::binToHex($detalle['Imagen']) : NULL,
+                            $detalle['Imagen'] && $detalle['Imagen'] !== '' ? ImgProccessor::binToHex($detalle['Imagen']) : NULL,
                             $detalle['Categoria'],
                             $detalle['Marca'],
                             $detalle['Unidad de medida'],
                             $detalle['Metodo']
                         );
                         DB::select('CALL pa_producto(?,?,?,?,?,?,?,?,?,?,?,?,?, @producto)', $nuevoProducto);
-                        $productoId = DB::select('select @producto as productoId');
+                        $productoId = DB::select('select @producto as productoId')[0]->productoId;
                     } else {
                         $productoId = $detalle['id'];
                     }
@@ -84,8 +85,8 @@ class Ordenes extends Model
                         intval($detalle['Cantidad']),
                         $orden['Fecha de entrega'],
                         floatval($detalle['Precio de compra']),
-                        $detalle['Cantidad con descuento'] !== NULL ? intval($detalle['Cantidad con descuento']) : NULL,
-                        $detalle['Porcentaje de descuento'] !== NULL ? floatval($detalle['Porcentaje de descuento']) : NULL
+                        $detalle['Cantidad con descuento'] && $detalle['Cantidad con descuento'] !== '' ? intval($detalle['Cantidad con descuento']) : NULL,
+                        $detalle['Porcentaje de descuento'] && $detalle['Porcentaje de descuento'] !== '' ? floatval($detalle['Porcentaje de descuento']) : NULL
                     );
                     DB::select('CALL pa_nuevo_detalle_orden(?,?,?,?,?,?,?)', $nuevoDetalle);
                 }   

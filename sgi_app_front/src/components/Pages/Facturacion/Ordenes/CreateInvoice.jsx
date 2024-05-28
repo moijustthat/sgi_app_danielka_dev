@@ -158,7 +158,8 @@ const handleChangeNuevoProducto = (value, setErr, key, validate, personalized=''
     }
     
     if (key === 'Imagen') {
-      if (value==='') {
+      
+        if (value==='') {
         setNuevoDetalle({
           ...nuevoDetalle,
           [key]: value

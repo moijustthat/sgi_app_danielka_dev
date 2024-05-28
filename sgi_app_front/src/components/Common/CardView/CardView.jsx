@@ -22,7 +22,7 @@ const CardView = (props) => {
     return <div className="card_container">
                 <div className="card_item">
                     <div className="card_inner">
-                        <img src={img ? hexToDataURL(img) : a} alt="" />
+                        <img src={img && img !== '' ? hexToDataURL(img) : a} alt="" />
                         <div className="userName">{name}</div>
                         <div className="userUrl">{description}</div>
                         <div className="detail-box">
