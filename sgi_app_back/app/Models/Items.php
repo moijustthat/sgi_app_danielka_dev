@@ -19,6 +19,13 @@ class Items extends Model
 
     public $timestamps = false;
 
+    public static function getAllCargos() {
+        return HandleDbResponse::handleResponse(function() {
+            $cargos = DB::select('SELECT * FROM cargos WHERE cargoId != 14');
+            return JsonHelper::jsonResponse(200, ['data'=>$cargos]);
+        }, 'Error al traer los cargos');
+    }
+
     public static function new_categoria($categoria) {
         return HandleDbResponse::handleResponse(function() use ($categoria){
             $new = DB::statement('CALL pa_nueva_categoria(?, @label, @value)', [$categoria]);

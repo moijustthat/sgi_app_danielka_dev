@@ -75,9 +75,6 @@ const formatTable = (table, estados, metodos, categorias, marcas, unidades_medid
     return formatedTable
   }
 
-
-
-
 const Productos = () => {
 
 
@@ -310,7 +307,6 @@ const Productos = () => {
         />
 
         <div className='CatalogoProductos'>
-            {/** AddProducto(Metete a AddProducto.jsx y el css en AddProducto.css) es el formulario de nuevos productos */}
             <FormDialog 
               title={
               <div style={{

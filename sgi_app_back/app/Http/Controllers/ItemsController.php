@@ -6,6 +6,11 @@ use App\Models\Items;
 
 class ItemsController extends Controller
 {
+
+    public function indexCargos() {
+        return Items::getAllCargos();
+    }
+
     public function insert_categoria(Request $request) {
         return Items::new_categoria($request['categoria']);
     }

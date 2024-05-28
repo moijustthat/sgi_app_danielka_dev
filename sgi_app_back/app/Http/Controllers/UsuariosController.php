@@ -63,7 +63,7 @@ class UsuariosController extends Controller
         if ($request->cargoId == '14') {
             $camposRequeridos = ['Nombre', 'Apellido'];
         } else {
-            $camposRequeridos = ['Nombre', 'Apellido', 'cargoId', 'email', 'password', 'fechaNacimiento', 'fechaRegistro', 'activo'];
+            $camposRequeridos = ['Nombre', 'Apellido', 'horaRegistro', 'cargoId', 'email', 'password', 'fechaNacimiento', 'fechaRegistro', 'activo'];
         }
     
         foreach ($camposRequeridos as $campo) {

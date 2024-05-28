@@ -19,7 +19,7 @@ class Usuarios extends Authenticatable {
     protected $primaryKey = "usuarioId";
     protected $accessTokenColumn = 'apiToken';
 
-    protected $fillable = ["Nombre", "Apellido", "fechaNacimiento", "fechaRegistro", "activo", "cargoId", "email", "password", "apiToken", "direccion"];
+    protected $fillable = ["Nombre", "Apellido", "fechaNacimiento", "fechaRegistro", "activo", "cargoId", "email", "password", "apiToken", "direccion", "rut", "img", "horaRegistro", "numeroRut", "Telefono"];
 
     public $timestamps = false;
 

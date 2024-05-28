@@ -20,11 +20,12 @@ import logo from '../../../../imgs/logo.png'
 import { useStateContext } from '../../../../Contexts/ContextProvider';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-
+import ProductosBD from './CarritoClientes/ProductosBD';
 import onChangeSize from './InvoiceGeneralActions/FullSize';
 
 // Cambiar esta funcion de ayuda de fichero
 import { myConcat } from '../../../../utils/Searching';
+
 
 const formatTable = (table) => {
     const formatedTable = []
@@ -318,45 +319,7 @@ const CreateInvoice = React.memo((props) => {
                                 />
                             </div>
 
-                            <div className='secondaryData'>
-                                <TextField 
-                                    value={cliente['Cedula']}
-                                    label='Cedula'
-                                    placeholder='xxx-xxxxxx-xxxxY'
-                                    onChange={(value, setErr, setWarning) => {
-                                        
-                                        handleConditionalCostValidation(value, cedula=>validateApi.cedula(cedula), ()=>{
-                                            handleRollbacks(setRollbacks, 'Cedula/Formato', false)
-                                            setWarning('')
-                                        }, ()=>{
-                                            setWarning('Formato incorrecto')
-                                            handleRollbacks(setRollbacks, 'Cedula/Formato', true)
-                                        })
-
-                                    
-
-                                        if (!!!!!rollbacks['Cedula/Formato']) {
-                                            handleFoundCostValidation(
-                                                clientes,
-                                                'Cedula',
-                                                value,
-                                                ()=>{
-                                                    setWarning('Cedula encontrada en la base de datos')
-                                                    handleRollbacks(setRollbacks, 'Cedula', true)
-                                                },
-                                                () => {
-                                                    if (!!!rollbacks['Cedula/Formato']) setWarning('') // Arreglar el parpadeo del warning
-                                                    handleRollbacks(setRollbacks, 'Cedula', false)
-                                                }
-                                            )
-                                        }
-                                    
-                                        setCliente({
-                                            ...cliente,
-                                            'Cedula': value
-                                        })
-                                    }}
-                                />
+                            <div className='mainData'>
                                 <TextArea 
                                 value={cliente['Direccion']}
                                 incomplete={markAsIncomplete.find(l=>l=='Direccion')}
@@ -503,7 +466,14 @@ const CreateInvoice = React.memo((props) => {
                 </div>
 
                 <button 
-                    onClick={()=>setRequestBd(<h1>El mero carrito</h1>)}
+                    onClick={()=>setRequestBd(
+                    <ProductosBD 
+                        setListaDetalles={listaDetalles}
+                        productos={productos}
+                        categorias={categorias}
+                        marcas={marcas}
+                        unidades_medida={unidades_medida}
+                    />)}
                     style={{display: edit ? 'none' : ''}}
                     className={`btnAgregarItem ${!listFullSize ? 'partialBtn' : 'noneBtn'}`}
                 >

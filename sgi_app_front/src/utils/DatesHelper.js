@@ -12,6 +12,14 @@ const padZero = (str, amount) => {
     return output + str
 } 
 
+export const getCurentTime = () => {
+    const fechaActual = new Date();
+    const horas = String(fechaActual.getHours()).padStart(2, '0');
+    const minutos = String(fechaActual.getMinutes()).padStart(2, '0');
+    const segundos = String(fechaActual.getSeconds()).padStart(2, '0');
+    return `${horas}:${minutos}:${segundos}`;
+}
+
 export const getCurrentDate = () => {
     const today = new Date()
     const year = today.getFullYear()

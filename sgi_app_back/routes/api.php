@@ -46,10 +46,10 @@ Route::controller(ProveedoresController::class)->group(function () {
 
 Route::controller(ItemsController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/cargos', 'indexCargos');
         Route::post('/categoria', 'insert_categoria');
         Route::post('/marca', 'insert_marca');
         Route::post('/unidad_medida', 'insert_unidad_medida');
-
     });
 });
 

@@ -9,7 +9,6 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
     return (
       <div className='customDate'>
         <label>{label}</label>
-        <input className={incomplete ? 'markAsIncomplete' : ''} value={value} onChange={(e) => onChange(e.target.value, setErr, setWarning)} id='dateField' type='date' disabled={blocked}></input>
         <Alert 
           sx={{
             display: err == '' ? 'none' : ''
@@ -18,6 +17,7 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
           sx={{
             display: warning == '' || desactiveManually ? 'none' : ''
           }} severity="warning">{warning}</Alert>
+        <input className={incomplete ? 'markAsIncomplete' : ''} value={value} onChange={(e) => onChange(e.target.value, setErr, setWarning)} id='dateField' type='date' disabled={blocked}></input>
       </div>
     )
   }
@@ -46,14 +46,7 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
     return (
       <div className='textField'>
         <label>{label}*</label>
-        <input
-          className={incomplete ? 'markAsIncomplete' : ''}
-          type="file"
-          onChange={(e) => {
-            onChange(e.target.files[0], setErr, setWarning)
-          }} 
-          placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
-          <Alert 
+        <Alert 
           sx={{
             display: warning == '' ? 'none' : ''
           }} severity="warning">{warning}</Alert>
@@ -61,11 +54,18 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
           sx={{
             display: err == '' ? 'none' : ''
           }} severity="error">{err}</Alert>
+        <input
+          className={incomplete ? 'markAsIncomplete' : ''}
+          type="file"
+          onChange={(e) => {
+            onChange(e.target.files[0], setErr, setWarning)
+          }} 
+          placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
       </div>
     )
   }
   
- export const TextField = React.memo(({desactiveManually=false, value='', blocked=false, label='', placeholder='', onChange=()=>null, incomplete=null}) => {
+ export const TextField = React.memo(({password=false, desactiveManually=false, value='', blocked=false, label='', placeholder='', onChange=()=>null, incomplete=null}) => {
   
     const [err, setErr] = useState('')
     const [warning, setWarning] = useState('')
@@ -80,14 +80,7 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
     return (
       <div className='textField'>
         <label>{label}*</label>
-        <input
-          className={incomplete ? 'markAsIncomplete' : ''}
-          value={value}
-          disabled={false}
-          onChange={(e) => onChange(e.target.value, setErr, setWarning)}
-          type="text" 
-          placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
-          <Alert 
+        <Alert 
           onClose={()=>setErr('')}
           sx={{
             display: err == '' ? 'none' : ''
@@ -96,6 +89,14 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
           sx={{
             display: warning == '' || desactiveManually ? 'none' : ''
           }} severity="warning">{warning}</Alert>
+        <input
+          className={incomplete ? 'markAsIncomplete' : ''}
+          value={value}
+          disabled={false}
+          onChange={(e) => onChange(e.target.value, setErr, setWarning)}
+          type={password ? 'password' : 'text'} 
+          placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder}/>
+
       </div>
     )
   })
@@ -114,14 +115,14 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
     return (
       <div className='textField'>
         <label>{label}*</label>
-        <textarea className={incomplete ? 'markAsIncomplete' : ''} 
-        value={value} 
-        onChange={(e) => onChange(e.target.value, setErr, setWarning)} placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder} rows={4} cols={50}></textarea>
         <Alert 
           onClose={()=>setErr('')}
           sx={{
             display: err == '' ? 'none' : ''
           }} severity="error">{err}</Alert>
+        <textarea className={incomplete ? 'markAsIncomplete' : ''} 
+        value={value} 
+        onChange={(e) => onChange(e.target.value, setErr, setWarning)} placeholder={incomplete ? `Rellena el campo ${incomplete}` : placeholder} rows={4} cols={50}></textarea>
       </div>
     )
   })

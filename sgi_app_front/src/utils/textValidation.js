@@ -63,6 +63,11 @@ const validateApi = {
         return /^\+?[0-9\s\-]+$/.test(input)
     },
 
+    phoneLength: (input) => {
+        if (input == '') return true
+        return /^\d{8}$/.test(input)
+    },
+
     postal: (input) => {
         if (input == '') return true
         return /^[0-9]{5}(?:-[0-9]{4})?$/.test(input)

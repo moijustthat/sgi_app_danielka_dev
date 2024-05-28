@@ -11,6 +11,7 @@ import Productos from "./components/Pages/Inventario/Productos/Productos";
 import Ordenes from "./components/Pages/Facturacion/Ordenes/Ordenes";
 import Inventario from "./components/Pages/Inventario/Inventario";
 import Facturacion from "./components/Pages/Facturacion/Facturacion"
+import Usuarios from "./components/Pages/Usuarios/Usuarios";
 
 const router = createBrowserRouter([
     {
@@ -38,8 +39,8 @@ const router = createBrowserRouter([
                 element: <Perfil />
             },
             {
-                path: '/listar-ordenes',
-                element: <Ordenes />
+                path: '/usuarios',
+                element: <Usuarios />
             },
             {
                 path: '/listar-ventas',
