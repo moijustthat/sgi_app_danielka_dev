@@ -49,3 +49,11 @@ export const handleFoundCostValidation = debounce((matrix, constraint, value, if
     }
   }, 300)
 
+export const handleRollbacks = (setRollbacks, label, bool) => {
+  setRollbacks(prev=>(
+      {
+          ...prev,
+          [label]: bool
+      }
+  ))
+}

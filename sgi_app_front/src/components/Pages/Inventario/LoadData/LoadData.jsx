@@ -60,3 +60,17 @@ export const getAlmacenes = async (setLoading, setAlmacenes/** Trabajar en un fi
       setLoading(false)
     })
 }
+
+export const getProveedores = (setLoading, setProveedores) => {
+  setLoading(true)
+  axiosClient.get('/proveedores')
+      .then(({data}) => {
+          const proveedores = data.data
+          setProveedores(proveedores)
+          setLoading(false)
+      })
+      .catch(error=> {
+          console.log(error)
+          setLoading(false)
+      })
+}

@@ -27,6 +27,11 @@ const validateApi = {
         return /^(?:0|[1-9]\d{0,})(?:\.\d{0,2})?$/.test(input)
     },
 
+    measureTruncated: (input) => {
+        if (input == '') return true
+        return /^(?:0|[1-9]\d{0,})(?:\.\d{0,4})?$/.test(input)
+    },
+
     number: (input) => {
         if (input == '') return true
         return /^(|[1-9]\d*)$/.test(input)

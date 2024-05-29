@@ -51,6 +51,7 @@ Route::controller(AlmacenesController::class)->group(function () {
 Route::controller(ProveedoresController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/proveedores', 'index');
+        Route::post('/proveedor', 'insert_proveedor');
     });
 });
 

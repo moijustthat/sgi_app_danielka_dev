@@ -29,7 +29,18 @@ class Almacenes extends Model
 
     public static function agregarAlmacen($almacen) {
         return HandleDbResponse::handleResponse(function() use ($almacen) {
-            return JsonHelper::jsonResponse(200, ['data'=>$almacen]); // Ver que devuelve almacen
-        }, 'Error al queres ingresar un nuevo almacen');
+            $nuevoAlmacen = array();
+            array_push($nuevoAlmacen,
+                $almacen['Nombre'],
+                intval($almacen['Piso']),
+                intval($almacen['Sala']),
+                floatval($almacen['Ancho']),
+                floatval($almacen['Alto']),
+                floatval($almacen['Longitud']),
+            );
+            DB::select('CALL pa_nuevo_almacen(?, ?, ?, ?, ?, ?, @almacen)', $nuevoAlmacen);
+            $almacenId = DB::select('SELECT @almacen AS almacenId')[0]->almacenId;
+            return JsonHelper::jsonResponse(200, ['id'=> $almacenId]);
+        }, 'Error al querer ingresar un nuevo almacen');
     }
 }

@@ -25,4 +25,21 @@ class Proveedores extends Model
             return JsonHelper::jsonResponse(200, ['data'=>$proveedores, 'message'=> 'Productos retribuidos con exito']);
         }, 'Error al consultar todos los proveedores');
     }
+
+    public static function nuevoProveedor($proveedor) {
+        return HandleDbResponse::handleResponse(function () use ($proveedor) {
+            $nuevoProveedor = array();
+            array_push($nuevoProveedor,
+                $proveedor['Razon Social'],
+                $proveedor['Numero RUT'],
+                $proveedor['Correo'],
+                $proveedor['Telefono'],
+                $proveedor['Direccion'],
+                $proveedor['activo'],
+            );
+            DB::select('CALL pa_nuevo_proveedor(?,?,?,?,?,?,@proveedor)', $nuevoProveedor);
+            $proveedorId = DB::select('SELECT @proveedor AS proveedor')[0]->proveedor; 
+            return JsonHelper::jsonResponse(200, ['id'=>$proveedorId]);
+        }, "Error al tratar de ingresar un proveedor");
+    }
 }

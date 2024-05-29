@@ -25,7 +25,7 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
  export const SelectField = ({incomplete='', value='', blocked=false, label='', onChange=() => null, options=[]}) => {
     return (
       <div className='customSelect'>
-        <label>{label}*</label>
+        <label>{label}</label>
         <select className={incomplete !== '' ? 'markAsIncomplete' : ''} value={value} onChange={(e) => onChange(e.target.value, ()=>true)}>
           <option disabled selected value='empty'>Seleccionar</option>
           {options.map(option => (
@@ -45,7 +45,7 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
 
     return (
       <div className='textField'>
-        <label>{label}*</label>
+        <label>{label}</label>
         <Alert 
           sx={{
             display: warning == '' ? 'none' : ''
@@ -79,7 +79,7 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
 
     return (
       <div className='textField'>
-        <label>{label}*</label>
+        <label>{label}</label>
         <Alert 
           onClose={()=>setErr('')}
           sx={{
@@ -114,7 +114,7 @@ export const DateField = ({incomplete=false, desactiveManually=false, value='', 
 
     return (
       <div className='textField'>
-        <label>{label}*</label>
+        <label>{label}</label>
         <Alert 
           onClose={()=>setErr('')}
           sx={{
