@@ -1,4 +1,5 @@
 import { debounce } from 'lodash';
+import { quitarTildes } from './textValidation';
 
 export function myConcat(arr1, arr2) {
     let concatenated = []
@@ -19,7 +20,7 @@ export const handleConditionalCostValidation = (value, validation, ifValid, ifNo
 export const handleFoundCostValidation = debounce((matrix, constraint, value, ifFound, ifNotFound)=>{
     let found = matrix.find(item=> {
         if (item.hasOwnProperty('info')) item = item.info
-        return String(item[constraint]).replace(/\s+/g, '').toUpperCase() === value.replace(/\s+/g, '').toUpperCase()
+        return quitarTildes(String(item[constraint]).replace(/\s+/g, '').toUpperCase()) === quitarTildes(value.replace(/\s+/g, '').toUpperCase())
     })
     if (found) {
       ifFound()

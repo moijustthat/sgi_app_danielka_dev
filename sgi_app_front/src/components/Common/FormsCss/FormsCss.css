@@ -16,10 +16,9 @@
     top: 8%;
     margin-left: 0;
     background-color: var(--glass);
+    height: 100vh;
     padding: 20px;
 }
-
-
 
 .btnAgregarRight {
     position: fixed;

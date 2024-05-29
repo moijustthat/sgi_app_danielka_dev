@@ -246,8 +246,6 @@ const AddProducto = React.memo((props) => {
       }
     } 
 
-
-
     // Validaciones para registrar un nuevo producto
     
     // Campos requeridos vienen vacios:

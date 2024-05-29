@@ -64,7 +64,7 @@ export default function BasicTabs(props) {
           
           value={value} onChange={handleChange} aria-label="basic tabs example">
           {features.map((feature, index)=>(
-            <Tab iconPosition='start' icon={feature.icon} key={index} label={feature.label} {...a11yProps(index)}/>
+            <Tab iconPosition='top' icon={feature.icon} key={index} label={feature.label} {...a11yProps(index)}/>
           ))}
 
         </Tabs>

@@ -1,3 +1,7 @@
+export function quitarTildes(cadena) {
+    return cadena.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
 const validateApi = {
 
     everything: (input) => true,

@@ -9,6 +9,7 @@ use App\Http\Controllers\ProveedoresController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\OrdenesController;
 use App\Http\Controllers\VentasController;
+use App\Http\Controllers\AlmacenesController;
 
 
 
@@ -37,6 +38,13 @@ Route::controller(ProductosController::class)->group(function () {
         Route::post('/desactivate-productos', 'desactivarProductos');
         Route::post('/updateProducto', 'actualizarProducto');
 
+    });
+});
+
+Route::controller(AlmacenesController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/almacen', 'insert_almacen');
+        Route::get('/almacenes', 'indexAlmacenes');
     });
 });
 

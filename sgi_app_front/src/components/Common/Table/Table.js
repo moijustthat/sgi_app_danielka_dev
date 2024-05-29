@@ -20,7 +20,7 @@ import { visuallyHidden } from '@mui/utils';
 import BasicMenu from '../BasicMenu/BasicMenu';
 import { Divider, ListItemButton, MenuItem, TextField, Alert } from '@mui/material';
 import { BsThreeDots } from "react-icons/bs";
-
+import ButtonNavigation from '../../Common/ButtonNavigation/ButtonNavigation'
 import SearchField from '../SearchField/SearchField';
 
 import './Table.css';
@@ -407,11 +407,8 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
                 {actions.length > 0 && (
                   <TableCell>
                     {edit !== row.id ? (
-                      <BasicMenu
-                        id={row.id}
-                        items={actions}
-                        label={actionsButton}
-                      />)
+                      <ButtonNavigation actions={actions} id={row.id}/>
+                    )
                       :
                       (
                         <div className='btnsUpdate'>

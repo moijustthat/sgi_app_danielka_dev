@@ -5,7 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IoPersonOutline } from "react-icons/io5";
 import validateApi from '../../../../utils/textValidation';
 import { handleConditionalCostValidation, handleFoundCostValidation, handleDoubleCostValidation } from '../../../../utils/Searching';
-import './AddEmpleado.css'
+import '../../../Common/FormsCss/FormsCss.css'
 import * as dateHelper from '../../../../utils/DatesHelper'
 import axiosClient from '../../../../axios-client';
 

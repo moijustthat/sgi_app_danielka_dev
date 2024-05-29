@@ -10,9 +10,6 @@
 
 
 .MuiTabs-indicator {
-    stroke: white!important;
-    stroke-width: 15px !important;
-    filter: drop-shadow(3px 3px 9px white) !important;
-    background: rgba(255, 255, 255, 0.6) !important;
+    background-color: #617293 !important;
 }
 

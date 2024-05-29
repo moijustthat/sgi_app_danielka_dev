@@ -1,0 +1,23 @@
+.CatalogoContainer {
+    padding-top: 2rem;
+    display: grid;
+    height: 450px;
+    width: 100%;
+    grid-template-columns: auto;
+}
+
+.catalogo {
+    position: relative;
+    overflow: scroll;
+}
+
+.catalogo::-webkit-scrollbar {
+    display: none;
+}
+
+@media screen and (max-width: 1276px) {
+    .CatalogoContainer {
+        width: 180%;
+    }
+}
+

@@ -11,7 +11,7 @@ import ListItemText from '@mui/material/ListItemText';
 
 import './RightDrawer.css'
 
-export default function SwipeableTemporaryDrawer({open, content, width}) {
+export default function SwipeableTemporaryDrawer({open, content, width, setOpen=()=>null}) {
   const [state, setState] = React.useState({
     right: false, // Solo el estado para el drawer de la derecha
   });
@@ -82,7 +82,10 @@ export default function SwipeableTemporaryDrawer({open, content, width}) {
         }}
         anchor="right"
         open={open}
-        onClose={toggleDrawer('right', false)}
+        onClose={()=>{
+          setOpen(false)
+          return toggleDrawer('right', false)
+        }}
         onOpen={toggleDrawer('right', true)}
       >
         {wrapper(content)}
