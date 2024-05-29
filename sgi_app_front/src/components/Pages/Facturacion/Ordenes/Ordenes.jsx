@@ -7,6 +7,11 @@ import CreateInvoice from './CreateInvoice'
 import CircularProgress from '../../../Common/CircularProgess/CircularProgress'
 import axiosClient from '../../../../axios-client'
 import CardView from '../../../Common/CardViews/CardView'
+import { getOrdenes } from '../LoadData/LoadData'
+import { AiOutlineDollarCircle } from "react-icons/ai";
+import { FaRegEye } from "react-icons/fa";
+import { FaRegEdit } from "react-icons/fa";
+import { AiTwotonePrinter } from "react-icons/ai";
 
 const Ordenes = () => {
 
@@ -14,6 +19,7 @@ const Ordenes = () => {
     const [openForm, setFormOpen] = useState(false)
     
     // Datos a pedir a la bd
+    const [ordenes, setOrdenes] = useState([])
     const [proveedores, setProveedores] = useState([])
     const [productos, setProductos] = useState([])
     const [categorias, setCategorias] = useState([])
@@ -26,6 +32,24 @@ const Ordenes = () => {
             label: 'Nueva Orden',
             condition: () => true,
             action: () => setFormOpen(true)
+        }
+    ]
+
+    const actions = [
+        {
+            label: 'Abonar',
+            icon: <AiOutlineDollarCircle />,
+            action: ()=>alert('Abonar')
+        },
+        {
+            label: 'Ver contenido',
+            icon: <FaRegEye />,
+            action: ()=>alert('Detalles')
+        },
+        {
+            label: 'Imprimir',
+            icon: <AiTwotonePrinter />,
+            action: ()=>alert('Imprimir')
         }
     ]
 
@@ -96,6 +120,7 @@ const Ordenes = () => {
       }
 
     useEffect(()=>{
+        getOrdenes(setLoading, setOrdenes)
         getProveedores()
         getProductos()
         getItems()
@@ -125,13 +150,14 @@ const Ordenes = () => {
                 <div className='ordenes'>
                     <Table 
                         pagination={false}
-                        rows={[]}
+                        rows={ordenes}
                         empty={<CardView type='shopping' text='Realiza compras a tus proveedores para llenar tu inventario'   style={{
                             marginLeft: '35%',
                             width: '30%',
                             height: '100%'
                           }}/>}
                         generalActions={generalActions}
+                        actions={actions}
                     />
                 </div>
 

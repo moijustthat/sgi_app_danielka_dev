@@ -6,6 +6,11 @@ use App\Models\Ordenes;
 
 class OrdenesController extends Controller
 {
+
+    public function indexOrdenes() {
+        return Ordenes::getAllOrdenes();
+    }
+
     public function insert_orden(Request $request) {
         // Validar tipos de la peticion
         $proveedor = $request['proveedor']; // Object

@@ -1,14 +1,15 @@
 // Sidebar imports
 import {
     UilEstate,
-    UilClipboardAlt,
+    UilBill,
     UilUsersAlt,
     UilPackage,
     UilChartPieAlt,
-    UilUsdSquare 
+    UilUsdSquare,
+    UilClipboardNotes
 } from '@iconscout/react-unicons';
 
-
+import { LuClipboardList } from "react-icons/lu";
 
 import { usersInfo } from './EmpleadosInfo';
 
@@ -19,7 +20,7 @@ export const SideBarData = [
     },
 
     {
-        icon: <UilClipboardAlt />,
+        icon: <UilBill />,
         heading: 'Facturacion',
     },
 
@@ -27,10 +28,13 @@ export const SideBarData = [
         icon: <UilUsersAlt />,
         heading: 'Usuarios'
     },
-
+    {
+        icon: <UilClipboardNotes />,
+        heading: 'Existencias'
+    },
     {
         icon: <UilPackage />,
-        heading: 'Inventario',
+        heading: 'Productos',
     },
 
     {

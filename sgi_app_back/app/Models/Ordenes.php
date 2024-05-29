@@ -21,6 +21,13 @@ class Ordenes extends Model
 
     public $timestamps = false;
 
+    public static function getAllOrdenes() {
+        return HandleDbResponse::handleResponse(function() {
+            $ordenes = DB::select('select * from vw_ordenes');
+            return JsonHelper::jsonResponse(200, ['ordenes'=>$ordenes, 'message'=> 'Ordenes retribuidas con exito']);
+        }, 'Error al consultar todos las proveedores');
+    }
+
     public static function nueva_orden($proveedor, $orden, $detalles, $usuario) {
         return HandleDbResponse::handleResponse(function() use ($proveedor, $orden, $detalles, $usuario){
             return DB::transaction(function () use ($proveedor, $orden, $detalles, $usuario){

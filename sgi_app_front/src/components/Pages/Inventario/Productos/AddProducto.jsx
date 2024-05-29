@@ -407,6 +407,7 @@ const AddProducto = React.memo((props) => {
     })
     .catch ((error) => {
       const messageErr = error.response.data.messageError
+      console.log(messageErr)
       dispatch({
         type: 'ADD_NOTIFICATION',
         payload: {

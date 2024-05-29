@@ -106,7 +106,7 @@ class Productos extends Model
                         $product['comprobante'] == "null" ? NULL : $product['comprobante'],
                         $product['Fecha de vencimiento'] == "null" ? NULL : $product['Fecha de vencimiento'],
                 );
-                DB::statement('CALL pa_nuevo_producto(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', $params);     
+                DB::statement('CALL pa_nuevo_producto(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, @producto)', $params);     
                 $countNew++;  
             }
             return JsonHelper::jsonResponse(200, ['data'=> 'Transaccion Exitosa', 'count'=>$countNew, 'found'=>$disabledProducts]);

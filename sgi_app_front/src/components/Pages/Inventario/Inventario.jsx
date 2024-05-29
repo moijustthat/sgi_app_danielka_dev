@@ -5,7 +5,6 @@ import Categorias from './Categorias/Categorias';
 import Marcas from './Marcas/Marcas'
 import Unidades_Medida from './Unidades_Medida/Unidades_Medida'
 import Proveedores from './Proveedores/Proveedores'
-import Almacenes from './Almacenes/Almacenes'
 import { MdOutlineCategory } from "react-icons/md";
 import { TbBrandBilibili } from "react-icons/tb";
 import { TbRulerMeasure } from "react-icons/tb";
@@ -21,19 +20,9 @@ const Inventario = () => {
     <BasicTabs
         features={[
             {
-                label: 'Productos',
+                label: 'Catalogo',
                 component: <Productos />,
                 icon: <AiOutlineProduct />
-            },
-            {
-              label: 'Almacenes',
-              component: <Almacenes />,
-              icon: <MdOutlineWarehouse />
-            },
-            {
-              label: 'Proveedores',
-              component: <Proveedores />,
-              icon: <IoStorefrontOutline />
             },
             {
               label: 'Categorias',
@@ -50,7 +39,11 @@ const Inventario = () => {
               component: <Unidades_Medida/>,
               icon: <TbRulerMeasure />
             },
-            
+            {
+              label: 'Proveedores',
+              component: <Proveedores />,
+              icon: <IoStorefrontOutline />
+            }
         ]}
     />
   )

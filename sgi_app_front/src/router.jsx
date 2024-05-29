@@ -12,6 +12,8 @@ import Ordenes from "./components/Pages/Facturacion/Ordenes/Ordenes";
 import Inventario from "./components/Pages/Inventario/Inventario";
 import Facturacion from "./components/Pages/Facturacion/Facturacion"
 import Usuarios from "./components/Pages/Usuarios/Usuarios";
+import Existencias from "./components/Pages/Existencias/Existencias";
+
 
 const router = createBrowserRouter([
     {
@@ -27,8 +29,12 @@ const router = createBrowserRouter([
                 element: <Facturacion />
             },
             {
-                path: '/inventario',
+                path: '/productos',
                 element: <Inventario />
+            },
+            {
+                path: '/existencias',
+                element: <Existencias />
             },
             {
                 path: '/inicio',

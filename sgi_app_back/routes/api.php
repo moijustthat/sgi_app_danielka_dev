@@ -10,6 +10,7 @@ use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\OrdenesController;
 use App\Http\Controllers\VentasController;
 use App\Http\Controllers\AlmacenesController;
+use App\Http\Controllers\InventarioController;
 
 
 
@@ -67,11 +68,19 @@ Route::controller(ItemsController::class)->group(function () {
 Route::controller(OrdenesController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/orden', 'insert_orden');
+        Route::get('/ordenes', 'indexOrdenes');
     });
 });
 
 Route::controller(VentasController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/venta', 'insert_venta');
+    });
+});
+
+Route::controller(InventarioController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/entradas', 'indexEntradas');
+        Route::post('/entrada', 'insert_entrada');
     });
 });

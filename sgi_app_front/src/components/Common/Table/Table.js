@@ -428,6 +428,7 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
                 {Object.keys(row || []).map(key => {
                   return edit !== row.id ? (
                     <TableCell
+                      align='left'
                       key={key}
                       className={columnCount <= 3 ? 'left-aligned-cell' : ''}
                       sx={{ display: key === 'id' ? 'none' : '', whiteSpace: 'normal', maxWidth: '200px' }}
