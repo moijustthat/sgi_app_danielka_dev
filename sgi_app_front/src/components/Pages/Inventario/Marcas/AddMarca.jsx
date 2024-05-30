@@ -77,7 +77,7 @@ const AddMarca = (props) => {
                 </div>
             </div>
             <button 
-                className='btnAgregarRight'
+                className='btnAgregarRight vw30'
                 onClick={()=>onRegistrar()}
             >Registrar</button>
         </div>

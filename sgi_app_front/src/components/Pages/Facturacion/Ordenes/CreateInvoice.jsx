@@ -268,23 +268,9 @@ const handleAgregarNuevoDetalle = (detalle) => {
     })
 } 
 
-return <>
+if (requestBd) return requestBd
+else return <>
     <div className='container'>
-
-        <FormDialog 
-            fullScreen={true}
-            open={requestBd}
-            setOpen={(close) => {
-                setRequestBd(close)
-                setNuevoDetalle({
-                    ...nuevoDetalle,
-                    id: 'new'
-                })
-            }}
-            title='Productos en la base de datos'
-            content={requestBd ? requestBd : ''}
-            closeIcon={<Button variant='outlined'>Volver a la factura</Button>}
-        />
 
         <div className={`glass ${listFullSize ? 'fullGlass' : 'partialGlass'}`}>
             <div className='exit'>
@@ -629,6 +615,8 @@ return <>
                                     marcas={marcas} 
                                     unidades_medida={unidades_medida}
                                     setListaDetalles={setListaDetalles}
+                                    modelDetalle={initNewDetalle}
+                                    setClose={() => setRequestBd(null)}
                                 />)
                             }
                             else {

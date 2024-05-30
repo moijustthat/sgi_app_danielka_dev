@@ -230,8 +230,8 @@ const AddProveedores = (props) => {
             </div>
             <button 
                 onClick={onRegistro}
-                className='btnAgregarRight'>
-                Registrar nuevo nuevoProveedor
+                className='btnAgregarRight vw30'>
+                Registrar nuevo proveedor
             </button>
         </div>
     )

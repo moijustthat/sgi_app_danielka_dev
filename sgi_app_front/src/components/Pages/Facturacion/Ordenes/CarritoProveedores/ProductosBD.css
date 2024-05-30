@@ -1,51 +1,78 @@
 .containerCategory {
     position: relative;
+    width: 90%;
 }
 
+.containerCategory::-webkit-scrollbar {
+    display: none;
+}
 
 .headerCategory {
     display: flex;
     flex-direction: row; /* Alinea los elementos horizontalmente */
+    align-items: center;
     position: fixed;
     z-index: 1000;
-    width: 93.1%;
-    background-color: white;
+    width: 100%;
+    background-color: #FDF7F0;
     font-family: 'Inter';
     font-size: 13px;
     color: #364152;
     font-weight: 500;
+    padding-bottom: 1%;
 }
 
-.fieldContainer {
+.logoCarrito {
     display: flex;
-    flex-direction: column; /* Alinea los elementos verticalmente */
-    gap: 10px; /* Espacio entre los elementos */
+    height: 5rem;
+    font-weight: bold;
+    font-size: 18px;
+    gap: 1rem;
+    margin-left: 1rem;
+    align-items: center;
+    justify-content: center;
+    height: 4%;
 }
 
-.searchContainer {
+.logoCarrito>img {
+    width: 3rem;
+    height: 3rem;
+}
+
+.filterSection {
     display: flex;
-    flex-direction: column; /* Alinea los elementos verticalmente */
+    flex-direction: column;
+    align-items: center;
 }
 
-.searchContainer label {
-    margin-bottom: 5px; /* Añade un espacio entre el label y el SearchField */
+.searchFields {
+    display: flex;
+    margin-left: 5%;
 }
 
-.SearchField, .SelectField {
-    flex: 1; /* Los SearchField y SelectField se expanden para llenar el espacio restante */
-    max-width: 300px; /* Ancho máximo para SearchField y SelectField */
+.searchField {
+    display: flex;
+    flex-direction: column;
 }
 
-.selectContainer {
-    margin-left: 10px; /* Margen a la izquierda del primer SelectField */
+.menuFields {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-.selectContainer:not(:first-child) {
-    margin-left: 30px; /* Margen adicional entre los SelectField */
+.menuField {
+    display: flex;
+    align-items:flex-end;
+}
+
+.rightSideFactura {
+    margin-left: auto;
 }
 
 .contentWrapper {
-    padding-top: 50px; /* Ajusta este valor según la altura de .headerCategory */
+    padding-top: 90px; /* Ajusta este valor según la altura de .headerCategory */
+    padding-left: 2.5%;
 }
 
 .galleryCategory {
@@ -53,7 +80,7 @@
     flex-wrap: wrap;
     width: 110%;
     gap: 1rem;
-    margin-top: 1rem; /* Añade margen superior si es necesario */
+    margin-top: 2rem; /* Añade margen superior si es necesario */
 }
 
 .infoProducto {

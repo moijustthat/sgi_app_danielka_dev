@@ -6,7 +6,10 @@
         #f3c6f1 90.85%
       );
       font-family: "Inter", sans-serif;
+    width: 100%;
+
 }
+
 
 .formCarritoRight {
     position: relative;
@@ -15,9 +18,32 @@
     border-top-right-radius: 7px;
     top: 8%;
     margin-left: 0;
+    overflow: hidden;
     background-color: var(--glass);
-    height: 100vh;
+    height: 100%;
     padding: 20px;
+}
+
+/* Estilo para la barra de scroll completa */
+.formCarritoRight::-webkit-scrollbar {
+    width: 12px; /* Ancho de la barra de scroll */
+    height: 12px; /* Altura de la barra de scroll horizontal */
+}
+
+/* Estilo para el track de la barra de scroll */
+.formCarritoRight::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Color de fondo del track */
+}
+
+/* Estilo para el thumb (la parte que se desplaza) de la barra de scroll */
+.formCarritoRight::-webkit-scrollbar-thumb {
+    background: #888; /* Color del thumb */
+    border-radius: 6px; /* Bordes redondeados del thumb */
+}
+
+/* Estilo para el thumb cuando está en estado hover */
+.formCarritoRight::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color del thumb al pasar el cursor */
 }
 
 .btnAgregarRight {
@@ -30,7 +56,14 @@
     background-color: #648291;
     height: 7%;
     top: 93%;
-    width: 30%;
     transition: all 300ms ease;
     cursor: pointer;
+}
+
+.btnAgregarRight.vw30{
+    width: 30%;
+}
+
+.btnAgregarRight.vw40{
+    width: 40%;
 }

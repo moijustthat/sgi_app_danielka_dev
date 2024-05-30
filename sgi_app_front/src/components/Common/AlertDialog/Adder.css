@@ -1,0 +1,26 @@
+.adderWraper {
+    display: flex;
+    align-items:center;
+    height: 35px;
+    gap: 2px;
+}
+
+.adderWraper p{
+    font-family: 'Inter';
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.adderWraper .plus p{
+    background: white;
+    border: 1px solid #DEDEDE;
+    border-radius: 5px;
+    padding: 0 5px;
+}
+
+.adderWraper .minus p{
+    background: white;
+    border: 1px solid #DA5854;
+    border-radius: 5px;
+    padding: 0 5px;
+}

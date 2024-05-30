@@ -1,0 +1,118 @@
+.emptyHeaderFacturacion {
+    position: fixed;
+    font-family: 'Inter';
+    gap: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    top: -4%;
+    background-color: #FDF7F0;
+    width: 100%;
+    z-index: 3;
+}
+
+.emptyHeaderFacturacion h6 {
+    font-weight: 600 !important;
+    font-size: 17px;
+    color: #706353;
+}
+
+.emptyMessage {
+    font-family: 'Inter';
+    position: absolute;
+    top: 40%;
+    font-weight: 400 !important;
+    font-size: 14px;
+    color: #706353;
+    left: 25%;
+}
+
+.facturaRight {
+    position: absolute;
+    top: 15%;
+    padding-left: 20px;
+    padding-bottom: 85px;
+}
+
+.itemRight .infoItem {
+    font-family: 'Inter';
+    color: #525252;
+    font-weight: 550;
+    display: flex;
+    align-items: start; /* Centra verticalmente los elementos */
+    gap: 10px; /* Espacio entre el avatar y el texto */
+  }
+  
+ .itemRight {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+ }
+  
+  .itemRight .infoItem p {
+    font-size: 15px;
+    margin: 0; /* Elimina el margen predeterminado del <p> */
+    max-width: 350px; /* Ajusta el ancho máximo del texto, puedes cambiar este valor según sea necesario */
+    white-space: nowrap; /* Evita el salto de línea */
+    overflow: hidden; /* Oculta el desbordamiento */
+    text-overflow: ellipsis; /* Muestra elipsis cuando el texto desborda */
+    display: inline-block; /* Asegura que las propiedades funcionen correctamente */
+  }
+  
+  @media (max-width: 768px) { /* Media query para manejar diferentes tamaños de pantalla */
+    .itemRight .infoItem p {
+      max-width: 150px; /* Cambia el ancho máximo para pantallas más pequeñas */
+    }
+  }
+
+  .secondaryData.s {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 50%;
+    height: 60px;
+}
+
+  .inputItem {
+    margin-left: 13.5%;
+    margin-top: -8.5%;
+    margin-bottom: 10%;
+}
+
+.infoFactura {
+    position: fixed;
+    border: none;
+    font-family: 'Inter';
+    font-weight: 500;
+    color: #FFF;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);;
+    background-color: #648291;
+    height: 20%;
+    top: 81%;
+    transition: all 300ms ease;
+    width: 40%;
+}
+
+.infoFactura > button {
+    font-family: 'Inter';
+    background-color: #FDF7F0;
+    border: 2px #EFEFEF;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 10px;
+    margin: 8px 10px;
+    width: 95.5%;
+    transition: 300ms all ease;
+}
+
+.infoFactura > button:hover {
+    background-color: #d6d4d4;
+}
+
+.totalFactura{
+    padding: 5px 20px;
+}
+
+.totalFactura label:last-of-type {
+    float: right;
+}

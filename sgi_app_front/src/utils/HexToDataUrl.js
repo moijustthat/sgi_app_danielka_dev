@@ -1,4 +1,8 @@
-function hexToBase64(hexString) {
+export function base64(string) {
+    return `data:image/jpeg;base64,${string}`
+}
+
+export function hexToBase64(hexString) {
 
     // Remove the '0x' prefix if present
     if (hexString.startsWith('0x')) {
@@ -27,7 +31,6 @@ export function isHex(img) {
 }
 
 export default function hexToDataURL(hexString) {
-    console.log(hexString)
     if (!hexString) hexString = ''
     const base64String = hexToBase64(hexString);
     return `data:image/png;base64,${base64String}`;

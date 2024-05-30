@@ -26,7 +26,6 @@ export default function FormDialog(props) {
 
   return (
       <Dialog
-       
         fullScreen={fullScreen}
         open={open}
         onClose={handleClose}

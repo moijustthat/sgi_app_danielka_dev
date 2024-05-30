@@ -383,6 +383,7 @@ const AddProducto = React.memo((props) => {
     
     axiosClient.post('/productos', payload)
     .then(({data}) => {
+      console.log(data)
       dispatch({
         type: 'ADD_NOTIFICATION',
         payload: {

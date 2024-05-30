@@ -1,3 +1,23 @@
+export function formatearNumeroConComas(cadena) {
+    // Convertimos la cadena a un número flotante
+    let numero = parseFloat(cadena);
+    
+    // Aseguramos que el número sea válido
+    if (isNaN(numero)) {
+        throw new Error("La cadena proporcionada no es un número válido.");
+    }
+
+    // Usamos toLocaleString para formatear el número con comas
+    return numero.toLocaleString('en-US', { maximumFractionDigits: 20 });
+}
+
+export function truncarDecimal(numero) {
+    // Convertimos el número a una cadena con máximo 4 decimales usando toFixed
+    let cadena = numero.toFixed(2);
+    // Convertimos la cadena de nuevo a un número para eliminar ceros innecesarios
+    return parseFloat(cadena);
+}
+
 export function quitarTildes(cadena) {
     return cadena.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
