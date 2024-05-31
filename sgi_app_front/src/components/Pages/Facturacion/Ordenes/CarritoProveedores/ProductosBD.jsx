@@ -21,6 +21,8 @@ import noproduct from '../../../../../imgs/noproduct.jpg'
 import { truncarDecimal } from '../../../../../utils/textValidation'
 import { calcularTotal } from '../../../../../utils/BussinesCalcs'
 import { formatearNumeroConComas } from '../../../../../utils/textValidation'
+import Adder from '../../../../Common/AlertDialog/Adder'
+import { addOnList, restOnList, deleteFromList } from '../../Helpers/Aritmethics'
 
 const filtersMenuConfig = (items, labelAll) => {
     const checkMenu = [{ label: labelAll, checked: true, value: 'all' }]
@@ -51,13 +53,16 @@ const ProductosBD = (props) => {
     const [lista, setLista] = useState([...listaDetalles])
     const [openFactura, setOpenFactura] = useState(false)
 
-    const subtotal = truncarDecimal(lista.reduce((a, b) => Number(a) + Number(b['Cantidad'])*Number(b['Precio de compra']), 0))
+    const subtotal = truncarDecimal(lista.reduce((a, b) => Number(a) + Number(b['Cantidad']) * Number(b['Precio de compra']), 0))
     const total = truncarDecimal(lista.reduce((a, b) => Number(a) + calcularTotal(Number(b['Cantidad']), Number(b['Precio de compra']), Number(b['Cantidad con descuento']), Number(b['Porcentaje de descuento'])), 0))
+    const cantidad = truncarDecimal(lista.reduce((a, b) => Number(a) + Number(b['Cantidad']), 0))
 
     const setBothLists = (callback) => {
         setLista(callback) // Añadir a la lista que se ve en la factura desplegable(con el objetivo de mantener los datos de la factura paralelamente entre las dos vistas)
         setListaDetalles(callback) // Añadir a la lista global
     }
+
+    
 
     const addItem = (producto) => {
         console.log(producto)
@@ -70,7 +75,7 @@ const ProductosBD = (props) => {
             'Cantidad con descuento': 0,
             'Porcentaje de descuento': 0
         }
-        setBothLists(prev=>([newDetalle, ...prev]))
+        setBothLists(prev => ([newDetalle, ...prev]))
     }
 
 
@@ -102,16 +107,27 @@ const ProductosBD = (props) => {
             })
             .map(({ info }) => {
                 const detalle = lista.find(detalle => detalle.id === info.id)
-                const categoria = categorias.find(m=>String(m.value) === String(info['Categoria'])).label
-                const marca = marcas.find(m=>String(m.value) === String(info['Marca'])).label
-                const medida = unidades_medida.find(m=>String(m.value) === String(info['Unidad de medida'])).label
+                const categoria = categorias.find(m => String(m.value) === String(info['Categoria'])).label
+                const marca = marcas.find(m => String(m.value) === String(info['Marca'])).label
+                const medida = unidades_medida.find(m => String(m.value) === String(info['Unidad de medida'])).label
+                const productoInList = lista.find(d => String(d.id) === String(info.id))
+                const cantidad = productoInList ? Number(productoInList['Cantidad']) : 0
+                console.log(productoInList)
                 return (<CardView
                     name={info['Nombre']}
                     img={info['Imagen']}
                     detail1='Precio al publico'
-                    value1={'C$'+info['Precio de venta']}
+                    value1={'C$' + info['Precio de venta']}
                     btnText='+ Agregar'
                     onBtnClick={() => addItem(info)}
+                    replaceBtn={cantidad > 0 ?
+                        <Adder
+                            onPlus={() => addOnList(setBothLists, cantidad, 'Cantidad', info.id)}
+                            onMinus={() => restOnList(setBothLists, cantidad, 'Cantidad', info.id)}
+                            onDelete={() => deleteFromList(setBothLists, cantidad,info.id)}
+                            counter={cantidad} />
+                        :
+                        null}
                 />)
             })
     )
@@ -169,7 +185,7 @@ const ProductosBD = (props) => {
             </div>
 
             <div className='rightSideFactura'>
-                <Button 
+                <Button
                     sx={{
                         marginRight: '15px'
                     }}
@@ -186,17 +202,16 @@ const ProductosBD = (props) => {
 
         </div>
         <RightDrawer
-            setOpen={() => setOpenFactura(false)}
             width={'40vw'}
             open={openFactura}
-            content={<CarritoFacturacion 
-                        onClose={()=>setOpenFactura(false)}
-                        listaDetalles={lista}
-                        setListaDetalles={setBothLists}
-                        productos={productos}
-                        subtotal={subtotal}
-                        total={total}
-                    />}
+            content={<CarritoFacturacion
+                onClose={() => setOpenFactura(false)}
+                listaDetalles={lista}
+                setListaDetalles={setBothLists}
+                productos={productos}
+                subtotal={subtotal}
+                total={total}
+            />}
         />
         <div className='contentWrapper'>
             <div className='galleryCategory'>

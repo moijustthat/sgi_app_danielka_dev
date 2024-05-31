@@ -91,3 +91,7 @@
 	box-shadow: 0 10px 10px hsl(225, 100%, 94%);
 }
 
+.replaceBtn {
+	margin-left: 0;
+}
+

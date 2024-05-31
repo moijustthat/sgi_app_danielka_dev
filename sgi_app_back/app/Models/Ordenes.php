@@ -21,6 +21,13 @@ class Ordenes extends Model
 
     public $timestamps = false;
 
+    public static function getOrden($ordenId) {
+        return HandleDbResponse::handleResponse(function() use ($ordenId){
+            $orden = DB::select('select * from vw_detalles_orden WHERE ordenId = ?', [$ordenId]);
+            return JsonHelper::jsonResponse(200, ['orden'=>$orden]);
+        }, 'Error al recuperar la orden');
+    }
+
     public static function getAllOrdenes() {
         return HandleDbResponse::handleResponse(function() {
             $ordenes = DB::select('select * from vw_ordenes');

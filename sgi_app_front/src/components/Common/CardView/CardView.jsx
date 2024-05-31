@@ -18,7 +18,8 @@ const CardView = (props) => {
         value4,
         seeMore=true,
         btnText = 'Ver mas',
-        onBtnClick=()=>null
+        onBtnClick=()=>null,
+        replaceBtn=null
     } = props
 
     return <div className="card_container">
@@ -29,7 +30,7 @@ const CardView = (props) => {
                         <div className="detail-box">
                             <div className="gitDetail"><span>{detail1}</span>{value1}</div>
                         </div>
-                        <button onClick={onBtnClick} style={{display: seeMore ? '' : 'none'}} className="seeMore">{btnText}</button>
+                        {replaceBtn ? <div className="replaceBtn">{replaceBtn}</div> : <button onClick={onBtnClick} style={{display: seeMore ? '' : 'none'}} className="seeMore">{btnText}</button>}
                     </div>
                 </div>
             </div>

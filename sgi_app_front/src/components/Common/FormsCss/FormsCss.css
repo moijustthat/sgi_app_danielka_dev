@@ -46,6 +46,11 @@
     background: #555; /* Color del thumb al pasar el cursor */
 }
 
+.btnNewGroup {
+    display: flex;
+    
+}
+
 .btnAgregarRight {
     position: fixed;
     border: none;
@@ -67,3 +72,4 @@
 .btnAgregarRight.vw40{
     width: 40%;
 }
+

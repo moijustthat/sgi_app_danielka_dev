@@ -69,6 +69,7 @@ Route::controller(OrdenesController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/orden', 'insert_orden');
         Route::get('/ordenes', 'indexOrdenes');
+        Route::get('/orden/{id}', 'indexOrden');
     });
 });
 

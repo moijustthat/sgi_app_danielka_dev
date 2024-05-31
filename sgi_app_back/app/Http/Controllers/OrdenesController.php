@@ -11,6 +11,10 @@ class OrdenesController extends Controller
         return Ordenes::getAllOrdenes();
     }
 
+    public function indexOrden($ordenId) {
+        return Ordenes::getOrden($ordenId);
+    }
+
     public function insert_orden(Request $request) {
         // Validar tipos de la peticion
         $proveedor = $request['proveedor']; // Object

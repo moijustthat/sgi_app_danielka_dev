@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import './App.css'
+import './Fonts.css'
 import SideBar from './components/SideBar/SideBar';
 import { Outlet } from 'react-router-dom';
 

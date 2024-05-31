@@ -24,6 +24,7 @@ import { UilColumns } from '@iconscout/react-unicons'
 import CheckMenu from '../../../Common/CheckMenu/CheckMenu'
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertDialog from '../../../Common/AlertDialog/AlertDialog'
+import { FaTrashCan } from "react-icons/fa6";
 
 import CardView from '../../../Common/CardViews/CardView'
 
@@ -135,7 +136,7 @@ const Productos = () => {
 
   const generalActions = [
     {
-      icon: <UilStopCircle />,
+      icon: <FaTrashCan />,
       label: 'desactivar-producto/s',
       condition: (numSelected) => numSelected > 0,
       action: (selected) => setDesactivar(selected)
@@ -167,11 +168,6 @@ const Productos = () => {
       action: (id) => {
         setEdit(id)
       }
-    },
-    {
-      label: 'Ver detalles',
-      icon: <UilEye />,
-      action: (i) => alert('Ver detalles ' + i)
     }
   ]
 

@@ -54,6 +54,7 @@ const Transaccion = ({
             rollback = true
         }
 
+        
         if (rollback) {
             return null
         } else {

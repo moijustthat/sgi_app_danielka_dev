@@ -7,20 +7,45 @@
 
 .adderWraper p{
     font-family: 'Inter';
-    font-size: 20px;
+    font-size: 15px;
     cursor: pointer;
 }
 
 .adderWraper .plus p{
     background: white;
-    border: 1px solid #DEDEDE;
+    border: 2px solid #DEDEDE;
     border-radius: 5px;
     padding: 0 5px;
 }
 
 .adderWraper .minus p{
     background: white;
-    border: 1px solid #DA5854;
+    border: 2px solid #DA5854;
     border-radius: 5px;
     padding: 0 5px;
+}
+
+.counter {
+    width: 100px;
+}
+
+.counter p{
+    overflow-x: scroll;
+    background: white;
+    border: 2px solid #DEDEDE;
+    border-radius: 5px;
+    padding: 0 5px;
+}
+
+.counter p::-webkit-scrollbar {
+    display: none;
+}
+
+.deleteCounter {
+    font-size: 22px !important;
+    margin-top: 19%;
+    margin-right: 25%;
+    color: #EC3637;
+    border-radius: 5px;
+    cursor: pointer;
 }

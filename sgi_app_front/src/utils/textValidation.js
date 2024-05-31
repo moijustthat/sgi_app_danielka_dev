@@ -64,7 +64,7 @@ const validateApi = {
 
     decimalPositiveOrZero: (input) => {
         if (input == '') return true
-        return /^[0-9]+(\.[0-9]+)?$/.test(input)
+        return /^\d*\.?\d*$/.test(input)
     },
 
     name2: (input) => {

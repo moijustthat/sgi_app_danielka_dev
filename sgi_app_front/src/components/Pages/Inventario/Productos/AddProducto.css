@@ -266,7 +266,26 @@
 
 .btnGroup {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.btnGroup button {
+    height: inherit;
+}
+
+.btnGroup button:last-of-type {
+    background-color: #FFF;
+    color: #D9534F;
+}
+
+
+.btnGroup button:first-of-type:hover {
+    background-color: #546E7A;
+}
+
+.btnGroup button:last-of-type:hover {
+    background-color: #FEF8F8;
 }
 
 .btnAgregarProducto {

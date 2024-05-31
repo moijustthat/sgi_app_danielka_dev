@@ -13,45 +13,107 @@ import Adder from '../../../Common/AlertDialog/Adder'
 import hexToDataURL, { base64, isHex } from '../../../../utils/HexToDataUrl'
 import { formatearNumeroConComas } from '../../../../utils/textValidation'
 import validateApi from '../../../../utils/textValidation'
+import { addOnList, restOnList, deleteFromList } from '../Helpers/Aritmethics'
 
 const CarritoFacturacion = ({
     onClose,
     listaDetalles = [],
     setListaDetalles = () => null,
     productos = [],
-    subtotal=0,
-    total=0
+    subtotal = 0,
+    total = 0
 }) => {
 
 
     const [emptyFields, setEmptyFields] = useState([])
     const [rollbacks, setRollbacks] = useState({
-        'Cantidad': false,
-        'Cantidad con descuento': false,
-        'Porcentaje de descuento': false
+        'CantidadIsZero': [],
+        'Cantidad': [],
+        'Cantidad con descuento': [],
+        'Porcentaje de descuento': []
     })
 
-    const handleDoubleCostValidation = debounce((constraint1, constraint2, validation) => {
-        if (validation(constraint1.value, constraint2.value)) {
-          setRollbacks({ // Join discreto
-            ...rollbacks,
-            [constraint1.label]: true,
-            [constraint2.label]: true
-          })
-        } else {
-          setRollbacks({ // Diferencia con XOR
-            ...rollbacks,
-            [constraint1.label]: false,
-            [constraint2.label]: false
-          })
+    console.log(rollbacks)
+
+    const validateInputs = () => {
+        const required = ['Cantidad', 'Precio de compra']
+        const empty = []
+        let rollback = false
+
+        for (let detalle of listaDetalles) {
+            for (let req of required) {
+                if (detalle[req] === '') empty.push(req)
+            }
         }
-      }, 300)
+
+        setEmptyFields(empty)
+
+        if (empty.length > 0) {
+            rollback = true
+        }
+
+        // Validar que no exista ningun rollback
+        // Revisar si se hara un rollback logico
+        for (let rollback of Object.keys(rollbacks)) {
+            if (rollbacks[rollback].length>0) return // Si al menos existe un error logico realizar rollback
+        }
+
+        if (rollback) {
+            return null
+        } else {
+            onClose()
+        }
+    }
+
+    const handleConditionalCostValidation = (constraint, validation, key) => {
+        if (validation()) {
+            if (rollbacks[constraint].findIndex(k=>k===key) === -1) {
+                setRollbacks({ // Join discreto
+                    ...rollbacks,
+                    [constraint]: [...rollbacks[constraint], key]
+                })
+            }
+        }  else {
+            const index = rollbacks[constraint].findIndex(k=> k === key)
+            if (index!==-1) {
+                const updated1 = [...rollbacks[constraint].slice(0, index), ...rollbacks[constraint].slice(index+1)]
+                setRollbacks({ // Diferencia con XOR
+                    ...rollbacks,
+                    [constraint]: updated1
+                })
+            }
+        }
+    }
+
+    const handleDoubleCostValidation = debounce((constraint1, constraint2, validation, key) => {
+        if (validation(constraint1.value, constraint2.value)) {
+            if (rollbacks[constraint1.label].findIndex(k=>k===key) === -1 && rollbacks[constraint2.label].findIndex(k=>k===key) === -1 ) {
+                setRollbacks({ // Join discreto
+                    ...rollbacks,
+                    [constraint1.label]: [...rollbacks[constraint1.label], key],
+                    [constraint2.label]: [...rollbacks[constraint2.label], key]
+                })
+            }
+        } else {
+            const index1 = rollbacks[constraint1.label].findIndex(k=> k === key)
+            const index2 = rollbacks[constraint2.label].findIndex(k=> k === key)
+            if (index1!==-1 && index2!==-1) {
+                const updated1 = [...rollbacks[constraint1.label].slice(0, index1), ...rollbacks[constraint1.label].slice(index1+1)]
+                const updated2 = [...rollbacks[constraint2.label].slice(0, index2), ...rollbacks[constraint2.label].slice(index2+1)]
+                setRollbacks({ // Diferencia con XOR
+                    ...rollbacks,
+                    [constraint1.label]: updated1,
+                    [constraint2.label]: updated2
+                })
+            }
+        }
+    }, 300)
 
 
     const onHandleChange = (label, value, index) => {
-        setListaDetalles(prev=>{
+        setListaDetalles(prev => {
             const updated = [...prev]
-            const editable = {...prev[index]}
+            const editable = { ...prev[index] }
             editable[label] = value
             updated[index] = editable
             return updated
@@ -75,131 +137,135 @@ const CarritoFacturacion = ({
     } else {
         return <div>
             <div className='emptyHeaderFacturacion'>
-                <IconButton onClick={onClose}>
+                <IconButton onClick={validateInputs}>
                     <UilTimes />
                 </IconButton>
                 <h6>Mi factura</h6>
             </div>
 
-            <div className='facturaRight'>             
-                {listaDetalles.map((detalle, index)=>{
+            <div className='facturaRight'>
+                {listaDetalles.map((detalle, index) => {
                     let nombre = ''
                     let imagen = ''
                     if (!!!detalle.id.startsWith('new')) {
-                         nombre = productos.find(p=>String(p.value) === String(detalle.id)).info['Nombre']
-                         imagen = productos.find(p=>String(p.value) === String(detalle.id)).info['Imagen']
+                        nombre = productos.find(p => String(p.value) === String(detalle.id)).info['Nombre']
+                        imagen = productos.find(p => String(p.value) === String(detalle.id)).info['Imagen']
                     } else {
                         nombre = detalle['Nombre']
                         imagen = detalle['Imagen']
                         console.log(imagen)
                     }
                     return <div className='itemRight'>
-                    <div className='infoItem'>
-                        <Avatar sx={{
-                            width: '60px',
-                            height: '60px'
-                        }} src={isHex(imagen) ? hexToDataURL(imagen) : base64(imagen)} />
-                        <p>{nombre}</p>
-                        <IconButton>
-                            <MdDelete />
-                        </IconButton>
-                    </div>
+                        <div className='infoItem'>
+                            <Avatar sx={{
+                                width: '60px',
+                                height: '60px'
+                            }} src={isHex(imagen) ? hexToDataURL(imagen) : base64(imagen)} />
+                            <p>{nombre}</p>
+                            <IconButton onClick={()=>deleteFromList(setListaDetalles, listaDetalles.length, detalle.id)}>
+                                <MdDelete />
+                            </IconButton>
+                        </div>
 
-                    <div className='inputItem'>
-                        <div className='secondaryData s'>
-                            <TextField 
-                                desactiveManually={!rollbacks['Cantidad']}
-                                incomplete={emptyFields.find(field=> field==='Cantidad')}
-                                label='Cantidad' 
-                                value={detalle['Cantidad']}
-                                onChange={(value, setErr, setWarning)=>{
-                                    const cantidad = Number(value)
-                                    handleDoubleCostValidation({label: 'Cantidad', value: cantidad}, {label:'Cantidad con descuento', value: Number(detalle['Cantidad con descuento'])}, (val1, val2) => {
-                                        if (val1 < val2) {
-                                            return true
-                                        } else {
-                                            return false
-                                        }
-                                    })
-                                    if (validateApi.number(value)) onHandleChange('Cantidad', value, index)   
-                                }}
-                            />
-                            <Adder
-                                onPlus={() => alert('sumar')}
-                                onMinus={() => alert('restar')}
-                            />
-                            <TextField 
-                                incomplete={emptyFields.find(field=> field==='Precio de compra')}
-                                label='Precio' 
-                                value={detalle['Precio de compra']}
-                                onChange={(value, setErr, setWarning)=>{
-                                    if (validateApi.positiveReal(value) && validateApi.priceTruncated(value)) {
-                                        onHandleChange('Precio de compra', value, index)
-                                    }
-                                }}
+                        <div className='inputItem'>
+                            <div className='secondaryData s'>
+                                <TextField
+                                    desactiveManually={!rollbacks['Cantidad']}
+                                    incomplete={emptyFields.find(field => field === 'Cantidad')}
+                                    label='Cantidad'
+                                    value={detalle['Cantidad']}
+                                    onChange={(value, setErr, setWarning) => {
+                                        const cantidad = Number(value)
+                                        handleConditionalCostValidation('CantidadIsZero', ()=>cantidad<1, detalle.id)
+                                        handleDoubleCostValidation({ label: 'Cantidad', value: cantidad }, { label: 'Cantidad con descuento', value: Number(detalle['Cantidad con descuento']) }, (val1, val2) => {
+                                            if (val1 < val2) {
+                                                return true
+                                            } else {
+                                                return false
+                                            }
+                                        }, detalle.id)
+
+                                        if (validateApi.number(value)) onHandleChange('Cantidad', value, index)
+                                    }}
                                 />
-                            <Adder
-                                onPlus={() => alert('sumar')}
-                                onMinus={() => alert('restar')}
-                            />
-                        </div>
-                        <div className='secondaryData s'>
-                            <TextField 
-                                label='Con descuento' 
-                                value={detalle['Cantidad con descuento']}
-                                desactiveManually={!rollbacks['Cantidad con descuento']}
-                                onChange={(value, setErr, setWarning)=>{
-                                    const cantidad = Number(value)
-                                    handleDoubleCostValidation({label: 'Cantidad con descuento', value: cantidad}, {label:'Cantidad', value: Number(detalle['Cantidad'])}, (val1, val2) => {
-                                        if (val1 > val2) {
-                                            return true
-                                        } else {
-                                            return false
+                                <Adder
+                                   onPlus={() => addOnList(setListaDetalles, listaDetalles.length, 'Cantidad', detalle.id)}
+                                   onMinus={() => restOnList(setListaDetalles, listaDetalles.length, 'Cantidad', detalle.id)}
+                                />
+                                <TextField
+                                    incomplete={emptyFields.find(field => field === 'Precio de compra')}
+                                    label='Precio'
+                                    value={detalle['Precio de compra']}
+                                    onChange={(value, setErr, setWarning) => {
+                                        if (validateApi.positiveReal(value) && validateApi.priceTruncated(value)) {
+                                            onHandleChange('Precio de compra', value, index)
                                         }
-                                    })
-                                    if (validateApi.positiveIntegerOrZero(value)) onHandleChange('Cantidad con descuento', value, index)
-                                    
-                                }}
-                            />
-                            <Adder
-                                onPlus={() => alert('sumar')}
-                                onMinus={() => alert('restar')}
-                            />
-                            <TextField 
-                                label='Porcentaje' 
-                                value={detalle['Porcentaje de descuento']}
-                                onChange={(value, setErr, setWarning)=>{
-                                    if (validateApi.positiveReal(value) &&
-                                        validateApi.priceTruncated(value) &&
-                                        Number(value) < 100) onHandleChange('Porcentaje de descuento', value, index)
-                                }}
-                            />
-                            <Adder
-                                onPlus={() => alert('sumar')}
-                                onMinus={() => alert('restar')}
-                            />
-                        </div>
-                    </div>
+                                    }}
+                                />
+                                <Adder
+                                    onPlus={() => addOnList(setListaDetalles, listaDetalles.length, 'Precio de compra', detalle.id)}
+                                    onMinus={() => restOnList(setListaDetalles, listaDetalles.length, 'Precio de compra', detalle.id)}
+                                />
+                            </div>
+                            <div className='secondaryData s'>
+                                <TextField
+                                    label='Con descuento'
+                                    value={detalle['Cantidad con descuento']}
+                                    desactiveManually={!rollbacks['Cantidad con descuento']}
+                                    onChange={(value, setErr, setWarning) => {
+                                        const cantidad = Number(value)
+                                        handleDoubleCostValidation({ label: 'Cantidad con descuento', value: cantidad }, { label: 'Cantidad', value: Number(detalle['Cantidad']) }, (val1, val2) => {
+                                            if (val1 > val2) {
+                                                return true
+                                            } else {
+                                                return false
+                                            }
+                                        }, detalle.id)
+                                        if (validateApi.positiveIntegerOrZero(value)) onHandleChange('Cantidad con descuento', value, index)
 
-                </div>
+                                    }}
+                                />
+                                <Adder
+                                    onPlus={() => addOnList(setListaDetalles, listaDetalles.length, 'Cantidad con descuento', detalle.id)}
+                                    onMinus={() => restOnList(setListaDetalles, listaDetalles.length, 'Cantidad con descuento', detalle.id)}
+                                />
+                                <TextField
+                                    label='Porcentaje'
+                                    value={detalle['Porcentaje de descuento']}
+                                    onChange={(value, setErr, setWarning) => {
+                                        if (validateApi.positiveReal(value) &&
+                                            validateApi.priceTruncated(value) &&
+                                            Number(value) < 100) onHandleChange('Porcentaje de descuento', value, index)
+                                    }}
+                                />
+                                <Adder
+                                    onPlus={() => addOnList(setListaDetalles, listaDetalles.length, 'Porcentaje de descuento', detalle.id)}
+                                    onMinus={() => restOnList(setListaDetalles, listaDetalles.length, 'Porcentaje de descuento', detalle.id)}
+                                />
+                            </div>
+                        </div>
+
+                    </div>
                 })}
 
             </div>
-        
-                <div className='infoFactura'>
-                    <div className='totalFactura'>
-                        <label>Subtotal</label>
-                        <label>C$ {formatearNumeroConComas(subtotal)}</label>
-                    </div>
-                    <div className='totalFactura'>
-                        <label>Total(Descuento aplicado)</label>
-                        <label>C$ {formatearNumeroConComas(total)}</label>
-                    </div>
-                    <button className='btnContinuarFactura'>
-                        Continuar con la orden
-                    </button>
+
+            <div className='infoFactura'>
+                <div className='totalFactura'>
+                    <label>Subtotal</label>
+                    <label>C$ {formatearNumeroConComas(subtotal)}</label>
                 </div>
-                
+                <div className='totalFactura'>
+                    <label>Total(Descuento aplicado)</label>
+                    <label>C$ {formatearNumeroConComas(total)}</label>
+                </div>
+                <button
+                    onClick={validateInputs}
+                    className='btnContinuarFactura'>
+                    Continuar con la orden
+                </button>
+            </div>
+
         </div>
     }
 }
