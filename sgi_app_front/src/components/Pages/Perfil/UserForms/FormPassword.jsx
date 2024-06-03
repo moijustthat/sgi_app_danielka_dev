@@ -96,7 +96,7 @@ export const FormPassword = () => {
 
 export const FormData = () => {
 
-  const { getUser } = useStateContext();
+  const { getUser, setUser, _setUser } = useStateContext();
   const user = getUser();
 
   const [nombre, setNombre] = useState('')
@@ -117,6 +117,14 @@ export const FormData = () => {
       axiosClient.post('/changeData', payload)
         .then(({data})=>{
           alert('Datos cambiados con exito')
+          _setUser(prev=> {
+            const converted = JSON.parse(prev)
+            converted.nombre = nombre && nombre !== '' ? nombre : converted.nombre 
+            converted.email = correo && correo !== '' ? correo : converted.email 
+            converted.img = img && img !== '' ? img : converted.img 
+            setUser(JSON.stringify(converted))
+            return JSON.stringify(converted)
+          })
           console.log(data.data)
         })
         .catch(error=>{
@@ -124,7 +132,6 @@ export const FormData = () => {
         })
     }
   }
-  console.log(img)
   return (
     <>
       <div className="formContainer">

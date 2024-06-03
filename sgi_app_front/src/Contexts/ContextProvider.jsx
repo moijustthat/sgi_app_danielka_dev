@@ -10,6 +10,7 @@ const StateContext = createContext({
     token: null,
     productos: null,
     setPermisos: () => {},
+    _setUser: ()=>{},
     setUser: () => {},
     setToken: () => {},
     getUser: () => null,
@@ -46,6 +47,7 @@ export const ContextProvider = ({children}) => {
     }
 
     const getUser = () => {
+        console.log(user)
         if (user) return JSON.parse(user)
         return 'No hay usuario en la sesion'
     }
@@ -77,6 +79,7 @@ export const ContextProvider = ({children}) => {
             productos,
             setPermisos,
             setUser,
+            _setUser,
             setToken,
             setProductos,
             getUser,
