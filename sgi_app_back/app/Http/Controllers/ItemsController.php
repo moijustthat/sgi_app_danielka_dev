@@ -22,4 +22,16 @@ class ItemsController extends Controller
     public function insert_unidad_medida(Request $request) {
         return Items::new_unidad_medida($request['medida']);
     }
+
+    public function desactivarCategorias(Request $request) {
+        return Items::desactivateCategorias($request['categorias']);
+    }
+
+    public function desactivarMarcas(Request $request) {
+        return Items::desactivateMarcas($request['marcas']);
+    }
+
+    public function desactivarUnidadesMedida(Request $request) {
+        return Items::desactivateUnidadesMedida($request['medidas']);
+    }
 }

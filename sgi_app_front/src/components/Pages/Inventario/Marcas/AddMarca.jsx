@@ -32,14 +32,12 @@ const AddMarca = (props) => {
         if (roll) return
         else axiosClient.post('/marca', {marca: marca})
         .then(({data}) => {
-          alert('Bien hecho')
           const Marca = data.data
           const value = Marca.value.val
           const label = Marca.label.label
           marcas.unshift({value, label})
         })
         .catch(error => {
-          alert('Mal')
           const messageError = error.response.data
           console.log(messageError);
         })

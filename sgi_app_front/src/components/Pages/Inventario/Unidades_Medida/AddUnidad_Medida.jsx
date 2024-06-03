@@ -32,14 +32,12 @@ const Unidades_Medida = (props) => {
         if (roll) return
         else axiosClient.post('/unidad_medida', {medida: medida})
         .then(({data}) => {
-          alert('Bien hecho')
           const Medida = data.data
           const value = Medida.value.val
           const label = Medida.label.label
           medidas.unshift({value, label})
         })
         .catch(error => {
-          alert('Mal')
           const messageError = error.response.data
           console.log(messageError);
         })

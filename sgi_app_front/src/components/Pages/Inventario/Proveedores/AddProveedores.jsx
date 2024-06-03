@@ -21,7 +21,8 @@ const init = {
 const AddProveedores = (props) => {
     const {
         proveedores=[],
-        setOpen=()=>null
+        setOpen=()=>null,
+        refresh
     } = props
 
     const [markAsIncomplete, setMarkAsIncomplete] = useState([])
@@ -60,7 +61,9 @@ const AddProveedores = (props) => {
         if (cancel) return
         else axiosClient.post('/proveedor', {proveedor: nuevoProveedor})
                 .then(({data})=>{
-                    console.log(data)
+                    refresh()
+                    setNuevoProveedor(init)
+                    setOpen(null)
                 })
                 .catch(error=>{
                     console.log(error);

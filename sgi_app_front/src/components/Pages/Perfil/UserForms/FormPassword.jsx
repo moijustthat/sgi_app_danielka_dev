@@ -1,6 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import "./FormPassword.css";
+
+import { useStateContext } from "../../../../Contexts/ContextProvider";
+import axiosClient from "../../../../axios-client";
+
 export const FormPassword = () => {
+
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmNewPassword, setConfirmNewPassword] = useState('')
+  
+  const {getUser} = useStateContext()
+  const user = getUser()
+
+  const onChangePassword = (e) => {
+      e.preventDefault()
+      if (confirmNewPassword !== newPassword) alert('Confirmacion de nueva contraseña no coincide')
+      else {
+        const payload = {userId: user.usuarioId, currentPassword: currentPassword, newPassword: newPassword}
+        axiosClient.post('/changePassword', payload)
+          .then(({data})=>{
+            alert(data.data)
+          })
+          .catch(error=>{
+            console.log(error)
+            alert('Password incorrecta')
+          })
+      }
+  }
+
   return (
     <>
       <div className="formContainer">
@@ -9,24 +37,47 @@ export const FormPassword = () => {
           <div className="formGroup">
             <label htmlFor="current-password">Contraseña Actual</label>
             <input
+              value={currentPassword}
               type="password"
               id="current-password"
               placeholder="********"
+              onChange={(e)=>{
+                const input = e.target.value
+                setCurrentPassword(input)
+              }}
             />
           </div>
 
           <div className="formGroup">
             <label htmlFor="new-password">Contraseña Nueva</label>
-            <input type="password" id="new-password" placeholder="********" />
+            <input 
+              value={newPassword}
+              type="password" 
+              id="new-password" 
+              placeholder="********"
+              onChange={(e)=> {
+                const input = e.target.value
+                setNewPassword(input)
+              }}
+              />
           </div>
 
           <div className="formGroup">
             <label htmlFor="confirm-password">Confirmar Contraseña</label>
-            <input type="password" id="confirm-password" placeholder="********" />
+            <input 
+              value={confirmNewPassword}
+              type="password" 
+              id="confirm-password" 
+              placeholder="********" 
+              onChange={(e)=> {
+                const input = e.target.value
+                setConfirmNewPassword(input)
+              }}
+            />
           </div>
 
           <div className="formGroup">
-            <button type="submit" className="btn-submit" id="submitPass">
+            <button onClick={(e)=>onChangePassword(e)} type="submit" className="btn-submit" id="submitPass">
               Guardar Contraseña
             </button>
           </div>

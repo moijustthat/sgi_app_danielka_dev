@@ -133,10 +133,10 @@ class Productos extends Model
         return HandleDbResponse::handleResponse(function() {
             return DB::transaction(function () {
                 // Traer esos datos que van en las tablas y formularios donde aparecen los productos
-                $categorias = DB::select('select * from categorias');
-                $marcas = DB::select('select * from marcas');
-                $unidades_medida = DB::select('select * from unidades_medida');
-                $almacenes = DB::select('select * from almacenes');
+                $categorias = DB::select('select * from categorias where estado = "t"');
+                $marcas = DB::select('select * from marcas where estado = "t"');
+                $unidades_medida = DB::select('select * from unidades_medida where estado = "t"');
+                $almacenes = DB::select('select * from almacenes where activo = "t"');
 
                 // Agrupamiento de respuestas
                 $data = [

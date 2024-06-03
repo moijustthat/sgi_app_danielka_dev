@@ -52,4 +52,31 @@ class Items extends Model
             return JsonHelper::jsonResponse(200, ['data' => ['value'=>$val[0], 'label'=>$label[0]]]);
         }, 'Error al crear la unidad de medida: '.$unidad_medida);
     }
+
+    public static function desactivateCategorias($categoriasId) {
+        return HandleDbResponse::handleResponse(function() use ($categoriasId){
+            foreach ($categoriasId as $id) {
+                DB::select('UPDATE Tipos_Instancia SET estado = "f" WHERE tipo_instanciaId = ?', [$id]);
+            }
+            return JsonHelper::jsonResponse(200, ['data'=> 'Categorias desactivadas correctamente']);
+        }, 'Error al desabilitar las Categorias');
+    }
+
+    public static function desactivateMarcas($marcasId) {
+        return HandleDbResponse::handleResponse(function() use ($marcasId){
+            foreach ($marcasId as $id) {
+                DB::select('UPDATE Tipos_Instancia SET estado = "f" WHERE tipo_instanciaId = ?', [$id]);
+            }
+            return JsonHelper::jsonResponse(200, ['data'=> 'Marcas desactivadas correctamente']);
+        }, 'Error al desabilitar las Marcas');
+    }
+
+    public static function desactivateUnidadesMedida($medidasId) {
+        return HandleDbResponse::handleResponse(function() use ($medidasId){
+            foreach ($medidasId as $id) {
+                DB::select('UPDATE Tipos_Instancia SET estado = "f" WHERE tipo_instanciaId = ?', [$id]);
+            }
+            return JsonHelper::jsonResponse(200, ['data'=> 'Unidades de medida desactivadas correctamente']);
+        }, 'Error al desabilitar las Unidades de medida');
+    }
 }

@@ -43,6 +43,7 @@ const Proveedores = () => {
                 content={<AddProveedores 
                             proveedores={proveedores}
                             setOpen={setFormOpen}
+                            refresh={()=>getProveedores(setLoading, setProveedores)}
                         />}
                 setOpen={setFormOpen}
             />

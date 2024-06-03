@@ -26,6 +26,8 @@ Route::controller(UsuariosController::class)->group(function () {
         Route::get('/permisos', 'indexPermisos');
         Route::get('/permisosDe/{id}', 'indexPermisosDe');
         Route::post('/permisosUpdate', 'updatePermisos');
+
+        Route::post('/changePassword', 'changeUserPassword');
         //Route::patch('/usuarios/edit/{id}', 'editEmpleado');
 
         //Route::get('/empleados', 'indexEmpleados');
@@ -66,6 +68,12 @@ Route::controller(ItemsController::class)->group(function () {
         Route::post('/categoria', 'insert_categoria');
         Route::post('/marca', 'insert_marca');
         Route::post('/unidad_medida', 'insert_unidad_medida');
+
+        Route::post('/desactivate-categorias', 'desactivarCategorias');
+        Route::post('/desactivate-marcas', 'desactivarMarcas');
+        Route::post('/desactivate-medidas', 'desactivarUnidadesMedida');
+
+
     });
 });
 

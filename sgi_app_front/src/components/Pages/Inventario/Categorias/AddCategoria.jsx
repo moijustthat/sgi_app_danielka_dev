@@ -32,14 +32,12 @@ const AddCategoria = (props) => {
         if (roll) return
         else axiosClient.post('/categoria', {categoria: categoria})
         .then(({data}) => {
-          alert('Bien hecho')
           const Categoria = data.data
           const value = Categoria.value.val
           const label = Categoria.label.label
           categorias.unshift({value, label})
         })
         .catch(error => {
-          alert('Mal')
           const messageError = error.response.data
           console.log(messageError);
         })

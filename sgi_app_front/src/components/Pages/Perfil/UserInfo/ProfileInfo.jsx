@@ -4,11 +4,13 @@ import "./ProfileInfo.css";
 import { IconInfo } from "../Icons/Icons";
 import EmailIcon from "@mui/icons-material/Email";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
+import { Avatar } from "@mui/material";
+import logo from '../../../../imgs/noimg.avif'
 
 const UserInfo = () => {
   const { getUser } = useStateContext();
   const user = getUser();
-
+  console.log(user)
   return (
     <>
       {/* Iconos con información del usuario */}
@@ -16,7 +18,7 @@ const UserInfo = () => {
       <div className="infoContainer">
         <div className="infoContent">
           <img
-            src={user.img}
+            src={!!!user.img || user.img === '' || user.img === 'data:image/jpeg;base64,'? logo : user.img}
             alt={`Usuario: ${user.nombre}`}
             className="avatarPerfil"
           />{" "}

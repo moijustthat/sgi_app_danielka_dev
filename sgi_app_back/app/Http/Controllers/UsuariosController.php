@@ -111,6 +111,37 @@ class UsuariosController extends Controller
         return Usuarios::updatePermisos($cargoId, $moduloId, $estado);
     }
 
+    public function changeUserPassword(Request $request) {
+        $usuarioId = $request['userId'];
+        $currentPassword = $request['currentPassword'];
+        $newPassword = $request['newPassword'];
+
+        try {
+            // Buscar el usuario (cargo tiene que ser diferente a cliente(14))
+            $usuario = Usuarios::where('usuarioId', $usuarioId)
+                                ->where('cargoId', '!=', 14)
+                                ->firstOrFail();
+
+            // verificar si existe algun empleado con el email dado
+            if (is_null($usuario)) {
+                return JsonHelper::jsonResponse(400, ['error' => 'Usuario: ' . $request->Nombre . ' no existe en la base de datos']);
+            }
+
+
+            // Desencriptar password y ver si coincide con la de la request
+            if (Hash::check($currentPassword, $usuario->password)) { // Acceso concedido
+                $usuario->password = Hash::make($newPassword);
+                $usuario->save();
+                return JsonHelper::jsonResponse(200, ['data'=>'Password cambiada con exito']); // mandar sesion del usuario al cliente
+            } else {
+                return JsonHelper::jsonResponse(400, ['error' => 'Password incorrecta']);
+            }
+        } catch(\Exception $e) {
+            return JsonHelper::jsonResponse(400, ['error' => 'Error del servidor al buscar el usuario' . $e->getMessage()]);
+        } 
+
+    }
+
     /*
     public function indexEmpleados() {
         try {
