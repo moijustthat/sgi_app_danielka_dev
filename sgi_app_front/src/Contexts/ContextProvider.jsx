@@ -2,13 +2,18 @@ import { createContext, useContext, useState } from "react"
 
 import { usersInfo } from '../Data/EmpleadosInfo'
 
+import axiosClient from "../axios-client"
+
 const StateContext = createContext({
+    permisos: null,
     user: null,
     token: null,
     productos: null,
+    setPermisos: () => {},
     setUser: () => {},
     setToken: () => {},
     getUser: () => null,
+    getPermisos: () => {},
     setProductos: () => {},
 })
 
@@ -17,6 +22,22 @@ export const ContextProvider = ({children}) => {
     const [user, _setUser] = useState(localStorage.getItem('USER_INFO'))
     const [token, _setToken] = useState(localStorage.getItem('ACCESS_TOKEN'))
     const [productos, setProductos] = useState([])
+    const [permisos, _setPermisos] = useState(localStorage.getItem('USER_PERMISOS'))
+
+    const getPermisos = () => {
+        console.log(permisos)
+        if (permisos) return JSON.parse(permisos)
+        return 'No hay permisos en la sesion'
+    }
+
+    const setPermisos = (permisos) => {
+        _setPermisos(permisos)
+        if (permisos) {
+            localStorage.setItem('USER_PERMISOS', JSON.stringify(permisos))
+        } else {
+            localStorage.removeItem('USER_PERMISOS')
+        }
+    }
 
     const getUser = () => {
         if (user) return JSON.parse(user)
@@ -44,13 +65,16 @@ export const ContextProvider = ({children}) => {
 
     return (
         <StateContext.Provider value={{
+            permisos,
             user,
             token,
             productos,
+            setPermisos,
             setUser,
             setToken,
             setProductos,
             getUser,
+            getPermisos
         }}>
             {children}
         </StateContext.Provider>

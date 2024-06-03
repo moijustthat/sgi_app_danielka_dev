@@ -21,6 +21,20 @@ class Ventas extends Model
 
     public $timestamps = false;
 
+    public static function getAllVentas() {
+        return HandleDbResponse::handleResponse(function() {
+            $ventas = DB::select('select * from vw_ventas');
+            return JsonHelper::jsonResponse(200, ['ventas'=>$ventas, 'message'=> 'Ventas retribuidas con exito']);
+        }, 'Error al consultar todos las proveedores');
+    }
+
+    public static function getVenta($ventaId) {
+        return HandleDbResponse::handleResponse(function() use ($ventaId){
+            $venta = DB::select('select * from vw_detalles_venta WHERE ventaId = ?', [$ventaId]);
+            return JsonHelper::jsonResponse(200, ['venta'=>$venta]);
+        }, 'Error al recuperar la venta');
+    }
+
     public static function nueva_venta($cliente, $venta, $detalles, $usuario) {
         return HandleDbResponse::handleResponse(function() use ($cliente, $venta, $detalles, $usuario){
             return DB::transaction(function () use ($cliente, $venta, $detalles, $usuario){

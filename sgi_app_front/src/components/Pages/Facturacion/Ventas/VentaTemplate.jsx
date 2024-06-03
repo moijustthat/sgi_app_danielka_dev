@@ -1,54 +1,54 @@
 import React from 'react'
-import './OrdenTemplate.css'
+import './VentaTemplate.css'
 import logo from '../../../../imgs/logo.png'
 import { TiPrinter } from "react-icons/ti";
 import { IoMdDownload } from "react-icons/io";
 
-const OrdenTemplate = ({ orden, detalles }) => {
+const VentaTemplate = ({ venta, detalles }) => {
     return (
-        <div className='ordenTemplateWrapper print-area'>
-            <div className='ordenTemplate'>
-                <div className='ordenTemplateContainer'>
-                    <div className='ordenTemplateHead'>
-                        <div className='ordenTemplateHeadTop'>
-                            <div className='ordenTemplateHeadTopLeft textStart'>
+        <div className='ventaTemplateWrapper print-area'>
+            <div className='ventaTemplate'>
+                <div className='ventaTemplateContainer'>
+                    <div className='ventaTemplateHead'>
+                        <div className='ventaTemplateHeadTop'>
+                            <div className='ventaTemplateHeadTopLeft textStart'>
                                 <img src={logo} />
                                 <h3>Ferreteria y materiales de construccion Danielka S.A</h3>
                             </div>
-                            <div className='ordenTemplateHeadTopRight textEnd'>
-                                <h3>Factura [Orden]</h3>
+                            <div className='ventaTemplateHeadTopRight textEnd'>
+                                <h3>Factura [Venta]</h3>
                             </div>
                         </div>
                         <div className='hr'/>
-                        <div className='ordenTemplateHeadMiddle'>
-                            <div className='ordenTemplateHeadMiddleLeft textStart'>
-                                <p><span className='texttBold'>Fecha</span>: {orden['Fecha']}</p>
+                        <div className='ventaTemplateHeadMiddle'>
+                            <div className='ventaTemplateHeadMiddleLeft textStart'>
+                                <p><span className='texttBold'>Fecha</span>: {venta['Fecha']}</p>
                             </div>
-                            <div className='ordenTemplateHeadMiddleRight textEnd'>
-                                <p><span className='textBold'>Orden No:</span> {orden.id}</p>
+                            <div className='ventaTemplateHeadMiddleRight textEnd'>
+                                <p><span className='textBold'>venta No:</span> {venta.id}</p>
                             </div>
                         </div>
                         <div className='hr'></div>
-                            <div className='ordenTemplateHeadBottom'>
-                                <div className='ordenTemplateHeadBottomLeft'>
+                            <div className='ventaTemplateHeadBottom'>
+                                <div className='ventaTemplateHeadBottomLeft'>
                                     <ul>
-                                        <li className='textBold'>Orden hecha a:</li>
-                                        <li>{orden['Proveedor']}</li>
+                                        <li className='textBold'>venta hecha a:</li>
+                                        <li>{venta['Proveedor']}</li>
                                         {/** Aqui se puede poner la direccion del proveedor(u otros datos de este) */}
                                         <li>Managua, Nicaragua</li>
                                     </ul>
                                 </div>
-                                <div className='ordenTemplateHeadBottomRight'>
+                                <div className='ventaTemplateHeadBottomRight'>
                                     <ul className='textEnd'>
-                                        <li className='textBold'>Orden hecha por:</li>
-                                        <li>{orden['Orden hecha por']}</li>
+                                        <li className='textBold'>venta hecha por:</li>
+                                        <li>{venta['venta hecha por']}</li>
                                         {/** Aqui se puede poner el email del empleado(u otros datos de este) */}
                                     </ul>
                                 </div>
                             </div>
 
                         <div className='overFlowView'>
-                            <div className='ordenTemplateBody'>
+                            <div className='ventaTemplateBody'>
                                 <table>
                                     <thead>
                                         <tr>
@@ -76,31 +76,31 @@ const OrdenTemplate = ({ orden, detalles }) => {
                                     </tbody>
                                 </table>
 
-                                <div className='ordenTemplateBodyBottom'>
-                                    <div className='ordenTemplateBodyInfoItem borderBottom'>
+                                <div className='ventaTemplateBodyBottom'>
+                                    <div className='ventaTemplateBodyInfoItem borderBottom'>
                                         <div className='infoItemTd textEnd textBold'>Sub Total:</div>
-                                        <div className='infoItemTd textEnd'>C$ {orden['Subtotal']}</div>
+                                        <div className='infoItemTd textEnd'>C$ {venta['Subtotal']}</div>
                                     </div>
-                                    <div className='ordenTemplateBodyInfoItem'>
+                                    <div className='ventaTemplateBodyInfoItem'>
                                         <div className='infoItemTd textEnd textBold'>Total:</div>
-                                        <div className='infoItemTd textEnd'>C$ {orden['Total']}</div>
+                                        <div className='infoItemTd textEnd'>C$ {venta['Total']}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className='ordenTemplateFoot textCenter'>
+                    <div className='ventaTemplateFoot textCenter'>
                         <p><span className='textBold textCenter'>NOTE:&nbsp;</span>Esta es una factura generada por una computadora y no requiere una firma fisica.</p>
                     
-                        <div className='ordenTemplateBtns'>
+                        <div className='ventaTemplateBtns'>
                             <button onClick={()=>{
                                 window.print()
-                            }} type='button' className='ordenTemplateBtn'>
+                            }} type='button' className='ventaTemplateBtn'>
                                 <span><TiPrinter /></span>
                                 <span>Imprimir</span>
                             </button>
-                            <button type='button' className='ordenTemplateBtn'>
+                            <button type='button' className='ventaTemplateBtn'>
                                 <span><IoMdDownload /></span>
                                 <span>Descargar</span>
                             </button>
@@ -112,4 +112,4 @@ const OrdenTemplate = ({ orden, detalles }) => {
     )
 }
 
-export default OrdenTemplate
+export default VentaTemplate

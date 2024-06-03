@@ -6,6 +6,15 @@ use App\Models\Ventas;
 
 class VentasController extends Controller
 {
+
+    public function indexVentas() {
+        return Ventas::getAllVentas();
+    }
+
+    public function indexVenta($ventaId) {
+        Ventas::getVenta($ventaId);
+    }
+
     public function insert_venta(Request $request) {
         // Validar tipos de la peticion
         $cliente = $request['cliente']; // Object

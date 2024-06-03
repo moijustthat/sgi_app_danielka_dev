@@ -8,21 +8,28 @@ import CircularProgress from '../../../Common/CircularProgess/CircularProgress'
 import axiosClient from '../../../../axios-client'
 import CardView from '../../../Common/CardViews/CardView'
 import { getOrdenes } from '../LoadData/LoadData'
-import { AiOutlineDollarCircle } from "react-icons/ai";
 import { UilTimes } from '@iconscout/react-unicons'
-import { UilEye } from '@iconscout/react-unicons'
-import { FaRegEdit } from "react-icons/fa";
+import { AiOutlineDollarCircle } from "react-icons/ai";
 import { AiTwotonePrinter } from "react-icons/ai";
+import { UilEye } from '@iconscout/react-unicons';
+import { FaRegEdit } from "react-icons/fa";
 import { colorStates } from '../../../../utils/HandleTable'
+
+import { useStateContext } from '../../../../Contexts/ContextProvider'
 
 // Pa generar el pdf
 import { renderToString } from 'react-dom/server'
 import { jsPDF } from 'jspdf'
 import html2pdf from 'html2pdf.js'
 import OrdenTemplate from './OrdenTemplate'
+import FullScreenDialog from '../../../FullDialog/FullDialog'
 
 //FaRegEye
 const Ordenes = () => {
+
+    const {getPermisos} = useStateContext()
+    const permisos = getPermisos()
+    console.log(permisos)
 
     const [loading, setLoading] = useState(false)
     const [openForm, setFormOpen] = useState(false)
@@ -36,6 +43,7 @@ const Ordenes = () => {
     const [unidades_medida, setUnidadesMedida] = useState([])
     const [currentOrden, setCurrentOrden] = useState({id: null, detalles: null})
     const [openDetails, setOpenDetails] = useState(false)
+    const [details, setDetails] = useState(null)
 
     const showDetails = (id) => {
         if (currentOrden.id !== id) {
@@ -44,35 +52,19 @@ const Ordenes = () => {
                 const orden = ordenes.find(o=>o.id===id)
                 const detalles = data.orden
                 setCurrentOrden({id: id, detalles: detalles})
-                console.log(orden)
-                console.log(detalles)
-                /*const factura = renderToString(<OrdenTemplate orden={orden} detalles={detalles}/>)
-                const doc = new jsPDF()
-                doc.save(factura, {
-                    callback: function (pdf) {
-                        pdf.output('dataurlnewwindow')
-                    },
-                    x: 1,
-                    y: 1
-                })*/
+                const factura = <OrdenTemplate orden={orden} detalles={detalles}/>
+                setDetails(factura)
+                setOpenDetails(true)
             })
             .catch(error => {
                 console.log(error)
             })
         } else {
-            alert('memo')
             const orden = ordenes.find(o=>o.id===currentOrden.id)
             const detalles = currentOrden.detalles
-            setCurrentOrden({id: id, detalles: detalles})
-            const factura = renderToString(<OrdenTemplate orden={orden} detalles={detalles}/>)
-            const doc = new jsPDF()
-            doc.html(factura, {
-                callback: function (pdf) {
-                    pdf.output('dataurlnewwindow')
-                },
-                x: 1,
-                y: 1
-            })
+            const factura = <OrdenTemplate orden={orden} detalles={detalles}/>
+            setDetails(factura)
+            setOpenDetails(true)
         }
     }
 
@@ -219,10 +211,11 @@ const Ordenes = () => {
     }, [])
 
     if (loading) return <CircularProgress />
-
-
-
-    return (
+    else if (openDetails) return (<FullScreenDialog
+        content={details}
+        refreshState={()=>setOpenDetails(false)}
+    />)
+    else return (
         <>
             <div className='ListaOrdenes'>
 

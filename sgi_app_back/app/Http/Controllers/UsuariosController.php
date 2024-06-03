@@ -95,6 +95,15 @@ class UsuariosController extends Controller
         auth()->user()->tokens()->delete();
         return JsonHelper::jsonResponse(200, ['message' => 'Logout realiazado con exito']);
     }
+
+    public function indexPermisos() {
+        return Usuarios::getAllPermisos();
+    }
+
+    public function indexPermisosDe($id) {
+        return Usuarios::getPermisosDe($id);
+    }
+
     /*
     public function indexEmpleados() {
         try {

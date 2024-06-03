@@ -14,4 +14,10 @@ class AlmacenesController extends Controller
     public function indexAlmacenes() {
         return Almacenes::getAllAlmacenes();
     }
+
+    public function change_orden(Request $request) {
+        $from = $request['from'];
+        $to = $request['to'];
+        return Almacenes::changePrioridadBusqueda($from, $to);
+    }
 }

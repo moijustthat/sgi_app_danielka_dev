@@ -18,15 +18,21 @@ import { v4, validate } from 'uuid'
 import DBParser from '../../../../utils/DbFieldsConverter'
 import validateAPI from '../../../../utils/textValidation'
 import Resume from '../../../Common/Resume/Resume.'
-import FormDialog from '../../../Common/FormDialog/FormDialog'
+import FullScreenDialog from '../../../../components/FullDialog/FullDialog'
 import FormEdit from './FormEdit'
 import { UilColumns } from '@iconscout/react-unicons'
 import CheckMenu from '../../../Common/CheckMenu/CheckMenu'
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertDialog from '../../../Common/AlertDialog/AlertDialog'
 import { FaTrashCan } from "react-icons/fa6";
+import { HiOutlineViewGridAdd } from "react-icons/hi";
+import { FcAddDatabase } from "react-icons/fc";
 
 import CardView from '../../../Common/CardViews/CardView'
+import FormInventario from './FormInventario'
+import ItemsTemplate from '../../../Common/ItemsTemplate/ItemsTemplate'
+
+import { useStateContext } from '../../../../Contexts/ContextProvider'
 
 // console
 const configTable = (table, columns) => {
@@ -78,9 +84,14 @@ const formatTable = (table, estados, metodos, categorias, marcas, unidades_medid
 
 const Productos = () => {
 
+  const {getPermisos} = useStateContext()
+  const permisos = getPermisos()
+  console.log(permisos)
 
   const [loading, setLoading] = useState(false)
+
   const [edit, setEdit] = useState(null)
+  const [inventario, setInventario] = useState(null)
 
   const [formOpen, setFormOpen] = useState(false)
   const [productos, setProductos] = useState([])
@@ -168,6 +179,21 @@ const Productos = () => {
       action: (id) => {
         setEdit(id)
       }
+    },
+    {
+      label: 'Añadir inventario',
+      icon: <HiOutlineViewGridAdd />,
+      action: (id) => {
+        axiosClient.get(`/inventario/${id}`)
+          .then(({ data }) => {
+            const inventario = data.inventario
+            setInventario({ productoId: id, inventario: inventario })
+
+          })
+          .catch(error => {
+            console.log(error)
+          })
+      }
     }
   ]
 
@@ -201,6 +227,7 @@ const Productos = () => {
     setLoading(true)
     axiosClient.get('/seleccionables')
       .then(({ data }) => {
+        console.log(data)
         setCategorias(data.categorias.map((categoria, index) => {
           return {
             label: categoria.nombre,
@@ -267,11 +294,96 @@ const Productos = () => {
       productoEditado['Minimo'] = producto['Minimo']
       productoEditado['Maximo'] = producto['Maximo']
       productoEditado['Imagen'] = producto['Imagen']
-  
+
       const productoNombre = producto ? producto['Nombre'] : ''
-      const productoImagen = producto ? producto['Imagen'] : null  
-      
+      const productoImagen = producto ? producto['Imagen'] : null
+
       return productoEditado
+    }
+
+    if (inventario !== null) {
+      const currentInventario = inventario.inventario
+      console.log(currentInventario)
+      const producto = productos.find(p => String(p.id) === String(inventario.productoId))
+      const numStocks = currentInventario.length
+      let numAlmacenes = 0
+      for (let i of currentInventario) {
+        let passed = []
+        if (passed.findIndex(pass => pass === i['Almacen']) === -1) {
+          numAlmacenes++
+          passed.push(i['Almacen'])
+        } else continue
+      }
+
+      const rows = []
+      currentInventario.forEach(stock => {
+        const row = {}
+        row['Almacen'] = stock['Almacen']
+        row['Fecha de entrada'] = stock['Fecha de registro']
+        row['Hora de entrada'] = stock['Hora de registro']
+        stock['Caducidad'] === 't' && (row['Fecha de vencimiento'] = stock['Caducidad'])
+        row['Cantidad'] = stock['Disponible']
+        rows.push(row)
+      });
+
+      const newInputs = [{
+        label: 'Almacen',
+        type: 'select',
+        options: almacenes
+      }, ...(producto['Caducidad'] === 't' ? [{
+        label: 'Fecha de vencimiento', type: 'date'
+      }, {
+        label: 'Cantidad',
+        type: 'text',
+        validate: (value) => validateAPI.number(value)
+      }] : [{
+        label: 'Cantidad',
+        type: 'text',
+        validate: (value) => validateAPI.number(value)
+      }])]
+
+
+
+      const total = rows.reduce((a, b) => a + b['Cantidad'], 0)
+      return <FullScreenDialog
+        title={`Inventario de ${producto['Nombre']}`}
+        refreshState={() => setInventario(null)}
+        content={<ItemsTemplate
+          header={{
+            title: `Stocks para: ${producto['Nombre']}`,
+            row1LeftLabel: 'Stocks',
+            row1LeftValue: `${numStocks}`,
+            row1RightLabel: 'Almacenes en uso',
+            row1RightValue: `${numAlmacenes}`,
+            row2LeftLabel: 'Descripcion',
+            row2LeftValue: `${producto['Descripcion']}`,
+            row2RightLabel: 'Metodo en uso',
+            row2RightValue: `${producto['Metodo']}`,
+          }}
+          rows={rows}
+          footer={[{ label: 'Total disponible', value: total }]}
+          newLabel='Crear nuevo stock'
+          newIcon={<FcAddDatabase />}
+          newInputs={newInputs}
+          onCreateNew={(newStock) => {
+            // Curar objeto
+            const curated = {
+              'Almacen': Number(newStock['Almacen']),
+              'Cantidad': Number(newStock['Cantidad']),
+              'Producto': Number(producto.id),
+              'Fecha de vencimiento': !!!newStock['Fecha de vencimiento'] ? '' : newStock['Fecha de vencimiento'],
+              'Comprobante': ''
+            }
+            axiosClient.post('/entrada', {entrada: curated})
+              .then(({data})=>{
+                alert('Yeii')
+              })
+              .catch(error=>{
+                console.log(error)
+              })
+          }}
+        />}
+      />
     }
 
     return (
@@ -307,20 +419,29 @@ const Productos = () => {
 
         <div className='CatalogoProductos'>
 
-          <RightDrawer
-            width={'40vw'}
-            open={edit !== null}
-            setOpen={() => setEdit(null)}
-            content={<FormEdit
-              id={edit}
-              setUpdate={setEdit}
-              productos={productos}
-              requestUpdate={requestUpdate}
-              productoEditado={edit!==null ? createEditable() : {}}
-              seleccionables={{ categorias, marcas, unidades_medida, metodos: [{ value: 'peps', label: 'Peps' }, { value: 'ueps', label: 'Ueps' }] }}
+          {edit !== null ?
+            <RightDrawer
+              width={'40vw'}
+              open={edit !== null}
+              setOpen={() => setEdit(null)}
+              content={<FormEdit
+                id={edit}
+                setUpdate={setEdit}
+                productos={productos}
+                requestUpdate={requestUpdate}
+                productoEditado={edit !== null ? createEditable() : {}}
+                seleccionables={{ categorias, marcas, unidades_medida, metodos: [{ value: 'peps', label: 'Peps' }, { value: 'ueps', label: 'Ueps' }] }}
+              />
+              }
             />
-            }
-          />
+            :
+            ''
+          }
+
+
+
+
+
           <RightDrawer width={'100vw'} content={<AddProducto refresh={getProductos} productos={productos} setProductos={setProductos} categorias={categorias} marcas={marcas} unidades_medida={unidades_medida} almacenes={almacenes} setOpen={setFormOpen} />} open={formOpen} />
 
           <div className='catalogo'>

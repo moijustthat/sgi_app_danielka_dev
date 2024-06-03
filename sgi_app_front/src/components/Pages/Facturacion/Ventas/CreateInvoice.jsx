@@ -64,7 +64,8 @@ const CreateInvoice = React.memo((props) => {
         productos,
         categorias,
         marcas,
-        unidades_medida
+        unidades_medida,
+        almacenes
     } = props
 
     const initCliente = {
@@ -89,6 +90,7 @@ const CreateInvoice = React.memo((props) => {
     const initNewDetalle = {
         id: '',
         Cantidad: '',
+        'Inventario': '',
         'Precio de compra': '',
         'Cantidad con descuento': '',
         'Porcentaje de descuento': ''
@@ -149,6 +151,7 @@ const CreateInvoice = React.memo((props) => {
                 .then(({ data }) => {
                     const response = data.data
                     console.log(response)
+                    setOpen(false) // Volver al inicio de Ordenes
                 })       
                 .catch(error=>{
                     const messageErr = error.response.data.messageError
@@ -157,24 +160,9 @@ const CreateInvoice = React.memo((props) => {
           }
     }
 
-    return (
+    if (requestBd) return requestBd
+    else return (
         <div className='container'>
-
-        <FormDialog 
-                    fullScreen={true}
-                    open={requestBd}
-                    setOpen={(close) => {
-                        setRequestBd(close)
-                        setNuevoDetalle({
-                            ...nuevoDetalle,
-                            id: 'new'
-                        })
-                    }}
-                    title='Productos en la base de datos'
-                    content={requestBd ? requestBd : ''}
-                    closeIcon={<Button variant='outlined'>Volver a la factura</Button>}
-            />
-
             <div className={`glass ${listFullSize ? 'fullGlass' : 'partialGlass'}`}>
                 <div className='exit'>
                     <IconButton  onClick={() => setOpen(false)}>
@@ -507,7 +495,7 @@ const CreateInvoice = React.memo((props) => {
                                         })
                                     }
 
-                                    if (dateHelper.isLesserOrEqual(value, dateHelper.getCurrentDate())) {
+                                    if (dateHelper.isLesser(value, dateHelper.getCurrentDate())) {
                                         setErr('Fecha invalida')
                                     } else {
                                         setVenta({
@@ -553,6 +541,9 @@ const CreateInvoice = React.memo((props) => {
                         categorias={categorias}
                         marcas={marcas}
                         unidades_medida={unidades_medida}
+                        almacenes={almacenes}
+                        modelDetalle={initNewDetalle}
+                        setClose={()=>setRequestBd(null)}
                     />)}
                     style={{display: edit ? 'none' : ''}}
                     className={`btnAgregarItem ${!listFullSize ? 'partialBtn' : 'noneBtn'}`}

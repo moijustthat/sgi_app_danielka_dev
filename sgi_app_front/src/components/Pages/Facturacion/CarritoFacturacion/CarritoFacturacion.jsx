@@ -16,6 +16,8 @@ import validateApi from '../../../../utils/textValidation'
 import { addOnList, restOnList, deleteFromList } from '../Helpers/Aritmethics'
 
 const CarritoFacturacion = ({
+    limit=false,
+    tipo,
     onClose,
     listaDetalles = [],
     setListaDetalles = () => null,
@@ -36,7 +38,7 @@ const CarritoFacturacion = ({
     console.log(rollbacks)
 
     const validateInputs = () => {
-        const required = ['Cantidad', 'Precio de compra']
+        const required = ['Cantidad', `Precio de ${tipo==='orden'?'compra':'venta'}`]
         const empty = []
         let rollback = false
 
@@ -112,6 +114,11 @@ const CarritoFacturacion = ({
 
     const onHandleChange = (label, value, index) => {
         setListaDetalles(prev => {
+            if (limit && (label === 'Cantidad' || label === 'Cantidad con descuento')) {
+                const cantidadDisponible = Number(prev[index]['Disponible'])
+                const cantidad = Number(value)
+                if (cantidadDisponible < cantidad) return prev
+            } 
             const updated = [...prev]
             const editable = { ...prev[index] }
             editable[label] = value
@@ -189,22 +196,22 @@ const CarritoFacturacion = ({
                                     }}
                                 />
                                 <Adder
-                                   onPlus={() => addOnList(setListaDetalles, listaDetalles.length, 'Cantidad', detalle.id)}
+                                   onPlus={() => addOnList(setListaDetalles, listaDetalles.length, 'Cantidad', detalle.id, detalle['Disponible'])}
                                    onMinus={() => restOnList(setListaDetalles, listaDetalles.length, 'Cantidad', detalle.id)}
                                 />
                                 <TextField
-                                    incomplete={emptyFields.find(field => field === 'Precio de compra')}
+                                    incomplete={emptyFields.find(field => field === `Precio de ${tipo==='orden'?'compra':'venta'}`)}
                                     label='Precio'
-                                    value={detalle['Precio de compra']}
+                                    value={detalle[`Precio de ${tipo==='orden'?'compra':'venta'}`]}
                                     onChange={(value, setErr, setWarning) => {
                                         if (validateApi.positiveReal(value) && validateApi.priceTruncated(value)) {
-                                            onHandleChange('Precio de compra', value, index)
+                                            onHandleChange(`Precio de ${tipo==='orden'?'compra':'venta'}`, value, index)
                                         }
                                     }}
                                 />
                                 <Adder
-                                    onPlus={() => addOnList(setListaDetalles, listaDetalles.length, 'Precio de compra', detalle.id)}
-                                    onMinus={() => restOnList(setListaDetalles, listaDetalles.length, 'Precio de compra', detalle.id)}
+                                    onPlus={() => addOnList(setListaDetalles, listaDetalles.length, `Precio de ${tipo==='orden'?'compra':'venta'}`, detalle.id)}
+                                    onMinus={() => restOnList(setListaDetalles, listaDetalles.length, `Precio de ${tipo==='orden'?'compra':'venta'}`, detalle.id)}
                                 />
                             </div>
                             <div className='secondaryData s'>
@@ -226,7 +233,7 @@ const CarritoFacturacion = ({
                                     }}
                                 />
                                 <Adder
-                                    onPlus={() => addOnList(setListaDetalles, listaDetalles.length, 'Cantidad con descuento', detalle.id)}
+                                    onPlus={() => addOnList(setListaDetalles, listaDetalles.length, 'Cantidad con descuento', detalle.id, detalle['Disponible'])}
                                     onMinus={() => restOnList(setListaDetalles, listaDetalles.length, 'Cantidad con descuento', detalle.id)}
                                 />
                                 <TextField

@@ -6,8 +6,14 @@ import { LuClipboardCopy } from "react-icons/lu";
 import { LuClipboardPaste } from "react-icons/lu";
 import Entradas from './Entradas/Entradas';
 import Salidas from './Salidas/Salidas';
+import { useStateContext } from '../../../Contexts/ContextProvider';
 
 const Existencias = () => {
+
+  const {getPermisos} = useStateContext()
+    const permisos = getPermisos()
+    console.log(permisos)
+
     return (
       <BasicTabs
           features={[

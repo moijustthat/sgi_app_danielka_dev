@@ -14,7 +14,7 @@ const Login = () => {
   const passwordRef = useRef()
   const rememberRef = useRef()
 
-  const { setUser, setToken } = useStateContext()
+  const { setUser, setToken, setPermisos } = useStateContext()
 
   const onSubmit = (e) => {
     e.preventDefault()
@@ -25,12 +25,21 @@ const Login = () => {
 
     axiosClient.post('/login', payload)
       .then(({data}) => {
+        axiosClient.get(`/permisosDe/${JSON.parse(data.user).cargoId}`)
+          .then(({data})=>{
+            const permisos = data.permisos
+            console.log(permisos)
+            setPermisos(permisos)
+          })  
+          .catch(error=>{
+            console.log(error)
+          })
+
         setUser(data.user)
         setToken(data.token)
       })
       .catch (error => {
-        const response = error.response
-        console.log(response.data);
+        console.log(error);
       })
 
   }

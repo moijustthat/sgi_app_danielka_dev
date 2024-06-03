@@ -44,4 +44,35 @@ class Usuarios extends Authenticatable {
             return JsonHelper::jsonResponse(200, ['data'=>$clientes]);
         }, 'Error al traer todos los clientes');
     }
+
+    public static function getPermisosDe($id) {
+        return HandleDbResponse::handleResponse(function() use ($id) {
+            $permisos = DB::select('select * from Permisos WHERE cargoId = ?', [$id]);
+            return JsonHelper::jsonResponse(200, ['permisos'=>$permisos]);
+        }, 'Error al recuperar los permisos del usuario');
+    }
+
+    public static function getAllPermisos() {
+        return HandleDbResponse::handleResponse(function() {
+            return DB::transaction(function () {
+                // Traer esos datos que van en las tablas y formularios donde aparecen los productos
+                $all = DB::select('select * from Modulos');
+                $administrador = DB::select('select * from vista_permisos_administrador');
+                $controlador = DB::select('select * from vista_permisos_controlador');
+                $vendedor = DB::select('select * from vista_permisos_vendedor');
+                $bodeguero = DB::select('select * from vista_permisos_bodeguero');
+
+                // Agrupamiento de respuestas
+                $permisos = [
+                    'all' => $all,
+                    'administrador' => $administrador,
+                    'controlador' => $controlador,
+                    'vendedor' => $vendedor,
+                    'bodeguero' => $bodeguero
+                ];
+
+                return JsonHelper::jsonResponse(200, ['permisos'=>$permisos]);
+            });
+        }, 'Error al obtener los permisos de los empleados');
+    }
 }

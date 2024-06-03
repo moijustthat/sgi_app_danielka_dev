@@ -1,4 +1,4 @@
-.ordenTemplateWrapper * {
+.ventaTemplateWrapper * {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
@@ -57,14 +57,14 @@ ul li {
     border-bottom: 1px solid rgba(0,0,0,0.1);
 }
 
-.ordenTemplateWrapper {
+.ventaTemplateWrapper {
     min-height: 100vh;
     background-color: #FFF1E0;
     padding-top: 20px;
     padding-bottom: 20px;
 }
 
-.ordenTemplate {
+.ventaTemplate {
     max-width: 850px;
     margin-right: auto;
     margin-left: auto;
@@ -75,81 +75,81 @@ ul li {
     min-height: 920px;
 }
 
-.ordenTemplateHeadTopLeft {
+.ventaTemplateHeadTopLeft {
     display: flex;
 }
 
-.ordenTemplateHeadTopLeft h3 {
+.ventaTemplateHeadTopLeft h3 {
     font-size: 20px;
     color:#3f6970;
     margin-top: 4%;
     margin-left: 1%;
 }
 
-.ordenTemplateHeadTopLeft img{
+.ventaTemplateHeadTopLeft img{
     width: 90px;
 }
 
-.ordenTemplateHeadTopRight h3 {
+.ventaTemplateHeadTopRight h3 {
     font-weight: 500;
     font-size: 27px;
     color: var(--blue-color);
 }
 
-.ordenTemplateHeadMiddle, .ordenTemplateHeadBottom {
+.ventaTemplateHeadMiddle, .ventaTemplateHeadBottom {
     padding: 16px 0;
 }
 
-.ordenTemplateBody {
+.ventaTemplateBody {
     border: 1px solid rgba(0,0,0,0.1);
     border-radius: 4px;
     overflow: hidden;
 }
 
-.ordenTemplateBody table {
+.ventaTemplateBody table {
     border-collapse: collapse;
     border-radius: 4px;
     width: 100%;
 }
 
-.ordenTemplateBody table td,
-.ordenTemplateBody table th {
+.ventaTemplateBody table td,
+.ventaTemplateBody table th {
     padding: 12px;
 }
 
-.ordenTemplateBody table tr {
+.ventaTemplateBody table tr {
     border-bottom: 1px solid rgba(0,0,0,0.1);
 }
 
-.ordenTemplateBody table thead {
+.ventaTemplateBody table thead {
     background-color: rgba(0,0,0,0.02);
 }
 
-.ordenTemplateBodyInfoItem {
+.ventaTemplateBodyInfoItem {
     display: grid;
     grid-template-columns: 80% 20%;
 }
 
-.ordenTemplateBodyInfoItem .infoItemTd {
+.ventaTemplateBodyInfoItem .infoItemTd {
     padding: 12px;
     background: rgba(0,0,0,0.02);
 }
 
-.ordenTemplateFoot {
+.ventaTemplateFoot {
     padding: 30px 0;
 }
 
-.ordenTemplateFoot p {
+.ventaTemplateFoot p {
     font-size: 12px;
 }
 
-.ordenTemplateBtns {
+.ventaTemplateBtns {
     margin-top: 20px;
     display: flex;
     justify-content: center;
 }
 
-.ordenTemplateBtn {
+.ventaTemplateBtn {
     padding: 3px 9px;
     color: var(--dark-color);
     font-family: inherit;
@@ -157,37 +157,37 @@ ul li {
     cursor: pointer;
 }
 
-.ordenTemplateHeadTop,
-.ordenTemplateHeadMiddle,
-.ordenTemplateHeadBottom {
+.ventaTemplateHeadTop,
+.ventaTemplateHeadMiddle,
+.ventaTemplateHeadBottom {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     padding-bottom: 10px;
 }
 
 @media screen and (max-width: 992px) {
-    .ordenTemplate {
+    .ventaTemplate {
         padding: 40px;
     }
 }
 
 @media screen and (max-width: 576px) {
-    .ordenTemplateHeadTop,
-    .ordenTemplateHeadMiddle,
-    .ordenTemplateHeadBottom {
+    .ventaTemplateHeadTop,
+    .ventaTemplateHeadMiddle,
+    .ventaTemplateHeadBottom {
         grid-template-columns: repeat(1, 1fr);
     }
 
-    .ordenTemplateHeadBottomRight {
+    .ventaTemplateHeadBottomRight {
         margin-top: 12px;
         margin-bottom: 12px;
     }
 
-    .ordenTemplate * {
+    .ventaTemplate * {
         text-align: left;
     }
 
-    .ordenTemplate {
+    .ventaTemplate {
         padding: 28px;
     }
 }
@@ -196,7 +196,7 @@ ul li {
     overflow-x: scroll;
 }
 
-.ordenTemplateBody {
+.ventaTemplateBody {
     min-width: 600px;
 }
 
@@ -219,7 +219,7 @@ ul li {
         overflow-x: hidden;
     }
 
-    .ordenTemplateBtns {
+    .ventaTemplateBtns {
         display: none;
     }
 }

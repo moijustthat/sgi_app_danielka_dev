@@ -9,8 +9,8 @@ const CardView = (props) => {
         description,
         img,
         detail1,
-        detail2,
-        detail3,
+        detail2='',
+        detail3='',
         detail4,
         value1,
         value2,
@@ -29,7 +29,10 @@ const CardView = (props) => {
                         <div className="userName">{name}</div>
                         <div className="detail-box">
                             <div className="gitDetail"><span>{detail1}</span>{value1}</div>
+                            <div style={{display: detail2!=='' ? '' : 'none'}} className="gitDetail"><span>{detail2}</span>{value2}</div>
+                            <div style={{display: detail3!=='' ? '' : 'none'}} className="gitDetail"><span>{detail3}</span>{value3}</div>
                         </div>
+
                         {replaceBtn ? <div className="replaceBtn">{replaceBtn}</div> : <button onClick={onBtnClick} style={{display: seeMore ? '' : 'none'}} className="seeMore">{btnText}</button>}
                     </div>
                 </div>

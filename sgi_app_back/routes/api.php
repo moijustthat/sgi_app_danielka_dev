@@ -23,6 +23,8 @@ Route::controller(UsuariosController::class)->group(function () {
         Route::get('/logout', 'logout');
         Route::get('/clientes', 'indexClientes');
         Route::post('/register', 'storeUsuario');
+        Route::get('/permisos', 'indexPermisos');
+        Route::get('/permisosDe/{id}', 'indexPermisosDe');
         //Route::patch('/usuarios/edit/{id}', 'editEmpleado');
 
         //Route::get('/empleados', 'indexEmpleados');
@@ -45,6 +47,7 @@ Route::controller(ProductosController::class)->group(function () {
 Route::controller(AlmacenesController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/almacen', 'insert_almacen');
+        Route::post('/almacen/orden', 'change_orden');
         Route::get('/almacenes', 'indexAlmacenes');
     });
 });
@@ -76,12 +79,15 @@ Route::controller(OrdenesController::class)->group(function () {
 Route::controller(VentasController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/venta', 'insert_venta');
+        Route::get('/ventas', 'indexVentas');
+        Route::get('/venta/{id}', 'indexVenta');
     });
 });
 
 Route::controller(InventarioController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/entradas', 'indexEntradas');
+        Route::get('/inventario/{id}', 'getInventario');
         Route::post('/entrada', 'insert_entrada');
     });
 });

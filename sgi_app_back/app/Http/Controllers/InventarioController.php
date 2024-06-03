@@ -11,6 +11,10 @@ class InventarioController extends Controller
         return Inventario::getAllEntradas();
     }
 
+    public function getInventario($id) {
+        return Inventario::getInventarioProducto($id);
+    }
+
     public function insert_entrada(Request $request) {
         $entrada = $request['entrada'];
         return Inventario::nuevaEntrada($entrada);

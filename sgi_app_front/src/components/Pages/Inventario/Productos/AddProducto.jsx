@@ -91,7 +91,6 @@ const establecerColumnasPersonalizadas = (row) => {
     state.push({label: columna, checked: unchecked.findIndex(u=>u==columna) != -1 ? false : true})
   }
   return state
-  return []
 }
 
 const AddProducto = React.memo((props) => {

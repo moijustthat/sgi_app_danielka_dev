@@ -17,23 +17,36 @@ import { v4, validate } from 'uuid'
 import DBParser from '../../../../utils/DbFieldsConverter'
 import validateAPI from '../../../../utils/textValidation'
 import Resume from '../../../Common/Resume/Resume.'
-import FormDialog from '../../../Common/FormDialog/FormDialog'
 import { UilColumns } from '@iconscout/react-unicons'
 import CheckMenu from '../../../Common/CheckMenu/CheckMenu'
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertDialog from '../../../Common/AlertDialog/AlertDialog'
 import AddEmpleado from './AddEmpleado'
+import { IoSettingsOutline } from "react-icons/io5";
+import FormDialog from '../../../Common/FormDialog/FormDialog'
+import Permisos from './Permisos/Permisos'
 
 import CardView from '../../../Common/CardViews/CardView'
+
+import { useStateContext } from '../../../../Contexts/ContextProvider'
 
 const Clientes = () => {
     const [loading, setLoading] = useState(false)
     const [edit, setEdit] = useState(null)
+    const [all, setAll] = useState(null)
+    const [administrador, setAdministrador] = useState(null)
+    const [controlador, setControlador] = useState(null)
+    const [vendedor, setVendedor] = useState(null)
+    const [bodeguero, setBodeguero] = useState(null)
+    const [permisos, setPermisos] = useState(false)
     const [formOpen, setFormOpen] = useState(false)
     const [desactivar, setDesactivar] = useState(null)
     const [columnas, setColumnas] = useState([])
     const [empleados, setEmpleados] = useState([])
     const [cargos, setCargos] = useState([])
+
+    const {getUser} = useStateContext()
+    const user = getUser()
 
     const generalActions = [
         {
@@ -41,6 +54,13 @@ const Clientes = () => {
             label: 'desactivar-producto/s',
             condition: (numSelected) => numSelected > 0,
             action: (selected) => setDesactivar(selected)
+        },
+        {
+            icon: <IoSettingsOutline />,
+            label: 'permisos',
+            condition: () => user.cargoId === 135,
+            action: () => setPermisos(true)
+            
         },
         {
             icon: <UilPlus />,
@@ -70,6 +90,41 @@ const Clientes = () => {
             action: (i) => alert('Ver detalles '+i)
         }
     ]
+
+    const getPermisos = async () => {
+        setLoading(true)
+        axiosClient.get('/permisos')
+            .then(({data}) => {
+                const permisos = data.permisos
+                setAll(permisos.all)
+
+                // Crear checks
+                for (let permiso of permisos.administrador) {
+                    permiso.check = true
+                }
+                setAdministrador(permisos.administrador)
+
+                for (let permiso of permisos.controlador) {
+                    permiso.check = true
+                }
+                setControlador(permisos.controlador)
+
+                for (let permiso of permisos.vendedor) {
+                    permiso.check = true
+                }
+                setVendedor(permisos.vendedor)
+
+                for (let permiso of permisos.bodeguero) {
+                    permiso.check = true
+                }
+                setBodeguero(permisos.bodeguero)
+                setLoading(false)
+            })
+            .catch((e) => {
+                console.log('Error en la respuesta: '+e);
+                setLoading(false)
+            }) 
+    }
 
     const getCargos = async () => {
         setLoading(true)
@@ -112,6 +167,7 @@ const Clientes = () => {
 
     useEffect(() => {
         getCargos()
+        getPermisos()
     }, [])
 
     if (loading) {
@@ -124,7 +180,7 @@ const Clientes = () => {
                   color: '#6AD096'
                 }}/>
       }
-
+    
     return  <>
 
                 <RightDrawer 
@@ -136,6 +192,23 @@ const Clientes = () => {
                             setOpen={setFormOpen}
                         />}
                     />
+
+                <FormDialog 
+                    open={permisos}
+                    setOpen={()=>setPermisos(false)}
+                    content={<Permisos
+                            all={all}
+                            setAll={setAll}
+                            administrador={administrador}
+                            setAdministrador={setAdministrador}
+                            controlador={controlador}
+                            setControlador={setControlador}
+                            vendedor={vendedor}
+                            setVendedor={setVendedor}
+                            bodeguero={bodeguero}
+                            setBodeguero={setBodeguero}
+                         />}
+                />
 
                 <div className='CatalogoProductos'>
                     <div className='catalogo'>

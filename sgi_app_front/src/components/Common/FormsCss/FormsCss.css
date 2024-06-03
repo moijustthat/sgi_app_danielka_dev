@@ -6,10 +6,7 @@
         #f3c6f1 90.85%
       );
       font-family: "Inter", sans-serif;
-    width: 100%;
-
 }
-
 
 .formCarritoRight {
     position: relative;
@@ -18,9 +15,6 @@
     border-top-right-radius: 7px;
     top: 8%;
     margin-left: 0;
-    overflow: hidden;
-    background-color: var(--glass);
-    height: 100%;
     padding: 20px;
 }
 

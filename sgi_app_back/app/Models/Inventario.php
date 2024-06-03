@@ -20,6 +20,13 @@ class Inventario extends Model
 
     public $timestamps = false;
 
+    public static function getInventarioProducto($id) {
+        return HandleDbResponse::handleResponse(function() use ($id){
+            $inventario = DB::select('select * from vw_inventario where productoId = ?', [$id]);
+            return JsonHelper::jsonResponse(200, ['inventario'=>$inventario]);
+        }, 'Error al traer el inventario');
+    }
+
     public static function getAllEntradas() {
         return HandleDbResponse::handleResponse(function() {
             $entradas = DB::select('select * from vw_entradas');
@@ -31,10 +38,10 @@ class Inventario extends Model
         return HandleDbResponse::handleResponse(function () use ($entrada) {
             $nuevoStock = array();
             array_push($nuevoStock,
-            $entrada['Producto'],
-            $entrada['Almacen'],
-            $entrada['Cantidad'],
-            $entrada['Comprobante'] && $entrada['Comprobante'] !== '' ? $entrada['Comprobante'] : NULL,
+            intval($entrada['Producto']),
+            intval($entrada['Almacen']),
+            intval($entrada['Cantidad']),
+            $entrada['Comprobante'] && $entrada['Comprobante'] !== '' ? intval($entrada['Comprobante']) : NULL,
             $entrada['Fecha de vencimiento'] && $entrada['Fecha de vencimiento'] !== '' ? $entrada['Fecha de vencimiento'] : NULL,
         );
         DB::select('CALL pa_nuevo_stock(?,?,?,?,?,@stock)', $nuevoStock);

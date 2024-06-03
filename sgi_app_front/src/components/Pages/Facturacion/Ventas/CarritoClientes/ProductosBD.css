@@ -1,0 +1,89 @@
+.containerCategory {
+    position: relative;
+    width: 90%;
+}
+
+.containerCategory::-webkit-scrollbar {
+    display: none;
+}
+
+.headerCategory {
+    display: flex;
+    flex-direction: row; /* Alinea los elementos horizontalmente */
+    align-items: center;
+    position: fixed;
+    z-index: 1000;
+    width: 100%;
+    background-color: #FDF7F0;
+    font-family: 'Inter';
+    font-size: 13px;
+    color: #364152;
+    font-weight: 500;
+    padding-bottom: 1%;
+}
+
+.logoCarrito {
+    display: flex;
+    height: 5rem;
+    font-weight: bold;
+    font-size: 18px;
+    gap: 1rem;
+    margin-left: 1rem;
+    align-items: center;
+    justify-content: center;
+    height: 4%;
+}
+
+.logoCarrito>img {
+    width: 3rem;
+    height: 3rem;
+}
+
+.filterSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.searchFields {
+    display: flex;
+    margin-left: 5%;
+}
+
+.searchField {
+    display: flex;
+    flex-direction: column;
+}
+
+.menuFields {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.menuField {
+    display: flex;
+    align-items:flex-end;
+}
+
+.rightSideFactura {
+    margin-left: auto;
+}
+
+.contentWrapper {
+    padding-top: 90px; /* Ajusta este valor según la altura de .headerCategory */
+    padding-left: 2.5%;
+}
+
+.galleryCategory {
+    display: flex;
+    flex-wrap: wrap;
+    width: 110%;
+    gap: 1rem;
+    margin-top: 2rem; /* Añade margen superior si es necesario */
+}
+
+.infoProducto {
+    display: flex;
+    flex-direction: column;
+}

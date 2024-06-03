@@ -8,12 +8,13 @@ export const deleteFromList = (setList, cantidad, key) => {
     }
 }
 
-export const addOnList = (setList, cantidad, label, key) => {
+export const addOnList = (setList, cantidad, label, key, limit=null) => {
     if (cantidad > 0) {
         setList(prev=>{
             const copyPrev = [...prev]
             const index = prev.findIndex(p=>String(p.id)===String(key))
             const item = {...prev[index]}
+            if (Number(item[label]) >= Number(limit)) return prev
             item[label]++
             copyPrev[index] = item
             return copyPrev

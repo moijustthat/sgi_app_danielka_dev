@@ -83,7 +83,7 @@ const init = {
                 'activo': 't'
             }
 
-            axiosClient.post('register', {...newUser})
+            axiosClient.post('/register', {...newUser})
                 .then(({ data }) => {
                     console.log(data)
                 })

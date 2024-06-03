@@ -41,7 +41,6 @@ const ProductosBD = (props) => {
         marcas = [],
         unidades_medida = [],
         modelDetalle = {},
-        selectProducto = () => null,
         setListaDetalles = () => null,
         setClose = () => null
     } = props
@@ -77,9 +76,6 @@ const ProductosBD = (props) => {
         }
         setBothLists(prev => ([newDetalle, ...prev]))
     }
-
-
-    if (productos.length === 0) return <h1>No tienes productos</h1>
 
     const productosFiltrados = (
         productos
@@ -205,6 +201,7 @@ const ProductosBD = (props) => {
             width={'40vw'}
             open={openFactura}
             content={<CarritoFacturacion
+                tipo='orden'
                 onClose={() => setOpenFactura(false)}
                 listaDetalles={lista}
                 setListaDetalles={setBothLists}
@@ -215,8 +212,7 @@ const ProductosBD = (props) => {
         />
         <div className='contentWrapper'>
             <div className='galleryCategory'>
-
-                {productosFiltrados.length > 0 ? productosFiltrados : <h1>No hay productos con los filtros proporcionados</h1>}
+                {productos.length === 0 ? <h1>No tienes productos en tu catalogo</h1> : productosFiltrados.length > 0 ? productosFiltrados : <h1>No hay productos con los filtros proporcionados</h1>}
             </div>
         </div>
     </div>)
