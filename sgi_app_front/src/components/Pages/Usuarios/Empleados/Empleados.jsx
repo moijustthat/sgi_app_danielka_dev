@@ -100,22 +100,22 @@ const Clientes = () => {
 
                 // Crear checks
                 for (let permiso of permisos.administrador) {
-                    permiso.check = true
+                    permiso.check = permiso.estado === 't' ? true : false
                 }
                 setAdministrador(permisos.administrador)
 
                 for (let permiso of permisos.controlador) {
-                    permiso.check = true
+                    permiso.check = permiso.estado === 't' ? true : false
                 }
                 setControlador(permisos.controlador)
 
                 for (let permiso of permisos.vendedor) {
-                    permiso.check = true
+                    permiso.check = permiso.estado === 't' ? true : false
                 }
                 setVendedor(permisos.vendedor)
 
                 for (let permiso of permisos.bodeguero) {
-                    permiso.check = true
+                    permiso.check = permiso.estado === 't' ? true : false
                 }
                 setBodeguero(permisos.bodeguero)
                 setLoading(false)

@@ -106,7 +106,7 @@ const ItemsTemplate = ({
                                             </>)
                                         })}
                                         <tr>
-                                            <td style={{display: newItem ? 'none' : ''}} >
+                                            <td style={{display: newLabel !== 'blocked' && newItem ? 'none' : ''}} >
                                                 <button 
                                                     type='button' 
                                                     className='itemTemplateBtn'

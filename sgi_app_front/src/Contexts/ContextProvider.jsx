@@ -1,8 +1,8 @@
 import { createContext, useContext, useState } from "react"
-
 import { usersInfo } from '../Data/EmpleadosInfo'
-
 import axiosClient from "../axios-client"
+
+import { isJSON } from "../utils/JsonHelper"
 
 const StateContext = createContext({
     permisos: null,
@@ -25,8 +25,14 @@ export const ContextProvider = ({children}) => {
     const [permisos, _setPermisos] = useState(localStorage.getItem('USER_PERMISOS'))
 
     const getPermisos = () => {
-        console.log(permisos)
-        if (permisos) return JSON.parse(permisos)
+        console.log(isJSON(permisos))
+        if (permisos) {
+            try {
+                return JSON.parse(permisos)
+            } catch(e) {
+                return permisos
+            }
+        }
         return 'No hay permisos en la sesion'
     }
 

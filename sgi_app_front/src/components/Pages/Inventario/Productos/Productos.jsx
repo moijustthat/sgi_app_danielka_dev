@@ -88,6 +88,15 @@ const Productos = () => {
   const permisos = getPermisos()
   console.log(permisos)
 
+  const permisoCrearProductos =  permisos.find(p=>p.moduloId == 14) && permisos.find(p=>p.moduloId == 14).estado === 't' ? true : false 
+  const permisoLeerProductos =  permisos.find(p=>p.moduloId == 15) && permisos.find(p=>p.moduloId == 15).estado === 't' ? true : false 
+  const permisoActualizarProductos =  permisos.find(p=>p.moduloId == 16) && permisos.find(p=>p.moduloId == 16).estado === 't' ? true : false 
+  const permisoEliminarProductos =  permisos.find(p=>p.moduloId == 17) && permisos.find(p=>p.moduloId == 17).estado === 't' ? true : false 
+  const permisoAgregarStockProductos =  permisos.find(p=>p.moduloId == 18) && permisos.find(p=>p.moduloId == 18).estado === 't' ? true : false 
+  const permisoLeerStockProductos =  permisos.find(p=>p.moduloId == 20) && permisos.find(p=>p.moduloId == 20).estado === 't' ? true : false 
+  
+
+
   const [loading, setLoading] = useState(false)
 
   const [edit, setEdit] = useState(null)
@@ -149,13 +158,13 @@ const Productos = () => {
     {
       icon: <FaTrashCan />,
       label: 'desactivar-producto/s',
-      condition: (numSelected) => numSelected > 0,
+      condition: (numSelected) => numSelected > 0 && permisoEliminarProductos,
       action: (selected) => setDesactivar(selected)
     },
     {
       icon: <UilPlus />,
       label: 'Nuevos productos',
-      condition: () => true,
+      condition: () => permisoCrearProductos,
       action: () => setFormOpen(true)
     },
     {
@@ -167,7 +176,7 @@ const Productos = () => {
     {
       icon: <CheckMenu columns={columnas} setColumns={setColumnas} icon={<UilColumns />} />,
       label: '',
-      condition: () => true,
+      condition: () => permisoLeerProductos,
       action: () => null
     }
   ]
@@ -177,14 +186,15 @@ const Productos = () => {
       label: 'Editar',
       icon: <UilEdit />,
       action: (id) => {
-        setEdit(id)
+      permisoActualizarProductos ? setEdit(id) : alert('No tienes permisos para actualizar los productos')
       }
     },
     {
       label: 'Añadir inventario',
       icon: <HiOutlineViewGridAdd />,
       action: (id) => {
-        axiosClient.get(`/inventario/${id}`)
+        if (permisoLeerStockProductos) {
+          axiosClient.get(`/inventario/${id}`)
           .then(({ data }) => {
             const inventario = data.inventario
             setInventario({ productoId: id, inventario: inventario })
@@ -193,6 +203,9 @@ const Productos = () => {
           .catch(error => {
             console.log(error)
           })
+        } else {
+          alert('No tienes permisos para agregar stock de productos')
+        }
       }
     }
   ]
@@ -362,7 +375,7 @@ const Productos = () => {
           }}
           rows={rows}
           footer={[{ label: 'Total disponible', value: total }]}
-          newLabel='Crear nuevo stock'
+          newLabel={permisoAgregarStockProductos ? 'Crear nuevo stock' : 'blocked'}
           newIcon={<FcAddDatabase />}
           newInputs={newInputs}
           onCreateNew={(newStock) => {

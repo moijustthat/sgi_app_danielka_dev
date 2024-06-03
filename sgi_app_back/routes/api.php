@@ -25,6 +25,7 @@ Route::controller(UsuariosController::class)->group(function () {
         Route::post('/register', 'storeUsuario');
         Route::get('/permisos', 'indexPermisos');
         Route::get('/permisosDe/{id}', 'indexPermisosDe');
+        Route::post('/permisosUpdate', 'updatePermisos');
         //Route::patch('/usuarios/edit/{id}', 'editEmpleado');
 
         //Route::get('/empleados', 'indexEmpleados');

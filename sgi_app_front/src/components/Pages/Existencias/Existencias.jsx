@@ -12,24 +12,27 @@ const Existencias = () => {
 
   const {getPermisos} = useStateContext()
     const permisos = getPermisos()
-    console.log(permisos)
+
+    const permisoBodega =  permisos.find(p=>p.moduloId == 21) && permisos.find(p=>p.moduloId == 21).estado === 't' ? true : false 
+    const permisoSalida =  permisos.find(p=>p.moduloId == 23) && permisos.find(p=>p.moduloId == 23).estado === 't' ? true : false 
+
 
     return (
       <BasicTabs
           features={[
               {
                 label: 'Entradas',
-                component: <Entradas />,
+                component: permisoBodega ? <Entradas /> : <h2>No tienes permisos para usar este modulo</h2>,
                 icon: <LuClipboardCopy />
               },
               {
                 label: 'Salidas',
-                component: <Salidas />,
+                component: permisoSalida ? <Salidas /> : <h2>No tienes permisos para usar este modulo</h2>,
                 icon: <LuClipboardPaste />
               },
               {
                   label: 'Almacenes',
-                  component: <Almacenes />,
+                  component: permisoBodega ? <Almacenes /> : <h2>No tienes permisos para usar este modulo</h2>,
                   icon: <MdOutlineWarehouse />
               }
           ]}

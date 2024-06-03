@@ -20,7 +20,9 @@ const Ventas = () => {
 
     const {getPermisos} = useStateContext()
     const permisos = getPermisos()
-    console.log(permisos)
+
+    const permisoCrearVentas = permisos.find(p=>p.moduloId == 8) && permisos.find(p=>p.moduloId == 8).estado === 't' ? true : false 
+    const permisoLeerVentas = permisos.find(p=>p.moduloId == 9) && permisos.find(p=>p.moduloId == 9).estado === 't' ? true : false
 
     const [loading, setLoading] = useState(false)
     const [openForm, setFormOpen] = useState(false)
@@ -106,7 +108,7 @@ const Ventas = () => {
         {
             icon: <UilInvoice />,
             label: 'Nueva Orden',
-            condition: () => true,
+            condition: () => permisoCrearVentas,
             action: () => setFormOpen(true)
         }
     ]
@@ -235,8 +237,8 @@ const Ventas = () => {
                 <div className='ventas'>
                     <Table 
                         pagination={false}
-                        rows={colorStates(ventas)}
-                        empty={<CardView type='shopping' text='Aqui veras las ventas que tus clientes realizan!'   style={{
+                        rows={permisoLeerVentas ? colorStates(ventas) : []}
+                        empty={<CardView type='shopping' text={permisoCrearVentas ? 'Aqui veras las ventas que tus clientes realizan!' : 'No tienes permisos para este modulo 😔'}   style={{
                             marginLeft: '35%',
                             width: '30%',
                             height: '100%'

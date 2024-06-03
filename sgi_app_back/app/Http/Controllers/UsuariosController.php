@@ -104,6 +104,13 @@ class UsuariosController extends Controller
         return Usuarios::getPermisosDe($id);
     }
 
+    public function updatePermisos(Request $request) {
+        $cargoId = $request['cargoId'];
+        $moduloId = $request['moduloId'];
+        $estado = $request['estado'];
+        return Usuarios::updatePermisos($cargoId, $moduloId, $estado);
+    }
+
     /*
     public function indexEmpleados() {
         try {

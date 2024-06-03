@@ -7,19 +7,17 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import Checkbox from '@mui/material/Checkbox';
 
+
 export default function CheckBoxTable({
     state,
-    setState
+    setState,
+    label = 'Asignar responsabilidades',
+    footer = 'Ten cuidado con los cambios que hagas!'
 }) {
-
 
     const handleChange = (event) => {
         const index = event.target.name;
-        setState(prev => {
-            const copy = [...prev];
-            copy[index].check = !!!copy[index].check;
-            return copy;
-        });
+        setState(index);
     };
 
     // Divide the state into three columns
@@ -37,24 +35,27 @@ export default function CheckBoxTable({
     return (
         <Box sx={{ display: 'flex' }}>
             <FormControl sx={{ m: 3, flex: 1 }} component="fieldset" variant="standard">
-                <FormLabel component="legend">Assign responsibility</FormLabel>
+                <FormLabel component="legend">{label}</FormLabel>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     {columns.map((column, colIndex) => (
                         <FormGroup key={colIndex} sx={{ flex: 1, mx: 4 }}> {/* Increased horizontal margin */}
-                            {column.map((permision, index) => (
-                                <FormControlLabel
-                                    key={index}
-                                    control={
-                                        <Checkbox checked={permision.check} onChange={handleChange} name={index.toString()} />
-                                    }
-                                    label={permision.nombre}
-                                    sx={{ my: 1 }} // Increased vertical margin
-                                />
-                            ))}
+                            {column.map((permision, index) => {
+                                const globalIndex = colIndex * Math.ceil(state.length / 3) + index;
+                                return (
+                                    <FormControlLabel
+                                        key={globalIndex}
+                                        control={
+                                            <Checkbox checked={permision.check} onChange={handleChange} name={globalIndex.toString()} />
+                                        }
+                                        label={permision.nombre}
+                                        sx={{ my: 1 }} // Increased vertical margin
+                                    />
+                                );
+                            })}
                         </FormGroup>
                     ))}
                 </Box>
-                <FormHelperText>Be careful</FormHelperText>
+                <FormHelperText>{footer}</FormHelperText>
             </FormControl>
         </Box>
     );

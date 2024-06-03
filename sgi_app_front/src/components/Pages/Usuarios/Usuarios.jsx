@@ -9,19 +9,23 @@ const Usuarios = () => {
 
   const {getPermisos} = useStateContext()
     const permisos = getPermisos()
-    console.log(permisos)
+    const permisoClientes =  permisos.find(p=>p.moduloId == 29) && permisos.find(p=>p.moduloId == 29).estado === 't' ? true : false 
+    const permisoEmpleados =  permisos.find(p=>p.moduloId == 25) && permisos.find(p=>p.moduloId == 25).estado === 't' ? true : false 
+
+
+
 
   return (
     <BasicTabs
         features={[
             {
                 label: 'Clientes',
-                component: <Clientes />,
+                component: permisoClientes ? <Clientes /> : <h2>No tienes permisos para usar este modulo</h2>,
                 icon: <AiOutlineProduct />
             },
             {
                 label: 'Empleados',
-                component: <Empleados />,
+                component: permisoEmpleados ? <Empleados /> : <h2>No tienes permisos para usar este modulo</h2>,
                 icon: <AiOutlineProduct />
             }
         ]}

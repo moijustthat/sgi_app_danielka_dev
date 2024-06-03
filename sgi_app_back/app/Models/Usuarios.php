@@ -75,4 +75,11 @@ class Usuarios extends Authenticatable {
             });
         }, 'Error al obtener los permisos de los empleados');
     }
+
+    public static function updatePermisos($cargoId, $moduloId, $estado) {
+        return HandleDbResponse::handleResponse(function() use ($cargoId, $moduloId, $estado) {
+            DB::select('UPDATE Permisos SET estado = ? WHERE cargoId = ? AND moduloId = ?', [$estado, $cargoId, $moduloId]);
+            return JsonHelper::jsonResponse(200, ['message'=>'Permiso actualizado']);
+        }, 'Error al tratar de actualizar el permiso');
+    }
 }
