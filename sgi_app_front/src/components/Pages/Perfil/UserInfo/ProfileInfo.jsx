@@ -1,15 +1,19 @@
-import React from "react";
+import React, {useState} from "react";
 import { useStateContext } from "../../../../Contexts/ContextProvider";
 import "./ProfileInfo.css";
 import { IconInfo } from "../Icons/Icons";
 import EmailIcon from "@mui/icons-material/Email";
-import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
+import { FaBabyCarriage } from "react-icons/fa";
 import { Avatar } from "@mui/material";
 import logo from '../../../../imgs/noimg.avif'
+import { calcularEdad } from "../../../../utils/DatesHelper";
 
 const UserInfo = () => {
   const { getUser } = useStateContext();
   const user = getUser();
+
+
+
   console.log(user)
   return (
     <>
@@ -19,7 +23,6 @@ const UserInfo = () => {
         <div className="infoContent">
           <img
             src={!!!user.img || user.img === '' || user.img === 'data:image/jpeg;base64,'? logo : user.img}
-            alt={`Usuario: ${user.nombre}`}
             className="avatarPerfil"
           />{" "}
           {/*Image usuario*/}
@@ -37,9 +40,9 @@ const UserInfo = () => {
             userInfo={user.email}
           />
           <IconInfo
-            icon={<LocalPhoneIcon />}
-            nombreInfo="Telefono"
-            userInfo={user.email}
+            icon={<FaBabyCarriage />}
+            nombreInfo="Edad"
+            userInfo={calcularEdad(user.fechaNacimiento)}
           />
         </div>
       </div>

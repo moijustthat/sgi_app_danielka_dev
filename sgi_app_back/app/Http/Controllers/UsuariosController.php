@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use \stdClass;
 use Validator;
+use App\Lib\ImgProccessor;
 
 class UsuariosController extends Controller
 {
@@ -50,7 +51,7 @@ class UsuariosController extends Controller
                         'fechaNacimiento' => $usuario->fechaNacimiento,
                         'cargoId' => $usuario->cargoId,
                         'email' => $usuario->email,
-                        'img' => 'data:image/jpeg;base64,'.base64_encode($usuario->img)
+                        'img' => $usuario->img//'data:image/jpeg;base64,'.base64_encode($usuario->img)
                     ],
                     'token' => $accessToken
                 ];
@@ -109,6 +110,35 @@ class UsuariosController extends Controller
         $moduloId = $request['moduloId'];
         $estado = $request['estado'];
         return Usuarios::updatePermisos($cargoId, $moduloId, $estado);
+    }
+
+    public function changeUserData(Request $request) {
+        $usuarioId = $request['userId'];
+        $nombre = $request['nombre'];
+        $correo = $request['correo'];
+        $img = $request['img'];
+
+        try {
+            // Buscar el usuario (cargo tiene que ser diferente a cliente(14))
+            $usuario = Usuarios::where('usuarioId', $usuarioId)
+            ->where('cargoId', '!=', 14)
+            ->firstOrFail();
+
+            // verificar si existe algun empleado con el email dado
+            if (is_null($usuario)) {
+                return JsonHelper::jsonResponse(400, ['error' => 'Usuario: ' . $request->Nombre . ' no existe en la base de datos']);
+            }
+
+        
+            $usuario->update([
+                'Nombre' => $nombre && $nombre !== '' ? $nombre : $usuario->Nombre,
+                'email' => $correo && $correo !== '' ? $correo : $usuario->email,
+                'img' =>  $img && $img !== '' ? $img : $usuario->img
+            ]);
+
+        } catch(\Exception $e) {
+            return JsonHelper::jsonResponse(400, ['error' => 'Error del servidor al buscar el usuario' . $e->getMessage()]);
+        } 
     }
 
     public function changeUserPassword(Request $request) {
