@@ -92,6 +92,9 @@ Route::controller(OrdenesController::class)->group(function () {
         Route::get('/ordenes', 'indexOrdenes');
         Route::get('/orden/{id}', 'indexOrden');
         Route::post('/abono/orden', 'abonoOrden');
+        Route::post('/cancelar/orden', 'cancelarOrden');
+        Route::post('/activar/orden', 'activarOrden');
+        Route::get('/abonos/orden/{id}', 'abonosOrden');
     });
 });
 

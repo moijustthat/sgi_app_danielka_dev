@@ -11,7 +11,7 @@ const Notification = (props) => {
         const id = setInterval(() => {
             setWidth(prev => {
                 if (prev < 100) return prev + 0.5
-   
+
                 return prev
             })
         }, 20)
@@ -28,17 +28,21 @@ const Notification = (props) => {
             })
         }, 50)
     }
-    
+
     useEffect(() => {
         handleStartTimer()
     }, [])
 
     return (
         <div onClick={handleClose} className={`notificationItem ${toShow} ${props.type}`}>
-            <span>{props.icon}</span>
-            <p className='title'>{props.title}</p>
-            <p className='message'>{props.message}</p>
-            <div className='bar' style={{width: `${width}%`}}></div>
+            <div className='notificationItemWrapper'>
+                <span>{props.icon}</span>
+                <div className='notificationItemMessage'>
+                    <p className='title'>{props.title}</p>
+                    <p className='message'>{props.message}</p>
+                </div>
+            </div>
+            <div className='bar' style={{ width: `${width}%` }}></div>
         </div>
     )
 }

@@ -358,7 +358,7 @@ const CreateInvoice = React.memo((props) => {
 
             <FormDialog 
                 open={abonar!==null}
-                setOpen={setAbonar}
+                setOpen={()=> {setAbonar(null); refresh(); setOpen(false)}}
                 title={`Abonar a la orden N°${abonar!==null?abonar.id:''}`}
                 content={<Abonos 
                     factura={abonar!==null?abonar:''}

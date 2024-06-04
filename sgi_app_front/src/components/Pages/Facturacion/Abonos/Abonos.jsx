@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import { Grid } from '@mui/material'
 import { TextField } from '../../../Common/AwesomeFields/AwesomeFields'
 import {Button} from '@mui/material'
@@ -7,12 +7,17 @@ import { handleDoubleCostValidation } from '../../../../utils/Searching'
 import validateApi from '../../../../utils/textValidation'
 import './Abonos.css'
 import axiosClient from '../../../../axios-client'
+import { v4 } from 'uuid'
+import { GiTakeMyMoney } from "react-icons/gi";
+import { NotificationContext } from '../../../Notifications/NotificationProvider'
 
 const Abonos = ({
     factura,
     tipo,
     close
 }) => {
+
+    const dispatch = useContext(NotificationContext)
 
     const [monto, setMonto] = useState('')
     const [pagado, setPagado] = useState('')
@@ -42,7 +47,17 @@ const Abonos = ({
             axiosClient.post(`/abono/${tipo}`, payload)
                 .then(({data})=>{
                     const response = data.message
-                    alert(response)
+                    dispatch({
+                        type: 'ADD_NOTIFICATION',
+                        payload: {
+                          id: v4(),
+                          type: 'success',
+                          title: 'Abono',
+                          icon: <GiTakeMyMoney />,
+                          message: 'Abono realizado con exito'
+                        }
+                      })
+                      close()
                 })
                 .catch(error=>{
                     console.log(error)

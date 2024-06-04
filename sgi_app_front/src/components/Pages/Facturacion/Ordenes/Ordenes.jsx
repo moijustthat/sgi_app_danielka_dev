@@ -7,6 +7,7 @@ import CreateInvoice from './CreateInvoice'
 import CircularProgress from '../../../Common/CircularProgess/CircularProgress'
 import axiosClient from '../../../../axios-client'
 import CardView from '../../../Common/CardViews/CardView'
+import FormDialog from '../../../Common/FormDialog/FormDialog'
 import { getOrdenes } from '../LoadData/LoadData'
 import { UilTimes } from '@iconscout/react-unicons'
 import { AiOutlineDollarCircle } from "react-icons/ai";
@@ -16,7 +17,10 @@ import { FaRegEdit } from "react-icons/fa";
 import { colorStates, colorStatesEntrega } from '../../../../utils/HandleTable'
 import { colorMoney, colorCommas } from '../../../../utils/HandleTable'
 import { useStateContext } from '../../../../Contexts/ContextProvider'
-import { MdForklift } from "react-icons/md";
+import { FaTruck } from "react-icons/fa";
+import AlertDialog from '../../../Common/AlertDialog/AlertDialog'
+import FormOrden from './FormOrden'
+
 // Pa generar el pdf
 import { renderToString } from 'react-dom/server'
 import { jsPDF } from 'jspdf'
@@ -29,10 +33,10 @@ import { filterColumns } from '../../../../utils/HandleTable'
 //FaRegEye
 const Ordenes = () => {
 
-    const {getPermisos} = useStateContext()
+    const { getPermisos } = useStateContext()
     const permisos = getPermisos()
-    const permisoCrearOrdenes = permisos.find(p=>p.moduloId == 2) && permisos.find(p=>p.moduloId == 2).estado === 't' ? true : false 
-    const permisoLeerOrdenes = permisos.find(p=>p.moduloId == 3) && permisos.find(p=>p.moduloId == 3).estado === 't' ? true : false
+    const permisoCrearOrdenes = permisos.find(p => p.moduloId == 2) && permisos.find(p => p.moduloId == 2).estado === 't' ? true : false
+    const permisoLeerOrdenes = permisos.find(p => p.moduloId == 3) && permisos.find(p => p.moduloId == 3).estado === 't' ? true : false
 
     const [loading, setLoading] = useState(false)
     const [openForm, setFormOpen] = useState(false)
@@ -44,29 +48,47 @@ const Ordenes = () => {
     const [categorias, setCategorias] = useState([])
     const [marcas, setMarcas] = useState([])
     const [unidades_medida, setUnidadesMedida] = useState([])
-    const [currentOrden, setCurrentOrden] = useState({id: null, detalles: null})
+    const [currentOrden, setCurrentOrden] = useState({ id: null, detalles: null })
     const [openDetails, setOpenDetails] = useState(false)
     const [details, setDetails] = useState(null)
+    const [edit, setEdit] = useState(null)
+    const [cancelar, setCancelar] = useState(null)
+    const [activar, setActivar] = useState(null)
+
+    const showAbonos = (id) => {
+        axiosClient.get(`/abonos/orden/${id}`)
+            .then(({data})=> {
+                const abonos = data.abonos
+                console.log(abonos)
+            })
+            .catch(error=>{
+                console.log(error)
+            })
+    }
 
     const showDetails = (id) => {
         if (currentOrden.id !== id) {
             axiosClient.get(`/orden/${id}`)
-            .then(({ data }) => {
-                const orden = ordenes.find(o=>o.id===id)
-                const detalles = data.orden
-                console.log(detalles)
-                setCurrentOrden({id: id, detalles: detalles})
-                const factura = <OrdenTemplate orden={orden} detalles={detalles}/>
-                setDetails(factura)
-                setOpenDetails(true)
-            })
-            .catch(error => {
-                console.log(error)
-            })
+                .then(({ data }) => {
+                    const orden = ordenes.find(o => o.id === id)
+                    const detalles = data.orden
+                    console.log(detalles)
+                    setCurrentOrden({ id: id, detalles: detalles })
+                    const factura = <OrdenTemplate
+                        orden={orden}
+                        detalles={detalles}
+                        actions={false}
+                    />
+                    setDetails(factura)
+                    setOpenDetails(true)
+                })
+                .catch(error => {
+                    console.log(error)
+                })
         } else {
-            const orden = ordenes.find(o=>o.id===currentOrden.id)
+            const orden = ordenes.find(o => o.id === currentOrden.id)
             const detalles = currentOrden.detalles
-            const factura = <OrdenTemplate orden={orden} detalles={detalles}/>
+            const factura = <OrdenTemplate orden={orden} detalles={detalles} />
             setDetails(factura)
             setOpenDetails(true)
         }
@@ -75,41 +97,41 @@ const Ordenes = () => {
     const generateOrdenPDF = (id) => {
         if (currentOrden.id !== id) {
             axiosClient.get(`/orden/${id}`)
-            .then(({ data }) => {
-                const orden = ordenes.find(o=>o.id===id)
-                const detalles = data.orden
-                setCurrentOrden({id: id, detalles: detalles})
-                console.log(orden)
-                console.log(detalles)
-                /*const factura = renderToString(<OrdenTemplate orden={orden} detalles={detalles}/>)
-                const doc = new jsPDF()
-                doc.save(factura, {
-                    callback: function (pdf) {
-                        pdf.output('dataurlnewwindow')
-                    },
-                    x: 1,
-                    y: 1
-                })*/
-            })
-            .catch(error => {
-                console.log(error)
-            })
+                .then(({ data }) => {
+                    const orden = ordenes.find(o => o.id === id)
+                    const detalles = data.orden
+                    setCurrentOrden({ id: id, detalles: detalles })
+                    console.log(orden)
+                    console.log(detalles)
+                    /*const factura = renderToString(<OrdenTemplate orden={orden} detalles={detalles}/>)
+                    const doc = new jsPDF()
+                    doc.save(factura, {
+                        callback: function (pdf) {
+                            pdf.output('dataurlnewwindow')
+                        },
+                        x: 1,
+                        y: 1
+                    })*/
+                })
+                .catch(error => {
+                    console.log(error)
+                })
         } else {
-                alert('memo')
-                const orden = ordenes.find(o=>o.id===currentOrden.id)
-                const detalles = currentOrden.detalles
-                setCurrentOrden({id: id, detalles: detalles})
-                console.log(orden)
-                console.log(detalles)
-                /*const factura = renderToString(<OrdenTemplate orden={orden} detalles={detalles}/>)
-                const doc = new jsPDF()
-                doc.save(factura, {
-                    callback: function (pdf) {
-                        pdf.output('dataurlnewwindow')
-                    },
-                    x: 1,
-                    y: 1
-                })*/
+            alert('memo')
+            const orden = ordenes.find(o => o.id === currentOrden.id)
+            const detalles = currentOrden.detalles
+            setCurrentOrden({ id: id, detalles: detalles })
+            console.log(orden)
+            console.log(detalles)
+            /*const factura = renderToString(<OrdenTemplate orden={orden} detalles={detalles}/>)
+            const doc = new jsPDF()
+            doc.save(factura, {
+                callback: function (pdf) {
+                    pdf.output('dataurlnewwindow')
+                },
+                x: 1,
+                y: 1
+            })*/
         }
 
     }
@@ -131,13 +153,13 @@ const Ordenes = () => {
         },
         {
             label: 'Recibir orden',
-            icon: <MdForklift />,
+            icon: <FaTruck />,
             action: (id) => alert('La orden ya llego!!')
         },
         {
             label: 'Abonar',
             icon: <AiOutlineDollarCircle />,
-            action: (id) => alert('Abonar')
+            action: (id) => showAbonos(id)
         }
     ]
 
@@ -217,11 +239,64 @@ const Ordenes = () => {
     if (loading) return <CircularProgress />
     else if (openDetails) return (<FullScreenDialog
         content={details}
-        refreshState={()=>setOpenDetails(false)}
+        refreshState={() => setOpenDetails(false)}
     />)
     else return (
         <>
             <div className='ListaOrdenes'>
+
+                <FormDialog
+                    open={edit !== null}
+                    setOpen={setEdit}
+                    title='Estado de la orden'
+                    content={<FormOrden id={edit} close={() => setEdit(null)} />}
+                />
+
+
+                <AlertDialog
+                    open={cancelar ? true : false}
+                    title='Cancelar orden?'
+                    contentText={cancelar ? `Seguro deseas cancelar esta orden?` : ''}
+                    cancelText='No cancelar'
+                    acceptText='Cancelar'
+                    acceptAction={() => {
+                        const payload = { id: cancelar }
+                        axiosClient.post('/cancelar/orden', payload)
+                            .then(({ data }) => {
+                                const response = data.message
+                                alert(response)
+                                setCancelar(null)
+                                getOrdenes(setLoading, setOrdenes)
+                            })
+                            .catch(error => {
+                                console.log(error)
+                            })
+                    }}
+                    cancelAction={() => setCancelar(null)}
+                />
+
+                <AlertDialog
+                    open={activar ? true : false}
+                    title='Restituir orden'
+                    contentText={activar ? `Seguro deseas volver a activar esta orden?` : ''}
+                    cancelText='Cancelar'
+                    acceptText='Aceptar'
+                    acceptAction={() => {
+                        const payload = { id: activar }
+                        axiosClient.post('/activar/orden', payload)
+                            .then(({ data }) => {
+                                const response = data.message
+                                alert(response)
+                                setActivar(null)
+                                getOrdenes(setLoading, setOrdenes)
+                            })
+                            .catch(error => {
+                                console.log(error)
+                            })
+                    }}
+                    cancelAction={() => setActivar(null)}
+                />
+
 
                 <RightDrawer
                     width={'100vw'}
@@ -241,7 +316,7 @@ const Ordenes = () => {
                     <Table
                         pagination={true}
                         dense={true}
-                        rows={permisoLeerOrdenes ? filterColumns(colorStatesEntrega(colorStates(colorMoney(colorCommas(ordenes, ['Subtotal','Descuento','Cargos por mora','Total', 'Pagado', 'Debido']), ['Subtotal','Descuento','Cargos por mora','Total', 'Pagado', 'Debido']))), ['Fecha emision']) : []}
+                        rows={permisoLeerOrdenes ? filterColumns(colorStatesEntrega((id)=>{}, colorStates((id) => setCancelar(id), (id) => setActivar(id), colorMoney(colorCommas(ordenes, ['Subtotal', 'Descuento', 'Cargos por mora', 'Total', 'Pagado', 'Debido']), ['Subtotal', 'Descuento', 'Cargos por mora', 'Total', 'Pagado', 'Debido']))), ['Fecha emision']) : []}
                         empty={<CardView type='shopping' text={permisoLeerOrdenes ? 'Realiza compras a tus proveedores para llenar tu inventario' : 'No tienes permisos para este modulo 😔'} style={{
                             marginLeft: '35%',
                             width: '30%',
@@ -249,7 +324,7 @@ const Ordenes = () => {
                         }} />}
                         generalActions={generalActions}
                         actions={actions}
-                        
+
                     />
                 </div>
 

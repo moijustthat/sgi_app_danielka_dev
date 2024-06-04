@@ -469,9 +469,12 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
         {pagination ? (
           <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
+        
+          labelDisplayedRows={function defaultLabelDisplayedRows({ from, to, count }) { return `${from}-${to} de ${count !== -1 ? count : `Mas de ${to}`}`; }}
           component="div"
           count={rows.length}
           rowsPerPage={rowsPerPage}
+          labelRowsPerPage='Registros por página'
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}

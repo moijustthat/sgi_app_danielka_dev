@@ -92,7 +92,7 @@ export const colorActive = (table, desactive, active) => {
     return coloredTable
 }
 
-export const colorStatesEntrega = (table) => {
+export const colorStatesEntrega = (actionEsperando, table) => {
     const coloredTable = []
     if (table.length > 0) {
         for (let row of table) {
@@ -100,6 +100,12 @@ export const colorStatesEntrega = (table) => {
             switch (row['Estado entrega']) {
                 case 'Esperando':
                     coloredRow['Estado entrega'] = <div 
+
+                    onClick={(e)=>{
+                        e.stopPropagation()
+                        actionEsperando(row.id)
+                    }}
+
                     style={{
                         textAlign: 'center',
                         background: '#FCC309',
@@ -145,7 +151,7 @@ export const colorStatesEntrega = (table) => {
     return coloredTable
 }
 
-export const colorStates = (table) => {
+export const colorStates = (actionPendiente=()=>{}, actionCancelada=()=>{},table) => {
     const coloredTable = []
     if (table.length > 0) {
         for (let row of table) {
@@ -153,6 +159,12 @@ export const colorStates = (table) => {
             switch (row['Estado']) {
                 case 'pendiente':
                     coloredRow['Estado'] = <div 
+
+                    onClick={(e)=>{
+                        e.stopPropagation()
+                        actionPendiente(row.id)
+                    }}
+
                     style={{
                         textAlign: 'center',
                         background: '#F1C418',
@@ -178,7 +190,7 @@ export const colorStates = (table) => {
                     coloredRow['Estado'] = <div 
                     onClick={(e)=>{
                         e.stopPropagation()
-                        alert('Cancelada: '+row.id)
+                        actionCancelada(row.id)
                     }}
                     
                     style={{

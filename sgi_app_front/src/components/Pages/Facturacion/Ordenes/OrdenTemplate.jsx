@@ -18,7 +18,8 @@ const OrdenTemplate = ({ orden,
     deleteItem = (i) => { },
     updateItem = (i) => { },
     setItem = () => { },
-    edit = null
+    edit = null,
+    actions=true
 }) => {
 
     const [cantidad, setCantidad] = useState('')
@@ -73,7 +74,7 @@ const OrdenTemplate = ({ orden,
                                 <table>
                                     <thead>
                                         <tr>
-                                            <td></td>
+                                            {actions ? <td></td> : null}
                                             <td className='textBold'>Producto</td>
                                             <td className='textBold'>Cantidad</td>
                                             <td className='textBold'>Precio unitario</td>
@@ -158,7 +159,7 @@ const OrdenTemplate = ({ orden,
                                                 </tr>
                                             } else {
                                                 return <tr key={index}>
-                                                    <td>
+                                                    {actions ? <td>
                                                         <ButtonGroup color="secondary" aria-label="Medium-sized button group">
                                                             <IconButton onClick={() => deleteItem(index)}>
                                                                 <MdDelete />
@@ -167,7 +168,7 @@ const OrdenTemplate = ({ orden,
                                                                 <FaEdit />
                                                             </IconButton>
                                                         </ButtonGroup>
-                                                    </td>
+                                                    </td> : null}
                                                     <td>{detalle['Producto']}</td>
                                                     <td>{formatearNumeroConComas(detalle['Cantidad'])}</td>
                                                     <td>C$ {formatearNumeroConComas((parseFloat(detalle['Precio']) / 1.15).toFixed(2))}</td>
