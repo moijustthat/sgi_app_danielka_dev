@@ -104,8 +104,16 @@ class Ordenes extends Model
                     );
                     DB::select('CALL pa_nuevo_detalle_orden(?,?,?,?,?,?,?)', $nuevoDetalle);
                 }   
-                
+                $ordenVw = DB::select('select * from vw_ordenes WHERE id=?',[$ordenId]);
+                return JsonHelper::jsonResponse(200, ['orden'=>$ordenVw]);
             });
         }, 'Error al crear la  nueva orden');
+    }
+
+    public static function abonar($ordenId, $abono) {
+        return HandleDbResponse::handleResponse(function() use ($ordenId, $abono){
+            $orden = DB::select('CALL pa_abono_orden(?,?)', [$ordenId, $abono]);
+            return JsonHelper::jsonResponse(200, ['message'=>'Abono realizado con exito']);
+        }, 'Error al abonar a la orden');
     }
 }

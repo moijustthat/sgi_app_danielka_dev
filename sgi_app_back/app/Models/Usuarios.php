@@ -45,6 +45,20 @@ class Usuarios extends Authenticatable {
         }, 'Error al traer todos los clientes');
     }
 
+    public static function getAllClientesComerciales() {
+        return HandleDbResponse::handleResponse(function() {
+            $clientes = DB::select('select * from vw_clientes_comerciales');
+            return JsonHelper::jsonResponse(200, ['clientes'=>$clientes]);
+        }, 'Error al traer todos los clientes comerciales');
+    }
+
+    public static function getAllClientesMayoristas() {
+        return HandleDbResponse::handleResponse(function() {
+            $clientes = DB::select('select * from vw_clientes_mayoristas');
+            return JsonHelper::jsonResponse(200, ['clientes'=>$clientes]);
+        }, 'Error al traer todos los clientes mayoristas');
+    }
+
     public static function getPermisosDe($id) {
         return HandleDbResponse::handleResponse(function() use ($id) {
             $permisos = DB::select('select * from Permisos WHERE cargoId = ?', [$id]);
@@ -81,5 +95,12 @@ class Usuarios extends Authenticatable {
             DB::select('UPDATE Permisos SET estado = ? WHERE cargoId = ? AND moduloId = ?', [$estado, $cargoId, $moduloId]);
             return JsonHelper::jsonResponse(200, ['message'=>'Permiso actualizado']);
         }, 'Error al tratar de actualizar el permiso');
+    }
+
+    public static function getAllEmpleados() {
+        return HandleDbResponse::handleResponse(function() {
+            $empleados = DB::select('select * from vw_empleados');
+            return JsonHelper::jsonResponse(200, ['empleados'=>$empleados]);
+        }, 'Error al traer a todos los empleados');
     }
 }

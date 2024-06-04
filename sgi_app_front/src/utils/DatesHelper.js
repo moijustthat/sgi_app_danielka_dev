@@ -1,3 +1,23 @@
+export function diferenciaEnMeses(fechaInicio, fechaFin) {
+    // Convertir las fechas a objetos Date
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFin);
+
+    // Calcular la diferencia en años y meses
+    const anios = fin.getFullYear() - inicio.getFullYear();
+    const meses = fin.getMonth() - inicio.getMonth();
+
+    // Calcular la diferencia total en meses
+    let diferenciaTotal = anios * 12 + meses;
+
+    // Ajustar por los días
+    if (fin.getDate() < inicio.getDate()) {
+        diferenciaTotal -= 1;
+    }
+
+    return diferenciaTotal;
+}
+
 export function calcularEdad(fechaNacimiento) {
     const hoy = new Date();
     const fechaNac = new Date(fechaNacimiento);

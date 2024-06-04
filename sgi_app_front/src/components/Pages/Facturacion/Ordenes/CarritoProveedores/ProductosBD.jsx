@@ -61,7 +61,7 @@ const ProductosBD = (props) => {
         setListaDetalles(callback) // Añadir a la lista global
     }
 
-    
+    console.log(productos)
 
     const addItem = (producto) => {
         console.log(producto)
@@ -114,6 +114,8 @@ const ProductosBD = (props) => {
                     img={info['Imagen']}
                     detail1='Precio al publico'
                     value1={'C$' + info['Precio de venta']}
+                    detail2='Disponible en stock'
+                    value2={info['Disponible']}
                     btnText='+ Agregar'
                     onBtnClick={() => addItem(info)}
                     replaceBtn={cantidad > 0 ?

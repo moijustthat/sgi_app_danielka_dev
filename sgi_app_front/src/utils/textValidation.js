@@ -1,6 +1,15 @@
+export function validarFormatoConComas(cadena) {
+    // Expresión regular para validar el formato numérico con comas
+    const regex = /^(\d{1,3})(,\d{3})*(\.\d+)?$/;
+
+    // Comprobamos si la cadena coincide con la expresión regular
+    return regex.test(cadena);
+}
+
 export function formatearNumeroConComas(cadena) {
     // Convertimos la cadena a un número flotante
     let numero = parseFloat(cadena);
+    
     
     // Aseguramos que el número sea válido
     if (isNaN(numero)) {
@@ -36,10 +45,9 @@ const validateApi = {
     name: (input) => /^[^\~\`\!@\#\$\%\^\&\*\(\)_\+=\-\/\*\-\+\.\/\{\}\\\<\>\:\'\|]*$/.test(input),
 
     positiveReal: (input) => {
-        if (input == '-') return false;
-        if (input == '') return true
-        if (input == '0') return false;
-        return /^(?:(?:0\\d*[1-9]\d*|[1-9]\d*(?:\.\d*)?)|\.\d*[1-9]\d*|null|\b)$/.test(input)
+        if (input == '-' || input == '.' || input == '0') return true;
+        if (input == '') return true;
+        return /^(0|([1-9]\d*))(\.\d*)?$/.test(input);
     },
 
     priceTruncated: (input) => {

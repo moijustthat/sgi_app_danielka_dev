@@ -7,6 +7,7 @@ import { Button } from '@mui/material';
 
 const AlertDialog = ({
   open=false,
+  title='',
   contentText,
   cancelText='Cancelar',
   acceptText = 'Aceptar',
@@ -21,7 +22,7 @@ const AlertDialog = ({
     aria-describedby="alert-dialog-description"
   >
   <DialogTitle id="alert-dialog-title">
-    {"Cerrar Sesion?"}
+    {title}
   </DialogTitle>
   <DialogContent>
     <DialogContentText id="alert-dialog-description">

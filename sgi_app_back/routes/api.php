@@ -22,7 +22,16 @@ Route::controller(UsuariosController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/logout', 'logout');
         Route::get('/clientes', 'indexClientes');
+        Route::get('/empleados', 'indexEmpleados');
+        Route::get('/clientes/mayoristas', 'indexMayoristas');
+        Route::get('/clientes/comerciales', 'indexComerciales');
+        Route::get('/clientes/mayoristas', 'indexMayoristas');
         Route::post('/register', 'storeUsuario');
+        Route::post('/empleado', 'updateEmpleado');
+        Route::post('/desactivate-empleado', 'desactivateEmpleado');
+        Route::post('/activate-empleado', 'activateEmpleado');
+        Route::post('cliente/mayorista', 'updateClienteMayorista');
+        Route::post('/cliente/comercial', 'updateClienteComercial');
         Route::get('/permisos', 'indexPermisos');
         Route::get('/permisosDe/{id}', 'indexPermisosDe');
         Route::post('/permisosUpdate', 'updatePermisos');
@@ -82,6 +91,7 @@ Route::controller(OrdenesController::class)->group(function () {
         Route::post('/orden', 'insert_orden');
         Route::get('/ordenes', 'indexOrdenes');
         Route::get('/orden/{id}', 'indexOrden');
+        Route::post('/abono/orden', 'abonoOrden');
     });
 });
 

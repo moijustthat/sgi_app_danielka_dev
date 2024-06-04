@@ -328,8 +328,7 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
         <EnhancedTableToolbar setSearchText={setSearchText} generalActions={generalActions} setSelected={setSelected} selected={selected} numSelected={selected.length} />
         <TableContainer
           style={{
-            height: '100vh',
-            maxHeight: 'calc(100vh - 100px)',
+            height: 'auto',
             overflowY: 'auto',
             width: '99%',
             maxWidth: '100%',
@@ -360,7 +359,7 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
         rowCount={rows.length}
       />
       <TableBody>
-        {rows
+        {visibleRows
           .filter(row => {
             const keys = Object.keys(row);
             for (let key of keys) {
@@ -469,14 +468,14 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
         </TableContainer>
         {pagination ? (
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
         ) :
           rows.length > 0 ? footer : ''
         }

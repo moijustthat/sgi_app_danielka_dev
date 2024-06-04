@@ -6,7 +6,7 @@
     font-size: 14px;
     color: var(--dark-color);
 }
-
+/* hidden */
 :root {
     --blue-color: #2f4858;
     --dark-color: #535B61;
@@ -103,7 +103,8 @@ ul li {
 .ordenTemplateBody {
     border: 1px solid rgba(0,0,0,0.1);
     border-radius: 4px;
-    overflow: hidden;
+    overflow-x: scroll;
+    overflow-y: scroll;
 }
 
 .ordenTemplateBody table {

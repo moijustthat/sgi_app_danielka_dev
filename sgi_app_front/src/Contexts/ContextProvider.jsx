@@ -47,7 +47,6 @@ export const ContextProvider = ({children}) => {
     }
 
     const getUser = () => {
-        console.log(user)
         if (user) return JSON.parse(user)
         return 'No hay usuario en la sesion'
     }

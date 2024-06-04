@@ -23,8 +23,12 @@ import CheckMenu from '../../../Common/CheckMenu/CheckMenu'
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertDialog from '../../../Common/AlertDialog/AlertDialog'
 import AddCliente from './AddCliente'
-
+import { IoPeopleOutline } from "react-icons/io5";
+import { FaPeopleRoof } from "react-icons/fa6";
+import { colorMoney, colorCommas, colorNullToZero } from '../../../../utils/HandleTable'
 import CardView from '../../../Common/CardViews/CardView'
+import FormMayoristas from './FormMayoristas'
+import FormComerciales from './FormComerciales'
 
 const Clientes = () => {
     const [loading, setLoading] = useState(false)
@@ -33,6 +37,12 @@ const Clientes = () => {
     const [desactivar, setDesactivar] = useState(null)
     const [columnas, setColumnas] = useState([])
     const [clientes, setClientes] = useState([])
+    const [clientesComerciales, setClientesComerciales] = useState([])
+    const [clientesMayoristas, setClientesMayoristas] = useState([])
+    const [tipos, setTipos] = useState({
+        comerciales: true,
+        mayoristas: false
+    })
 
     const generalActions = [
         {
@@ -48,10 +58,28 @@ const Clientes = () => {
             action: () => setFormOpen(true)
         },
         {
-            icon: <UilFilter />,
-            label: 'Filtrar producos',
+            icon: <IoPeopleOutline />,
+            label: 'Clientes comerciales',
             condition: () => true,
-            action: () => alert('Filtrar Productos  ')
+            action: () => setTipos({
+                mayoristas: false,
+                comerciales: true
+            })
+        },
+        {
+            icon: <FaPeopleRoof />,
+            label: 'Clientes mayoristas',
+            condition: () => true,
+            action: () => setTipos({
+                mayoristas: true,
+                comerciales: false
+            })
+        },
+        {
+            icon: <h5>{tipos.mayoristas ? 'Mayoristas' : 'Comerciales'}</h5>,
+            label: 'Tipos de clientes',
+            condition: () => true,
+            action: () => null
         }
     ]
     
@@ -62,13 +90,38 @@ const Clientes = () => {
             action: (id) => {
               setEdit(id)
             }
-        },
-        {
-            label: 'Ver detalles',
-            icon: <UilEye />,
-            action: (i) => alert('Ver detalles '+i)
         }
     ]
+
+    const getClientesComerciales = async () => {
+        setLoading(true)
+        axiosClient.get('/clientes/comerciales')
+            .then(({data})=>{
+                const clientesComerciales = data.clientes
+                console.log(clientesComerciales)
+                setClientesComerciales(clientesComerciales)
+                setLoading(false)
+            })
+            .catch(error=>{
+                console.log(error)
+                setLoading(false)
+            })
+    }
+
+    const getClientesMayoristas = async () => {
+        setLoading(true)
+        axiosClient.get('/clientes/mayoristas')
+            .then(({data})=>{
+                const clientesMayoristas = data.clientes
+                console.log(clientesMayoristas)
+                setClientesMayoristas(clientesMayoristas)
+                setLoading(false)
+            })
+            .catch(error=>{
+                console.log(error)
+                setLoading(false)
+            })
+    }
 
     const getClientes = async () => {
         setLoading(true)
@@ -93,7 +146,9 @@ const Clientes = () => {
     }
 
     useEffect(() => {
-        //getClientes()
+        getClientes()
+        getClientesComerciales()
+        getClientesMayoristas()
     }, [])
 
     if (loading) {
@@ -108,6 +163,13 @@ const Clientes = () => {
       }
 
     return  <>
+
+                    <FormDialog 
+                        open={edit!==null}
+                        setOpen={setEdit}
+                        title='Editar cliente'
+                        content={tipos.mayoristas ? <FormMayoristas id={edit} close={()=>setEdit(null)}/> : <FormComerciales id={edit} close={()=>setEdit(null)}/>}
+                    />
 
                     <RightDrawer 
                     width={'30vw'} 
@@ -132,7 +194,7 @@ const Clientes = () => {
                             generalActions={generalActions}
                             actions={actions}
                             setEdit={setEdit}
-                            rows={clientes}
+                            rows={tipos.mayoristas ? colorMoney(colorCommas(colorNullToZero(clientesMayoristas, ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido']) : colorMoney(colorCommas(colorNullToZero(clientesComerciales, ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido'])}
                             setRows={setClientes}
                         />
                     </div>

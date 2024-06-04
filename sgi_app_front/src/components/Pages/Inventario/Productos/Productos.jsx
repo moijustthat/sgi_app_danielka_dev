@@ -460,7 +460,7 @@ const Productos = () => {
           <div className='catalogo'>
             <Table
               dense={true}
-              pagination={false}
+              pagination={true}
               empty={<CardView type='box' style={{
                 marginLeft: '35%',
                 width: '30%',
@@ -471,26 +471,6 @@ const Productos = () => {
               setEdit={setEdit}
               rows={configTable(formatTable(productos, [{ value: 't', label: 'Activo' }, { value: 'f', label: 'Inactivo' }], [{ value: 'peps', label: 'Peps' }, { value: 'ueps', label: 'Ueps' }], categorias, marcas, unidades_medida), columnas)}
               setRows={setProductos}
-              footer={<Resume
-                dataSet={productos}
-                calcs={[
-
-                  (dataSet) => {
-                    const total = dataSet.reduce((a, b) => a + Number(b['Total']), 0)
-                    return <div style={{ display: 'flex' }}>
-                      <p>Total de existencias en stock: {total}</p>
-                    </div>
-                  },
-
-                  (dataSet) => {
-                    const totalDisponible = dataSet.reduce((a, b) => a + Number(b['Disponible']), 0) // Suma de todas las existencias disponibles fisicamente
-                    return <div style={{ display: 'flex' }}>
-                      <p>Total de existencias fisicas: {totalDisponible}</p>
-                    </div>
-                  },
-
-                ]}
-              />}
             />
           </div>
         </div>

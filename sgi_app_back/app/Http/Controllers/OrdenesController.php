@@ -24,4 +24,10 @@ class OrdenesController extends Controller
 
         return Ordenes::nueva_orden($proveedor, $orden, $detalles, $usuario);
     }
+
+    public function abonoOrden(Request $request) {
+        $ordenId = $request['facturaId'];
+        $abono = floatVal($request['abono']);
+        Ordenes::abonar($ordenId, $abono);
+    }
 }

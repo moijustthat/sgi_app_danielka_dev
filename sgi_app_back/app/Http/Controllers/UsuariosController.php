@@ -17,6 +17,14 @@ class UsuariosController extends Controller
         return Usuarios::getAllClientes();
     }
 
+    public function indexComerciales() {
+        return Usuarios::getAllClientesComerciales();
+    }
+
+    public function indexMayoristas() {
+        return Usuarios::getAllClientesMayoristas();
+    }
+
     public function loginUsuario(Request $request) {
         // Validar si los campos estan llenos
         $camposRequeridos = ['email', 'password'];
@@ -43,6 +51,10 @@ class UsuariosController extends Controller
                 // Tokens para el permiso de la api(Ver despues, pero indispensable para la subida a produccion)
                 $accessToken = $usuario->createToken('auth_token')->plainTextToken;
                
+                if ($usuario->activo === 'f') {
+                    return JsonHelper::jsonResponse(400, ['error' => 'Emplead@: ' . $usuario->Nombre.' '.$usuario->Apellido. ' ha sido desactivad@ del sistema.']);
+                }
+
                 $data = [
                     'user' => [
                         'usuarioId' => $usuario->usuarioId,
@@ -170,6 +182,153 @@ class UsuariosController extends Controller
             return JsonHelper::jsonResponse(400, ['error' => 'Error del servidor al buscar el usuario' . $e->getMessage()]);
         } 
 
+    }
+
+    public function updateClienteComercial(Request $request) {
+        $clienteId = $request['id'];
+        $fields = ['Nombre', 'Apellido', 'email', 'Telefono', 'direccion'];
+
+        try {
+            // Buscar el usuario (cargo tiene que ser diferente a cliente(14))
+            $cliente = Usuarios::where('usuarioId', $clienteId)
+                                ->where('cargoId', 14)
+                                ->firstOrFail();
+
+            // verificar si existe algun empleado con el email dado
+            if (is_null($cliente)) {
+                return JsonHelper::jsonResponse(400, ['error' => 'Cliente: ' . $request->Nombre . ' no existe en la base de datos']);
+            }
+
+            foreach ($fields as $field) {
+                if ($request[$field] && $request[$field] !== '') {
+                    $cliente->update([
+                        $field => $request[$field]
+                    ]);
+                }
+            }
+
+            return JsonHelper::jsonResponse(200, ['message' => 'Cliente actualizado con exito']);
+
+        } catch(\Exception $e) {
+            return JsonHelper::jsonResponse(400, ['error' => 'Error del servidor al buscar al cliente' . $e->getMessage()]);
+        } 
+    }
+
+    public function updateClienteMayorista(Request $request) {
+        $clienteId = $request['id'];
+        $fields = ['Nombre', 'Apellido', 'email', 'Telefono', 'fechaNacimiento', 'numeroRut', 'direccion'];
+
+        try {
+            // Buscar el usuario (cargo tiene que ser diferente a cliente(14))
+            $cliente = Usuarios::where('usuarioId', $clienteId)
+                                ->where('cargoId', 14)
+                                ->firstOrFail();
+
+            // verificar si existe algun empleado con el email dado
+            if (is_null($cliente)) {
+                return JsonHelper::jsonResponse(400, ['error' => 'Cliente: ' . $request->Nombre . ' no existe en la base de datos']);
+            }
+
+            foreach ($fields as $field) {
+                if ($request[$field] && $request[$field] !== '') {
+                    $cliente->update([
+                        $field => $request[$field]
+                    ]);
+                }
+            }
+
+            return JsonHelper::jsonResponse(200, ['message' => 'Cliente actualizado con exito']);
+
+        } catch(\Exception $e) {
+            return JsonHelper::jsonResponse(400, ['error' => 'Error del servidor al buscar al cliente' . $e->getMessage()]);
+        } 
+
+    }
+
+    public function updateEmpleado(Request $request) {
+        $clienteId = $request['id'];
+        $fields = ['Nombre', 'Apellido', 'email', 'Telefono', 'fechaNacimiento'];
+
+        try {
+            // Buscar el usuario (cargo tiene que ser diferente a cliente(14))
+            $cliente = Usuarios::where('usuarioId', $clienteId)
+                                ->where('cargoId', '!=', 14)
+                                ->firstOrFail();
+
+            // verificar si existe algun empleado con el email dado
+            if (is_null($cliente)) {
+                return JsonHelper::jsonResponse(400, ['error' => 'Empleado: ' . $request->Nombre . ' no existe en la base de datos']);
+            }
+
+            foreach ($fields as $field) {
+                if ($request[$field] && $request[$field] !== '') {
+                    $cliente->update([
+                        $field => $request[$field]
+                    ]);
+                }
+            }
+
+            return JsonHelper::jsonResponse(200, ['message' => 'Empleado actualizado con exito']);
+
+        } catch(\Exception $e) {
+            return JsonHelper::jsonResponse(400, ['error' => 'Error del servidor al buscar al empleado' . $e->getMessage()]);
+        } 
+
+    }
+
+
+    public function activateEmpleado(Request $request) {
+        $empleadoId = $request['id'];
+
+        try {
+            // Buscar el usuario (cargo tiene que ser diferente a cliente(14))
+            $empleado = Usuarios::where('usuarioId', $empleadoId)
+            ->where('cargoId', '!=', 14)
+            ->firstOrFail();
+
+            // verificar si existe algun empleado con el email dado
+            if (is_null($empleado)) {
+                return JsonHelper::jsonResponse(400, ['error' => 'Empleado: ' . $request->Nombre . ' no existe en la base de datos']);
+            }
+
+            $empleado->update([
+                'activo' => 't'
+            ]);
+
+            return JsonHelper::jsonResponse(200, ['message' => 'Empleado activado con exito']);
+
+        } catch(\Exception $e) {
+            return JsonHelper::jsonResponse(400, ['error' => 'Error del servidor al activar al empleado' . $e->getMessage()]);
+        }
+    }
+
+    public function desactivateEmpleado(Request $request) {
+        $empleadoId = $request['id'];
+
+        try {
+            // Buscar el usuario (cargo tiene que ser diferente a cliente(14))
+            $empleado = Usuarios::where('usuarioId', $empleadoId)
+            ->where('cargoId', '!=', 14)
+            ->firstOrFail();
+
+            // verificar si existe algun empleado con el email dado
+            if (is_null($empleado)) {
+                return JsonHelper::jsonResponse(400, ['error' => 'Empleado: ' . $request->Nombre . ' no existe en la base de datos']);
+            }
+
+            $empleado->update([
+                'activo' => 'f'
+            ]);
+
+            return JsonHelper::jsonResponse(200, ['message' => 'Empleado desactivado con exito']);
+
+        } catch(\Exception $e) {
+            return JsonHelper::jsonResponse(400, ['error' => 'Error del servidor al desactivar al empleado' . $e->getMessage()]);
+        }
+    }
+
+    public function indexEmpleados() {
+        return Usuarios::getAllEmpleados();
     }
 
     /*

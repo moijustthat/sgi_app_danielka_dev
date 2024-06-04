@@ -13,16 +13,18 @@ import { AiOutlineDollarCircle } from "react-icons/ai";
 import { AiTwotonePrinter } from "react-icons/ai";
 import { UilEye } from '@iconscout/react-unicons';
 import { FaRegEdit } from "react-icons/fa";
-import { colorStates } from '../../../../utils/HandleTable'
-
+import { colorStates, colorStatesEntrega } from '../../../../utils/HandleTable'
+import { colorMoney, colorCommas } from '../../../../utils/HandleTable'
 import { useStateContext } from '../../../../Contexts/ContextProvider'
-
+import { MdForklift } from "react-icons/md";
 // Pa generar el pdf
 import { renderToString } from 'react-dom/server'
 import { jsPDF } from 'jspdf'
 import html2pdf from 'html2pdf.js'
 import OrdenTemplate from './OrdenTemplate'
 import FullScreenDialog from '../../../FullDialog/FullDialog'
+
+import { filterColumns } from '../../../../utils/HandleTable'
 
 //FaRegEye
 const Ordenes = () => {
@@ -52,6 +54,7 @@ const Ordenes = () => {
             .then(({ data }) => {
                 const orden = ordenes.find(o=>o.id===id)
                 const detalles = data.orden
+                console.log(detalles)
                 setCurrentOrden({id: id, detalles: detalles})
                 const factura = <OrdenTemplate orden={orden} detalles={detalles}/>
                 setDetails(factura)
@@ -127,9 +130,9 @@ const Ordenes = () => {
             action: (id) => showDetails(id)
         },
         {
-            label: 'Imprimir',
-            icon: <AiTwotonePrinter />,
-            action: (id) => generateOrdenPDF(id)
+            label: 'Recibir orden',
+            icon: <MdForklift />,
+            action: (id) => alert('La orden ya llego!!')
         },
         {
             label: 'Abonar',
@@ -236,8 +239,9 @@ const Ordenes = () => {
                     open={openForm} />
                 <div className='ordenes'>
                     <Table
-                        pagination={false}
-                        rows={permisoLeerOrdenes ? colorStates(ordenes) : []}
+                        pagination={true}
+                        dense={true}
+                        rows={permisoLeerOrdenes ? filterColumns(colorStatesEntrega(colorStates(colorMoney(colorCommas(ordenes, ['Subtotal','Descuento','Cargos por mora','Total', 'Pagado', 'Debido']), ['Subtotal','Descuento','Cargos por mora','Total', 'Pagado', 'Debido']))), ['Fecha emision']) : []}
                         empty={<CardView type='shopping' text={permisoLeerOrdenes ? 'Realiza compras a tus proveedores para llenar tu inventario' : 'No tienes permisos para este modulo 😔'} style={{
                             marginLeft: '35%',
                             width: '30%',
@@ -245,6 +249,7 @@ const Ordenes = () => {
                         }} />}
                         generalActions={generalActions}
                         actions={actions}
+                        
                     />
                 </div>
 

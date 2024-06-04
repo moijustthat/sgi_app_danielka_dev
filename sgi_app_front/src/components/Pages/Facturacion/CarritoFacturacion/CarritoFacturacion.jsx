@@ -35,7 +35,7 @@ const CarritoFacturacion = ({
         'Porcentaje de descuento': []
     })
 
-    console.log(rollbacks)
+   
 
     const validateInputs = () => {
         const required = ['Cantidad', `Precio de ${tipo==='orden'?'compra':'venta'}`]
@@ -158,9 +158,8 @@ const CarritoFacturacion = ({
                         nombre = productos.find(p => String(p.value) === String(detalle.id)).info['Nombre']
                         imagen = productos.find(p => String(p.value) === String(detalle.id)).info['Imagen']
                     } else {
-                        nombre = detalle['Nombre']
+                        nombre = detalle['Nombre'] + ' (Nuevo!)'
                         imagen = detalle['Imagen']
-                        console.log(imagen)
                     }
                     return <div className='itemRight'>
                         <div className='infoItem'>

@@ -8,7 +8,7 @@ import CircularProgress from '../../../Common/CircularProgess/CircularProgress'
 import axiosClient from '../../../../axios-client'
 import CardView from '../../../Common/CardViews/CardView'
 import {ordenarPorAtributo} from '../../../../utils/Ordenamiento'
-import { colorStates } from '../../../../utils/HandleTable'
+import { colorStates, colorMoney, colorCommas, colorNullToZero } from '../../../../utils/HandleTable'
 import { getVentas } from '../LoadData/LoadData'
 import { AiOutlineDollarCircle } from "react-icons/ai";
 import { AiTwotonePrinter } from "react-icons/ai";
@@ -236,13 +236,14 @@ const Ventas = () => {
                     open={openForm}/>
                 <div className='ventas'>
                     <Table 
-                        pagination={false}
-                        rows={permisoLeerVentas ? colorStates(ventas) : []}
+                        pagination={false} 
+                        rows={permisoLeerVentas ? colorStates(colorMoney(colorCommas(colorNullToZero(ventas, ['Total', 'Pagado', 'Debido']), ['Total', 'Pagado', 'Debido']), ['Total', 'Pagado', 'Debido'])) : []}
                         empty={<CardView type='shopping' text={permisoCrearVentas ? 'Aqui veras las ventas que tus clientes realizan!' : 'No tienes permisos para este modulo 😔'}   style={{
                             marginLeft: '35%',
                             width: '30%',
                             height: '100%'
                           }}/>}
+                          actions={actions}
                         generalActions={generalActions}
                     />
                 </div>

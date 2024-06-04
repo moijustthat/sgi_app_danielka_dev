@@ -22,9 +22,13 @@ import { Avatar } from '@mui/material';
 import hexToDataURL, { isHex } from '../../../../utils/HexToDataUrl';
 import logo from '../../../../imgs/logo.png'
 import { useStateContext } from '../../../../Contexts/ContextProvider';
-
+import OrdenTemplate from './OrdenTemplate';
 import onChangeSize from './InvoiceGeneralActions/FullSize';
-
+import { UilExpandAlt, UilCompressAlt } from '@iconscout/react-unicons'
+import { cleanTable } from '../../../../utils/HandleTable';
+import AlertDialog from '../../../Common/AlertDialog/AlertDialog';
+import {eliminarElementoPorIndice} from '../../../../utils/DataHelper'
+import Abonos from '../Abonos/Abonos';
 // Cambiar esta funcion de ayuda de fichero
 import { myConcat } from '../../../../utils/Searching';
 
@@ -66,7 +70,7 @@ const CreateInvoice = React.memo((props) => {
         categorias,
         marcas,
         unidades_medida,
-        refresh=()=>null
+        refresh = () => null
     } = props
 
     const initProveedor = {
@@ -82,7 +86,7 @@ const CreateInvoice = React.memo((props) => {
         'Fecha de pago limite': '',
         'Porcentaje de mora': '',
         'Fecha de entrega': '',
-        Estado: 'pendiente',
+        'Establecer limite de pago': 'f'
     }
 
     const initNewDetalle = {
@@ -107,12 +111,15 @@ const CreateInvoice = React.memo((props) => {
 
     const { getUser } = useStateContext()
     const currentUser = getUser().usuarioId
+    const currentUserName = getUser().nombre + ' ' + getUser().apellido
     const [listFullSize, setListFullSize] = useState(false)
     const [proveedor, setProveedor] = useState(initProveedor)
     const [orden, setOrden] = useState(initOrden)
     const [nuevoDetalle, setNuevoDetalle] = useState(initNewDetalle)
     const [listaDetalles, setListaDetalles] = useState([])
     const [edit, setEdit] = useState(null)
+    const [del, setDel] = useState(null)
+    const [abonar, setAbonar] =  useState(null)
     const [requestBd, setRequestBd] = useState(null)
     const [markAsIncomplete, setMarkAsIncomplete] = useState([])
     const [rollbacks, setRollbacks] = useState({
@@ -136,6 +143,34 @@ const CreateInvoice = React.memo((props) => {
         'Unidad de medida': ''
     })
 
+    const formatPrefacturaOrden = (orden, proveedor, detalles) => {
+        const formatedOrden = {}
+        formatedOrden.id  = 'new'
+        formatedOrden['Proveedor'] = proveedor.id === 'new' ? proveedor['Razon social'] : proveedores.find(p=>String(p.value)===String(proveedor.id)).label
+        formatedOrden['Fecha emision'] = dateHandler.getCurrentDate()
+        formatedOrden['Orden hecha por'] = currentUserName
+        formatedOrden['Subtotal'] = (detalles.reduce((a, od)=> a + parseFloat(od['Precio de compra'])*Number(od['Cantidad']) ,0)/1.15).toFixed(2)
+        formatedOrden['Descuento'] = (detalles.reduce((a, od)=> a + Number(od['Cantidad con descuento'])*parseFloat(od['Precio de compra']) * parseFloat(od['Porcentaje de descuento'])/100, 0)).toFixed(2)
+        formatedOrden['Cargos por mora'] = 0
+        formatedOrden['Total'] = ((formatedOrden['Subtotal'] * 1.15) - formatedOrden['Descuento']).toFixed(2)
+        return formatedOrden
+    }
+
+    const formatPrefacturaOrdenDetalles = (detalles) => {
+        const formatedDetalles = []
+        for (let detalle of detalles) {
+            let formatedDetalle = {
+                'Producto': detalle['Nombre'],
+                'Cantidad': detalle['Cantidad'],
+                'Precio': detalle['Precio de compra'],
+                'Descuento': detalle['Cantidad con descuento'],
+                'Porcentaje': detalle['Porcentaje de descuento']
+            }
+            formatedDetalles.push(formatedDetalle)
+        }
+        return formatedDetalles
+    }
+    
     const generalActions = [
         {
             icon: <FaDatabase />,
@@ -222,7 +257,7 @@ const CreateInvoice = React.memo((props) => {
     const onRealizarOrden = (listaDetalles, proveedor, orden) => {
         let rollback = false
         // Validar campos requeridos que vinieron vacios
-        let required = ['Fecha de entrega', 'Estado']
+        let required = ['Fecha de entrega']
         const incompletes = []
         if (proveedor.id === 'new') {
             required = myConcat(required, ['Razon social', 'Telefono', 'Direccion'])
@@ -251,9 +286,10 @@ const CreateInvoice = React.memo((props) => {
             const payload = { proveedor: proveedor, orden: orden, detalles: listaDetalles, usuario: currentUser }
             axiosClient.post('/orden', payload)
                 .then(({ data }) => {
-                    const response = data.data
-                    refresh()
-                    setOpen(false) // Volver al inicio de Ordenes
+                    const orden = data.orden[0]
+                    setAbonar(orden)
+                    //refresh()
+                    //setOpen(false) // Volver al inicio de Ordenes
                 })
                 .catch(error => {
                     const messageErr = error.response.data.messageError
@@ -289,6 +325,8 @@ const CreateInvoice = React.memo((props) => {
 
         // Preparacion para el siguiente nuevo detalle
         setNuevoDetalle(initNewDetalle)
+        if(nuevoDetalle['Cantidad con descuento'] === '') nuevoDetalle['Cantidad con descuento'] = 0
+        if(nuevoDetalle['Porcentaje de descuento'] === '') nuevoDetalle['Porcentaje de descuento'] = 0
 
         setListaDetalles(prev => {
             let id = nuevoDetalle.id
@@ -301,6 +339,37 @@ const CreateInvoice = React.memo((props) => {
     if (requestBd) return requestBd
     else return <>
         <div className='container'>
+
+            <AlertDialog 
+                open={del!==null}
+                title='Eliminar item'
+                contentText={`Seguro deseas eliminar este item?`}
+                cancelText='Cancelar'
+                acceptText='Eliminar'
+                acceptAction={()=>{
+                    setListaDetalles(prev=>{
+                        const copyList = [...prev]
+                        return eliminarElementoPorIndice(copyList, del)
+                    })
+                    setDel(null)
+                }}
+                cancelAction={() => setDel(null)}
+            />
+
+            <FormDialog 
+                open={abonar!==null}
+                setOpen={setAbonar}
+                title={`Abonar a la orden N°${abonar!==null?abonar.id:''}`}
+                content={<Abonos 
+                    factura={abonar!==null?abonar:''}
+                    tipo='orden'
+                    close={()=>{
+                        setAbonar(null)
+                        refresh()
+                        setOpen(false)
+                    }}
+                />}
+            />
 
             <div className={`glass ${listFullSize ? 'fullGlass' : 'partialGlass'}`}>
                 <div className='exit'>
@@ -506,7 +575,55 @@ const CreateInvoice = React.memo((props) => {
                     <div>
                         <div className='secondaryData'>
                             <DateField
-                                label='Fecha limite de pago(no requerida)'
+                                label='Fecha de entrega'
+                                incomplete={markAsIncomplete.find(l => l == 'Fecha de entrega')}
+                                value={orden['Fecha de entrega']}
+                                desactiveManually={!!!rollbacks['Fecha de entrega']}
+                                onChange={(value, setErr, setWarning) => {
+                                    // Lambda rollback
+                                    if (dateHandler.isGreater(value, orden['Fecha de pago limite'])) {
+                                        setWarning('La fecha de entrega no puede ser despues de haber cobrado mora')
+                                        setRollbacks({
+                                            ...rollbacks,
+                                            'Fecha limite de pago': true,
+                                            'Fecha de entrega': true
+                                        })
+                                    } else {
+                                        setWarning('')
+                                        setRollbacks({
+                                            ...rollbacks,
+                                            'Fecha limite de pago': false,
+                                            'Fecha de entrega': false
+                                        })
+                                    }
+
+                                    if (dateHandler.isLesser(value, dateHandler.getCurrentDate())) {
+                                        setErr('Fecha invalida')
+                                    } else {
+                                        setOrden({
+                                            ...orden,
+                                            'Fecha de entrega': value
+                                        })
+                                        setErr('')
+                                    }
+
+                                }}
+                            />
+                            <SelectField
+                                label='Establecer fecha limite de pago'
+                                value={orden['Establecer limite de pago']}
+                                options={[{ value: 't', label: 'Establecer fecha limite' }, { value: 'f', label: 'No establecer fecha limite' }]}
+                                onChange={(value, setErr, setWarning) => {
+                                    setOrden({
+                                        ...orden,
+                                        'Establecer limite de pago': value
+                                    })
+                                }}
+                            />
+                        </div>
+                        <div style={{ display: orden['Establecer limite de pago'] == 't' ? '' : 'none' }} className='secondaryData'>
+                            <DateField
+                                label='Fecha limite de pago'
                                 value={orden['Fecha de pago limite']}
                                 desactiveManually={!!!rollbacks['Fecha limite de pago']}
                                 onChange={(value, setErr, setWarning) => {
@@ -527,7 +644,7 @@ const CreateInvoice = React.memo((props) => {
                                         })
                                     }
 
-                                    if (dateHandler.isLesserOrEqual(value, dateHandler.getCurrentDate())) {
+                                    if (dateHandler.isLesser(value, dateHandler.getCurrentDate())) {
                                         setErr('Fecha invalida')
                                     } else {
                                         setOrden({
@@ -551,54 +668,6 @@ const CreateInvoice = React.memo((props) => {
                                             'Porcentaje de mora': value
                                         })
                                     }
-                                }}
-                            />
-                        </div>
-                        <div className='secondaryData'>
-                            <DateField
-                                label='Fecha de entrega'
-                                incomplete={markAsIncomplete.find(l => l == 'Fecha de entrega')}
-                                value={orden['Fecha de entrega']}
-                                desactiveManually={!!!rollbacks['Fecha de entrega']}
-                                onChange={(value, setErr, setWarning) => {
-                                    // Lambda rollback
-                                    if (dateHandler.isGreater(value, orden['Fecha de pago limite'])) {
-                                        setWarning('La fecha de entrega no puede ser despues de haber cobrado mora')
-                                        setRollbacks({
-                                            ...rollbacks,
-                                            'Fecha limite de pago': true,
-                                            'Fecha de entrega': true
-                                        })
-                                    } else {
-                                        setWarning('')
-                                        setRollbacks({
-                                            ...rollbacks,
-                                            'Fecha limite de pago': false,
-                                            'Fecha de entrega': false
-                                        })
-                                    }
-
-                                    if (dateHandler.isLesserOrEqual(value, dateHandler.getCurrentDate())) {
-                                        setErr('Fecha invalida')
-                                    } else {
-                                        setOrden({
-                                            ...orden,
-                                            'Fecha de entrega': value
-                                        })
-                                        setErr('')
-                                    }
-
-                                }}
-                            />
-                            <SelectField
-                                label='Estado'
-                                value={orden['Estado']}
-                                options={[{ value: 'pendiente', label: 'Pendiente' }, { value: 'pagada', label: 'Pagada' }]}
-                                onChange={(value, setErr, setWarning) => {
-                                    setOrden({
-                                        ...orden,
-                                        'Estado': value
-                                    })
                                 }}
                             />
                         </div>
@@ -1153,6 +1222,19 @@ const CreateInvoice = React.memo((props) => {
                         empty={<h1>Agrega items a la orden</h1>}
                         rows={formatTable(listaDetalles)}
                         generalActions={generalActions}
+                        footer={!!!listFullSize ? <div style={{display: 'flex', alignItems: 'center', marginLeft: '8rem', marginTop: '4.5rem'}}>
+                            <h4>Despliega para ver la prefactura</h4>
+                            <label><UilExpandAlt /></label>
+                        </div> : <OrdenTemplate
+                            imprimir={false}
+                            title='Pre-Factura'
+                            orden={formatPrefacturaOrden(orden, proveedor, listaDetalles)}
+                            detalles={formatPrefacturaOrdenDetalles(listaDetalles)}
+                            deleteItem={(index)=>setDel(index)}
+                            updateItem={(index)=>setEdit(index)}
+                            setItem={setListaDetalles}
+                            edit={edit}
+                        />}
                     />
                 </div>
 

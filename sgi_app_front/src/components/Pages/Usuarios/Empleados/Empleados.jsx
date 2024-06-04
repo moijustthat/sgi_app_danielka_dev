@@ -12,7 +12,7 @@ import { UilEye } from '@iconscout/react-unicons'
 import hexToDataURL, { isHex, base64ToHex } from '../../../../utils/HexToDataUrl'
 import axiosClient from '../../../../axios-client'
 import { Avatar } from '@mui/material'
-import {NotificationContext} from '../../../Notifications/NotificationProvider'
+import { NotificationContext } from '../../../Notifications/NotificationProvider'
 import { v4, validate } from 'uuid'
 import DBParser from '../../../../utils/DbFieldsConverter'
 import validateAPI from '../../../../utils/textValidation'
@@ -25,6 +25,9 @@ import AddEmpleado from './AddEmpleado'
 import { IoSettingsOutline } from "react-icons/io5";
 import FormDialog from '../../../Common/FormDialog/FormDialog'
 import Permisos from './Permisos/Permisos'
+import { colorActive } from '../../../../utils/HandleTable'
+import FormEmpleado from './FormEmpleado'
+import { colorCommas, colorMoney, colorNullToZero } from '../../../../utils/HandleTable'
 
 import CardView from '../../../Common/CardViews/CardView'
 
@@ -41,26 +44,21 @@ const Clientes = () => {
     const [permisos, setPermisos] = useState(false)
     const [formOpen, setFormOpen] = useState(false)
     const [desactivar, setDesactivar] = useState(null)
+    const [activar, setActivar] = useState(null)
     const [columnas, setColumnas] = useState([])
     const [empleados, setEmpleados] = useState([])
     const [cargos, setCargos] = useState([])
 
-    const {getUser} = useStateContext()
+    const { getUser } = useStateContext()
     const user = getUser()
 
     const generalActions = [
-        {
-            icon: <UilStopCircle />,
-            label: 'desactivar-producto/s',
-            condition: (numSelected) => numSelected > 0,
-            action: (selected) => setDesactivar(selected)
-        },
         {
             icon: <IoSettingsOutline />,
             label: 'permisos',
             condition: () => user.cargoId === 135,
             action: () => setPermisos(true)
-            
+
         },
         {
             icon: <UilPlus />,
@@ -75,26 +73,21 @@ const Clientes = () => {
             action: () => alert('Filtrar Productos')
         }
     ]
-    
+
     const actions = [
         {
             label: 'Editar',
             icon: <UilEdit />,
             action: (id) => {
-              setEdit(id)
+                setEdit(id)
             }
-        },
-        {
-            label: 'Ver detalles',
-            icon: <UilEye />,
-            action: (i) => alert('Ver detalles '+i)
         }
     ]
 
     const getPermisos = async () => {
         setLoading(true)
         axiosClient.get('/permisos')
-            .then(({data}) => {
+            .then(({ data }) => {
                 const permisos = data.permisos
                 setAll(permisos.all)
 
@@ -121,114 +114,168 @@ const Clientes = () => {
                 setLoading(false)
             })
             .catch((e) => {
-                console.log('Error en la respuesta: '+e);
+                console.log('Error en la respuesta: ' + e);
                 setLoading(false)
-            }) 
+            })
     }
 
     const getCargos = async () => {
         setLoading(true)
         axiosClient.get('/cargos')
-          .then(({data}) => {
-            const cargos = data.data
-            setCargos(cargos.map(cargo=>({
-                value: cargo.cargoId,
-                label: cargo.nombre
-            })))
-            setLoading(false)
-          })
-          .catch((e) => {
-            console.log('Error en la respuesta: '+e);
-            setLoading(false)
-          }) 
-      }
+            .then(({ data }) => {
+                const cargos = data.data
+                setCargos(cargos.map(cargo => ({
+                    value: cargo.cargoId,
+                    label: cargo.nombre
+                })))
+                setLoading(false)
+            })
+            .catch((e) => {
+                console.log('Error en la respuesta: ' + e);
+                setLoading(false)
+            })
+    }
 
     const getEmpleados = async () => {
         setLoading(true)
         axiosClient.get('/empleados')
-        .then(({data}) => {
-            const empleados = data.data
-            const columnas = empleados.length > 0 ? Object.keys(empleados[0]) : []
-            const unchecked = ['Nombre', 'Apellido', 'Cargo', 'Telefono', 'Correo']
-            const state = []
-            for (let columna of columnas) {
-              state.push({label: columna, checked: unchecked.findIndex(u=>u==columna) != -1 ? false : true})
-            }
-            setColumnas(state)
-            setEmpleados(empleados)
-            setLoading(false)
-        })
-        .catch(error=> {
-            const messageErr = error.response.data.messageError
-            setLoading(false)
-        })  
-  
+            .then(({ data }) => {
+                const empleados = data.empleados
+                const columnas = empleados.length > 0 ? Object.keys(empleados[0]) : []
+                const unchecked = ['Nombre', 'Apellido', 'Cargo', 'Telefono', 'Correo']
+                const state = []
+                for (let columna of columnas) {
+                    state.push({ label: columna, checked: unchecked.findIndex(u => u == columna) != -1 ? false : true })
+                }
+                console.log(empleados)
+                setColumnas(state)
+                setEmpleados(empleados)
+                setLoading(false)
+            })
+            .catch(error => {
+                const messageErr = error.response.data.messageError
+                setLoading(false)
+            })
+
     }
 
     useEffect(() => {
+        getEmpleados()
         getCargos()
         getPermisos()
     }, [])
 
     if (loading) {
-        return <CircularProgress 
-                size='4rem'
-                sx={{
-                  position: 'relative',
-                  top:'50%',
-                  left: '40%',
-                  color: '#6AD096'
-                }}/>
-      }
-    
-    return  <>
+        return <CircularProgress
+            size='4rem'
+            sx={{
+                position: 'relative',
+                top: '50%',
+                left: '40%',
+                color: '#6AD096'
+            }} />
+    }
 
-                <RightDrawer 
-                    width={'30vw'} 
-                    open={formOpen}
-                    content={
-                        <AddEmpleado
-                            cargos={cargos}
-                            setOpen={setFormOpen}
-                        />}
-                    />
+    return <>
 
-                <FormDialog 
-                    open={permisos}
-                    setOpen={()=>setPermisos(false)}
-                    content={<Permisos
-                            all={all}
-                            setAll={setAll}
-                            administrador={administrador}
-                            setAdministrador={setAdministrador}
-                            controlador={controlador}
-                            setControlador={setControlador}
-                            vendedor={vendedor}
-                            setVendedor={setVendedor}
-                            bodeguero={bodeguero}
-                            setBodeguero={setBodeguero}
-                         />}
+        <AlertDialog
+            open={desactivar ? true : false}
+            title='Inhabilitar empleado?'
+            contentText={desactivar ? `Seguro deseas inhabilitar a este empleado?` : ''}
+            cancelText='Cancelar'
+            acceptText='Inhabilitar'
+            acceptAction={() => {
+                const payload = { id: desactivar }
+                axiosClient.post('/desactivate-empleado', payload)
+                    .then(({ data }) => {
+                        const response = data.message
+                        alert(response)
+                        setDesactivar(null)
+                        getEmpleados()
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    })
+            }}
+            cancelAction={() => setDesactivar(null)}
+        />
+
+        <AlertDialog
+            open={activar ? true : false}
+            title='Habilitar empleado?'
+            contentText={activar ? `Seguro deseas habilitar a este empleado?` : ''}
+            cancelText='Cancelar'
+            acceptText='Habilitar'
+            acceptAction={() => {
+                const payload = { id: activar }
+                axiosClient.post('/activate-empleado', payload)
+                    .then(({ data }) => {
+                        const response = data.message
+                        alert(response)
+                        setActivar(null)
+                        getEmpleados()
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    })
+            }}
+            cancelAction={() => setDesactivar(null)}
+        />
+
+
+        <FormDialog
+            open={edit !== null}
+            setOpen={setEdit}
+            title='Editar empleado'
+            content={<FormEmpleado id={edit} close={() => setEdit(null)} />}
+        />
+
+        <RightDrawer
+            width={'30vw'}
+            open={formOpen}
+            content={
+                <AddEmpleado
+                    cargos={cargos}
+                    setOpen={setFormOpen}
+                />}
+        />
+
+        <FormDialog
+            open={permisos}
+            setOpen={() => setPermisos(false)}
+            content={<Permisos
+                all={all}
+                setAll={setAll}
+                administrador={administrador}
+                setAdministrador={setAdministrador}
+                controlador={controlador}
+                setControlador={setControlador}
+                vendedor={vendedor}
+                setVendedor={setVendedor}
+                bodeguero={bodeguero}
+                setBodeguero={setBodeguero}
+            />}
+        />
+
+        <div className='CatalogoProductos'>
+            <div className='catalogo'>
+                <Table
+                    dense={true}
+                    pagination={false}
+                    empty={<CardView type='box' style={{
+                        marginLeft: '35%',
+                        width: '30%',
+                        height: '100%'
+                    }} text='No tienes empleados en el sistema' />}
+                    generalActions={generalActions}
+                    actions={actions}
+                    setEdit={setEdit}
+                    rows={colorActive(colorMoney(colorCommas(colorNullToZero(empleados, ['Importe vendido']), ['Importe vendido']), ['Importe vendido']), (id) => setDesactivar(id), (id) => setActivar(id))}
+                    setRows={setEmpleados}
                 />
-
-                <div className='CatalogoProductos'>
-                    <div className='catalogo'>
-                        <Table 
-                            dense={true}
-                            pagination={false}
-                            empty={<CardView type='box'    style={{
-                            marginLeft: '35%',
-                            width: '30%',
-                            height: '100%'
-                            }} text='No tienes empleados en el sistema'/>}
-                            generalActions={generalActions}
-                            actions={actions}
-                            setEdit={setEdit}
-                            rows={empleados}
-                            setRows={setEmpleados}
-                        />
-                    </div>
-                </div>
-            </>
+            </div>
+        </div>
+    </>
 }
 
 export default Clientes

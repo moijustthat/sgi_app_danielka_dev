@@ -14,7 +14,7 @@ export const addOnList = (setList, cantidad, label, key, limit=null) => {
             const copyPrev = [...prev]
             const index = prev.findIndex(p=>String(p.id)===String(key))
             const item = {...prev[index]}
-            if (Number(item[label]) >= Number(limit)) return prev
+            if (limit && Number(item[label]) >= Number(limit)) return prev
             item[label]++
             copyPrev[index] = item
             return copyPrev
