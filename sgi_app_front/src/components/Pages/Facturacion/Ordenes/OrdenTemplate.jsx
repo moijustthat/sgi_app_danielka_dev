@@ -14,7 +14,8 @@ import { ImCancelCircle } from "react-icons/im";
 import { TextField } from '../../../Common/AwesomeFields/AwesomeFields';
 import { connetor_plugin } from '../../../Common/ConnetorPrinter/ConnectorPlugin'
 
-const OrdenTemplate = ({ orden,
+const OrdenTemplate = ({ 
+    orden,
     detalles,
     title = 'Factura',
     imprimir = true,

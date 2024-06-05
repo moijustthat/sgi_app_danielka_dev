@@ -10,7 +10,7 @@ import { useStateContext } from '../../../Contexts/ContextProvider';
 
 const Existencias = () => {
 
-  const {getPermisos} = useStateContext()
+    const {getPermisos} = useStateContext()
     const permisos = getPermisos()
 
     const permisoBodega =  permisos.find(p=>p.moduloId == 21) && permisos.find(p=>p.moduloId == 21).estado === 't' ? true : false 

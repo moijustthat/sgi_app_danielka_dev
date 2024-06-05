@@ -6,12 +6,13 @@ export const textAlterPrioridadBusqueda = (from, to, almacenes) => {
   return `Seguro deseas intercambiar la prioridad de busqueda del almacen: ${nameFrom} con la del almacen: ${nameTo}?`
 }
 
-const AlterPrioridadBusqueda = (from, to, almacenes) => {
+const AlterPrioridadBusqueda = (from, to, refresh) => {
   const payload = {from: Number(from), to: Number(to)}
   axiosClient.post('/almacen/orden', payload)
     .then(({data})=>{
       const reponse = data.message
-      console.log(reponse)
+      alert('Intercambio logrado exitosamente!')
+      refresh()
     })
     .catch(error=>{
       console.log(error)

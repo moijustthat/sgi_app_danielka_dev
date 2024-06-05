@@ -84,7 +84,7 @@ const CreateInvoice = React.memo((props) => {
         'Fecha de pago limite': '',
         'Porcentaje de mora': '',
         'Fecha de entrega': '',
-        Estado: 'pendiente',
+        'Establecer limite': 'f',
     }
 
     const initNewDetalle = {
@@ -120,7 +120,7 @@ const CreateInvoice = React.memo((props) => {
     const onRealizarVenta = () => {
         let rollback = false
         // Validar campos requeridos que vinieron vacios
-        let required = ['Fecha de entrega', 'Estado']
+        let required = ['Fecha de entrega']
         const incompletes = []
         if (cliente.id === 'new') {
             required = myConcat(required, ['Nombre', 'Apellido'])
@@ -155,7 +155,7 @@ const CreateInvoice = React.memo((props) => {
                 })       
                 .catch(error=>{
                     const messageErr = error.response.data.messageError
-                    console.log(messageErr)  
+                    console.log(error)  
                 })
           }
     }
@@ -423,9 +423,59 @@ const CreateInvoice = React.memo((props) => {
 
                     {/* Datos de la venta */}
                     <div>
+                        
                         <div className='secondaryData'>
                             <DateField 
-                                label='Fecha limite de pago(no requerida)'
+                                label='Fecha de entrega'
+                                incomplete={markAsIncomplete.find(l=>l=='Fecha de entrega')}
+                                value={venta['Fecha de entrega']}
+                                desactiveManually={!!!rollbacks['Fecha de entrega']}
+                                onChange={(value, setErr, setWarning) => {
+                                    // Lambda rollback
+                                    if (dateHelper.isGreater(value, venta['Fecha de pago limite'])) {
+                                        setWarning('La fecha de entrega no puede ser despues de haber cobrado mora')
+                                        setRollbacks({
+                                            ...rollbacks,
+                                            'Fecha limite de pago': true,
+                                            'Fecha de entrega': true
+                                        })
+                                    } else {
+                                        setWarning('')
+                                        setRollbacks({
+                                            ...rollbacks,
+                                            'Fecha limite de pago': false,
+                                            'Fecha de entrega': false
+                                        })
+                                    }
+
+                                    if (dateHelper.isLesser(value, dateHelper.getCurrentDate())) {
+                                        setErr('Fecha invalida')
+                                    } else {
+                                        setVenta({
+                                            ...venta,
+                                            'Fecha de entrega': value
+                                        })
+                                        setErr('')
+                                    }
+                                    
+                                }}
+                            />  
+                            <SelectField 
+                                label='Establecer fecha limite de pago'
+                                value={venta['Establecer limite']}
+                                options={[{value: 't', label: 'Si'}, {value: 'f', label: 'No'}]}
+                                onChange={(value, setErr, setWarning) => {
+                                    setVenta({
+                                        ...venta,
+                                        'Establecer limite': value
+                                    })
+                                }}
+                            />      
+                        </div>
+
+                        <div style={{ display: venta['Establecer limite'] == 't' ? '' : 'none' }} className='secondaryData'>
+                            <DateField 
+                                label='Fecha limite de pago'
                                 value={venta['Fecha de pago limite']}
                                 desactiveManually={!!!rollbacks['Fecha limite de pago']}
                                 onChange={(value, setErr, setWarning) => {
@@ -471,54 +521,7 @@ const CreateInvoice = React.memo((props) => {
                                 }}
                             />
                         </div>
-                        <div className='secondaryData'>
-                            <DateField 
-                                label='Fecha de entrega'
-                                incomplete={markAsIncomplete.find(l=>l=='Fecha de entrega')}
-                                value={venta['Fecha de entrega']}
-                                desactiveManually={!!!rollbacks['Fecha de entrega']}
-                                onChange={(value, setErr, setWarning) => {
-                                    // Lambda rollback
-                                    if (dateHelper.isGreater(value, venta['Fecha de pago limite'])) {
-                                        setWarning('La fecha de entrega no puede ser despues de haber cobrado mora')
-                                        setRollbacks({
-                                            ...rollbacks,
-                                            'Fecha limite de pago': true,
-                                            'Fecha de entrega': true
-                                        })
-                                    } else {
-                                        setWarning('')
-                                        setRollbacks({
-                                            ...rollbacks,
-                                            'Fecha limite de pago': false,
-                                            'Fecha de entrega': false
-                                        })
-                                    }
-
-                                    if (dateHelper.isLesser(value, dateHelper.getCurrentDate())) {
-                                        setErr('Fecha invalida')
-                                    } else {
-                                        setVenta({
-                                            ...venta,
-                                            'Fecha de entrega': value
-                                        })
-                                        setErr('')
-                                    }
-                                    
-                                }}
-                            />  
-                            <SelectField 
-                                label='Estado'
-                                value={venta['Estado']}
-                                options={[{value: 'pendiente', label: 'Pendiente'}, {value: 'pagada', label: 'Pagada'}]}
-                                onChange={(value, setErr, setWarning) => {
-                                    setVenta({
-                                        ...venta,
-                                        'Estado': value
-                                    })
-                                }}
-                            />      
-                        </div>
+                        
                     </div>
 
                 </div>

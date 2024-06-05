@@ -59,7 +59,9 @@ const AddProveedores = (props) => {
         }
 
         if (cancel) return
-        else axiosClient.post('/proveedor', {proveedor: nuevoProveedor})
+        else {
+            console.log(nuevoProveedor)
+            axiosClient.post('/proveedor', {proveedor: nuevoProveedor})
                 .then(({data})=>{
                     refresh()
                     setNuevoProveedor(init)
@@ -67,7 +69,7 @@ const AddProveedores = (props) => {
                 })
                 .catch(error=>{
                     console.log(error);
-                })
+                })}
     }
 
     return (

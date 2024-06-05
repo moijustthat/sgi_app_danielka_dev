@@ -53,13 +53,14 @@ const Almacenes = () => {
             open={alterOrder ? true : false}
             contentText={alterOrder ? textAlterPrioridadBusqueda(alterOrder[0], alterOrder[1], almacenes) : ''}
             cancelAction={()=>setAlterOrder(null)}
-            acceptAction={alterOrder ? () => AlterPrioridadBusqueda(alterOrder[0], alterOrder[1], almacenes) : ()=>null}
+            acceptAction={alterOrder ? () => AlterPrioridadBusqueda(alterOrder[0], alterOrder[1], ()=>{getAlmacenes(setLoading, setAlmacenes); setAlterOrder(null)}) : ()=>null}
         />
 
             <RightDrawer 
                 open={formOpen}
                 width={'30vw'}
                 content={<AddAlmacen 
+                            refresh={()=>getAlmacenes(setLoading, setAlmacenes)}
                             setOpen={setFormOpen}
                             almacenes={almacenes}
                         />}
@@ -70,7 +71,7 @@ const Almacenes = () => {
             <div className='CatalogoContainer'>
                 <div className='catalogo'>
                     <BasicTable 
-                        pagination={false}
+                        pagination={true}
                         generalActions={generalActions}
                         empty={<h1>Buscar svg bonito</h1>}
                         rows={almacenes}

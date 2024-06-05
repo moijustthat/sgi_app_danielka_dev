@@ -119,7 +119,7 @@ const Ordenes = () => {
         } else {
             const orden = ordenes.find(o => o.id === currentOrden.id)
             const detalles = currentOrden.detalles
-            const factura = <OrdenTemplate orden={orden} detalles={detalles} />
+            const factura = <OrdenTemplate actions={false} orden={orden} detalles={detalles} />
             setDetails(factura)
             setOpenDetails(true)
         }

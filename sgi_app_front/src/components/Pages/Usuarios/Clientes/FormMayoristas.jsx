@@ -10,7 +10,7 @@ import UpgradeIcon from '@mui/icons-material/Upgrade';
 import axiosClient from '../../../../axios-client'
 
 
-const FormMayoristas = ({id, close}) => {
+const FormMayoristas = ({id, close, refresh}) => {
 
     const [nombre, setNombre] = useState('')
     const [apellido, setApellido] = useState('')
@@ -35,6 +35,7 @@ const FormMayoristas = ({id, close}) => {
             .then(({data})=>{
                 const response = data.message
                 alert(response)
+                refresh()
                 close()
             })
             .catch(error=>{

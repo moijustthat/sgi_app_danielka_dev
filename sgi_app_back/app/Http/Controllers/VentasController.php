@@ -12,7 +12,7 @@ class VentasController extends Controller
     }
 
     public function indexVenta($ventaId) {
-        Ventas::getVenta($ventaId);
+        return Ventas::getVenta($ventaId);
     }
 
     public function insert_venta(Request $request) {

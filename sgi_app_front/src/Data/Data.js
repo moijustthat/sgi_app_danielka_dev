@@ -29,10 +29,6 @@ export const SideBarData = [
         heading: 'Usuarios'
     },
     {
-        icon: <UilClipboardNotes />,
-        heading: 'Existencias'
-    },
-    {
         icon: <UilPackage />,
         heading: 'Productos',
     },

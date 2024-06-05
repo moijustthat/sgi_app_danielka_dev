@@ -9,7 +9,7 @@ import { Button } from '@mui/material'
 import validateApi from '../../../../utils/textValidation'
 import axiosClient from '../../../../axios-client'
 
-const FormComerciales = ({id, close}) => {
+const FormComerciales = ({id, close, refresh}) => {
 
     const [nombre, setNombre] = useState('')
     const [apellido, setApellido] = useState('')
@@ -30,6 +30,7 @@ const FormComerciales = ({id, close}) => {
           .then(({data})=>{
               const response = data.message
               alert(response)
+              refresh()
               close()
           })
           .catch(error=>{

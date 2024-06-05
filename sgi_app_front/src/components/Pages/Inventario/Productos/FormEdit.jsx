@@ -262,7 +262,7 @@ const FormEdit = (props) => {
                 </div>
             </div>
 
-            <button className='btnAgregarRight' onClick={handleUpdate}>Actualizar</button>
+            <button className='btnAgregarRight vw40' onClick={handleUpdate}>Actualizar</button>
 
 
         </div>

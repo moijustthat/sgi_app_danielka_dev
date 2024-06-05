@@ -8,13 +8,14 @@ import CircularProgress from '../../../Common/CircularProgess/CircularProgress'
 import axiosClient from '../../../../axios-client'
 import CardView from '../../../Common/CardViews/CardView'
 import {ordenarPorAtributo} from '../../../../utils/Ordenamiento'
-import { colorStates, colorMoney, colorCommas, colorNullToZero } from '../../../../utils/HandleTable'
+import { colorStates, colorMoney, colorCommas, colorNullToZero, filterColumns, colorStatesEntrega } from '../../../../utils/HandleTable'
 import { getVentas } from '../LoadData/LoadData'
 import { AiOutlineDollarCircle } from "react-icons/ai";
 import { AiTwotonePrinter } from "react-icons/ai";
 import { UilEye } from '@iconscout/react-unicons';
 import VentaTemplate from './VentaTemplate'
 import { useStateContext } from '../../../../Contexts/ContextProvider'
+import FullScreenDialog from '../../../FullDialog/FullDialog'
 
 const Ventas = () => {
 
@@ -43,10 +44,10 @@ const Ventas = () => {
         if (currentVenta.id !== id) {
             axiosClient.get(`/venta/${id}`)
             .then(({ data }) => {
-                const orden = ventas.find(o=>o.id===id)
-                const detalles = data.orden
+                const venta = ventas.find(v=>v.id===id)
+                const detalles = data.venta
                 setCurrentVenta({id: id, detalles: detalles})
-                const factura = <VentaTemplate orden={orden} detalles={detalles}/>
+                const factura = <VentaTemplate actions={false} venta={venta} detalles={detalles}/>
                 setDetails(factura)
                 setOpenDetails(true)
             })
@@ -54,9 +55,9 @@ const Ventas = () => {
                 console.log(error)
             })
         } else {
-            const orden = ventas.find(o=>o.id===currentVenta.id)
+            const venta = ventas.find(v=>v.id===currentVenta.id)
             const detalles = currentVenta.detalles
-            const factura = <VentaTemplate orden={orden} detalles={detalles}/>
+            const factura = <VentaTemplate actions={false} venta={venta} detalles={detalles}/>
             setDetails(factura)
             setOpenDetails(true)
         }
@@ -215,6 +216,11 @@ const Ventas = () => {
     }, [])
 
     if(loading) return <CircularProgress />
+    else if (openDetails) return (<FullScreenDialog
+        title='Venta'
+        content={details}
+        refreshState={() => setOpenDetails(false)}
+    />)
 
     return (
         <>
@@ -237,7 +243,7 @@ const Ventas = () => {
                 <div className='ventas'>
                     <Table 
                         pagination={false} 
-                        rows={permisoLeerVentas ? colorStates(()=>{}, ()=>{},colorMoney(colorCommas(colorNullToZero(ventas, ['Total', 'Pagado', 'Debido']), ['Total', 'Pagado', 'Debido']), ['Total', 'Pagado', 'Debido'])) : []}
+                        rows={permisoLeerVentas ? filterColumns(colorStatesEntrega(()=>{}, colorStates(()=>{}, ()=>{}, colorMoney( colorCommas(ventas, ['Subtotal', 'Descuento', 'Cargos por mora', 'Total', 'Pagado', 'Debido']), ['Subtotal', 'Descuento', 'Cargos por mora', 'Total', 'Pagado', 'Debido'] ))), ['Fecha emision', 'Fecha limite de pago', 'Subtotal', 'Descuento', 'Cargos por mora', 'Fecha', 'Hora']) : []}
                         empty={<CardView type='shopping' text={permisoCrearVentas ? 'Aqui veras las ventas que tus clientes realizan!' : 'No tienes permisos para este modulo 😔'}   style={{
                             marginLeft: '35%',
                             width: '30%',

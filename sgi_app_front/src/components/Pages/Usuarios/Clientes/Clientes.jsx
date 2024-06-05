@@ -169,7 +169,7 @@ const Clientes = () => {
                         open={edit!==null}
                         setOpen={setEdit}
                         title='Editar cliente'
-                        content={tipos.mayoristas ? <FormMayoristas id={edit} close={()=>setEdit(null)}/> : <FormComerciales id={edit} close={()=>setEdit(null)}/>}
+                        content={tipos.mayoristas ? <FormMayoristas refresh={()=>getClientesMayoristas()} id={edit} close={()=>setEdit(null)}/> : <FormComerciales refresh={()=>getClientesComerciales()} id={edit} close={()=>setEdit(null)}/>}
                     />
 
                     <RightDrawer 

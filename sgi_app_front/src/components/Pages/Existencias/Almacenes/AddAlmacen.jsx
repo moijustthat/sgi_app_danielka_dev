@@ -22,6 +22,7 @@ const init = {
 const AddAlmacen = (props) => {
 
     const {
+        refresh,
         setOpen=()=>null,
         almacenes=[]
     } = props
@@ -61,7 +62,9 @@ const AddAlmacen = (props) => {
         if (cancel) return
         else axiosClient.post('/almacen', {almacen: nuevoAlmacen})
                 .then(({data})=>{
-                    console.log(data)
+                    alert('Almacen creado con exito!')
+                    refresh()
+                    setOpen(false)
                 })
                 .catch(error=>{
                     console.log(error);
@@ -246,7 +249,7 @@ const AddAlmacen = (props) => {
             </div>
             <button 
                 onClick={onRegistro}
-                className='btnAgregarRight'>
+                className='btnAgregarRight vw30'>
                 Generar nuevo almacen
             </button>
         </div>

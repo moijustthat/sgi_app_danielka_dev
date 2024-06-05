@@ -154,6 +154,22 @@ const Productos = () => {
       })
   }
 
+  const showInventario = (id) => {
+    if (permisoLeerStockProductos) {
+      axiosClient.get(`/inventario/${id}`)
+      .then(({ data }) => {
+        const inventario = data.inventario
+        setInventario({ productoId: id, inventario: inventario })
+
+      })
+      .catch(error => {
+        console.log(error)
+      })
+    } else {
+      alert('No tienes permisos para agregar stock de productos')
+    }
+  }
+  
   const generalActions = [
     {
       icon: <FaTrashCan />,
@@ -192,21 +208,7 @@ const Productos = () => {
     {
       label: 'Añadir inventario',
       icon: <HiOutlineViewGridAdd />,
-      action: (id) => {
-        if (permisoLeerStockProductos) {
-          axiosClient.get(`/inventario/${id}`)
-          .then(({ data }) => {
-            const inventario = data.inventario
-            setInventario({ productoId: id, inventario: inventario })
-
-          })
-          .catch(error => {
-            console.log(error)
-          })
-        } else {
-          alert('No tienes permisos para agregar stock de productos')
-        }
-      }
+      action: (id) => showInventario(id)
     }
   ]
 
@@ -389,7 +391,8 @@ const Productos = () => {
             }
             axiosClient.post('/entrada', {entrada: curated})
               .then(({data})=>{
-                alert('Yeii')
+                showInventario(producto.id)
+                getProductos()
               })
               .catch(error=>{
                 console.log(error)

@@ -224,6 +224,7 @@ const Clientes = () => {
             content={<FormEmpleado 
                  id={edit} 
                  close={() => setEdit(null)}
+                 refresh={()=>getEmpleados()}
                  />}
         />
 

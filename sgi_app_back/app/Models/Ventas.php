@@ -65,7 +65,7 @@ class Ventas extends Model
                     $usuario,
                     $venta['Fecha de pago limite'] && $venta['Fecha de pago limite'] !== '' ? $venta['Fecha de pago limite'] : NULL,
                     $venta['Porcentaje de mora'] && $venta['Porcentaje de mora'] !== '' ? $venta['Porcentaje de mora'] : NULL,
-                    $venta['Estado']
+                    'pendiente'
                 );
 
                 DB::select('CALL pa_nueva_venta(?, ?, ?, ?, ?, @venta)', $nuevaVenta);
