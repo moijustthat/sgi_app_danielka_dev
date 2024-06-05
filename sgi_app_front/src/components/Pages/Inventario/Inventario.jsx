@@ -13,6 +13,8 @@ import { AiOutlineProduct } from "react-icons/ai";
 import { CircularProgress } from '@mui/material';
 import { IoStorefrontOutline } from "react-icons/io5";
 import { MdOutlineWarehouse } from "react-icons/md";
+import Almacenes from '../Existencias/Almacenes/Almacenes';
+
 
 const Inventario = () => {
 
@@ -23,21 +25,6 @@ const Inventario = () => {
                 label: 'Catalogo',
                 component: <Productos />,
                 icon: <AiOutlineProduct />
-            },
-            {
-              label: 'Categorias',
-              component: <Categorias/>,
-              icon: <MdOutlineCategory />
-            },
-            {
-              label: 'Marcas',
-              component: <Marcas/>,
-              icon: <TbBrandBilibili />
-            }, 
-            {
-              label: 'Unidades de medida',
-              component: <Unidades_Medida/>,
-              icon: <TbRulerMeasure />
             },
             {
               label: 'Proveedores',

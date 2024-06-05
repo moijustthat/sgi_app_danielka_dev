@@ -237,7 +237,7 @@ const Ventas = () => {
                 <div className='ventas'>
                     <Table 
                         pagination={false} 
-                        rows={permisoLeerVentas ? colorStates(colorMoney(colorCommas(colorNullToZero(ventas, ['Total', 'Pagado', 'Debido']), ['Total', 'Pagado', 'Debido']), ['Total', 'Pagado', 'Debido'])) : []}
+                        rows={permisoLeerVentas ? colorStates(()=>{}, ()=>{},colorMoney(colorCommas(colorNullToZero(ventas, ['Total', 'Pagado', 'Debido']), ['Total', 'Pagado', 'Debido']), ['Total', 'Pagado', 'Debido'])) : []}
                         empty={<CardView type='shopping' text={permisoCrearVentas ? 'Aqui veras las ventas que tus clientes realizan!' : 'No tienes permisos para este modulo 😔'}   style={{
                             marginLeft: '35%',
                             width: '30%',

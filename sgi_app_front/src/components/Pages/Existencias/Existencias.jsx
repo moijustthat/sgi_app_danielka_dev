@@ -21,16 +21,6 @@ const Existencias = () => {
       <BasicTabs
           features={[
               {
-                label: 'Entradas',
-                component: permisoBodega ? <Entradas /> : <h2>No tienes permisos para usar este modulo</h2>,
-                icon: <LuClipboardCopy />
-              },
-              {
-                label: 'Salidas',
-                component: permisoSalida ? <Salidas /> : <h2>No tienes permisos para usar este modulo</h2>,
-                icon: <LuClipboardPaste />
-              },
-              {
                   label: 'Almacenes',
                   component: permisoBodega ? <Almacenes /> : <h2>No tienes permisos para usar este modulo</h2>,
                   icon: <MdOutlineWarehouse />

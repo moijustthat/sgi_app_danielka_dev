@@ -25,7 +25,7 @@ import AlertDialog from '../../../Common/AlertDialog/AlertDialog'
 import AddCliente from './AddCliente'
 import { IoPeopleOutline } from "react-icons/io5";
 import { FaPeopleRoof } from "react-icons/fa6";
-import { colorMoney, colorCommas, colorNullToZero } from '../../../../utils/HandleTable'
+import { colorMoney, colorCommas, colorNullToZero, cleanTable } from '../../../../utils/HandleTable'
 import CardView from '../../../Common/CardViews/CardView'
 import FormMayoristas from './FormMayoristas'
 import FormComerciales from './FormComerciales'
@@ -140,6 +140,7 @@ const Clientes = () => {
         })
         .catch(error=> {
             const messageErr = error.response.data.messageError
+            console.log(messageErr)
             setLoading(false)
         })  
   
@@ -178,6 +179,11 @@ const Clientes = () => {
                         <AddCliente
                             clientes={clientes}
                             setOpen={setFormOpen}
+                            refresh={()=>{
+                                getClientes()
+                                getClientesComerciales()
+                                getClientesMayoristas()
+                            }}
                         />}
                     />
 
@@ -185,7 +191,7 @@ const Clientes = () => {
                     <div className='catalogo'>
                         <Table 
                             dense={true}
-                            pagination={false}
+                            pagination={true}
                             empty={<CardView type='box'    style={{
                             marginLeft: '35%',
                             width: '30%',
@@ -194,7 +200,7 @@ const Clientes = () => {
                             generalActions={generalActions}
                             actions={actions}
                             setEdit={setEdit}
-                            rows={tipos.mayoristas ? colorMoney(colorCommas(colorNullToZero(clientesMayoristas, ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido']) : colorMoney(colorCommas(colorNullToZero(clientesComerciales, ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido'])}
+                            rows={tipos.mayoristas ? cleanTable(colorMoney(colorCommas(colorNullToZero(clientesMayoristas, ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido'])) : cleanTable(colorMoney(colorCommas(colorNullToZero(clientesComerciales, ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido']), ['Importe comprado', 'Pagado', 'Debido']))}
                             setRows={setClientes}
                         />
                     </div>

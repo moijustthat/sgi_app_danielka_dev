@@ -10,6 +10,7 @@ import { FcAcceptDatabase } from "react-icons/fc";
 import { InputLabel } from '@mui/material';
 const ItemsTemplate = ({
     rows = [],
+    noNew=false,
     newLabel = 'Nuevo registro',
     newIcon = <GrFormAdd />,
     newInputs=[],
@@ -106,7 +107,7 @@ const ItemsTemplate = ({
                                             </>)
                                         })}
                                         <tr>
-                                            <td style={{display: newLabel !== 'blocked' && newItem ? 'none' : ''}} >
+                                            {!!!noNew ? <td style={{display: newLabel !== 'blocked' && newItem ? 'none' : ''}} >
                                                 <button 
                                                     type='button' 
                                                     className='itemTemplateBtn'
@@ -115,8 +116,7 @@ const ItemsTemplate = ({
                                                     <span>{newIcon}</span>
                                                     <span>{newLabel}</span>
                                                 </button>
-                                            </td>
-                                                
+                                            </td> : ''}
                                                     {newInputs.map(input=>{
                                                         switch(input.type){
                                                             case 'text':
@@ -182,7 +182,10 @@ const ItemsTemplate = ({
                                                             style={{display: newItem ? '' : 'none'}}
                                                             type='button' 
                                                             className='itemTemplateBtn'
-                                                            onClick={()=>onCreateNew(dataNewItem)}
+                                                            onClick={()=>{
+                                                                onCreateNew(dataNewItem)
+                                                                setNewItem(false)
+                                                            }}
                                                             >
                                                                 <span>{<FcAcceptDatabase />}</span>
                                                                 <span>Aceptar</span>

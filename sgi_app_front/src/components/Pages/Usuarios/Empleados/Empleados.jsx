@@ -65,12 +65,6 @@ const Clientes = () => {
             label: 'Nuevo empleado',
             condition: () => true,
             action: () => setFormOpen(true)
-        },
-        {
-            icon: <UilFilter />,
-            label: 'Filtrar producos',
-            condition: () => true,
-            action: () => alert('Filtrar Productos')
         }
     ]
 
@@ -227,7 +221,10 @@ const Clientes = () => {
             open={edit !== null}
             setOpen={setEdit}
             title='Editar empleado'
-            content={<FormEmpleado id={edit} close={() => setEdit(null)} />}
+            content={<FormEmpleado 
+                 id={edit} 
+                 close={() => setEdit(null)}
+                 />}
         />
 
         <RightDrawer
@@ -237,6 +234,7 @@ const Clientes = () => {
                 <AddEmpleado
                     cargos={cargos}
                     setOpen={setFormOpen}
+                    refresh={()=> getEmpleados()}
                 />}
         />
 
@@ -261,7 +259,7 @@ const Clientes = () => {
             <div className='catalogo'>
                 <Table
                     dense={true}
-                    pagination={false}
+                    pagination={true}
                     empty={<CardView type='box' style={{
                         marginLeft: '35%',
                         width: '30%',

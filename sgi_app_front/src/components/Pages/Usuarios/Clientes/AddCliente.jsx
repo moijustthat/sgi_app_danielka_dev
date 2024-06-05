@@ -23,7 +23,8 @@ const AddCliente = React.memo((props)=>{
 
     const {
         clientes=[],
-        setOpen
+        setOpen,
+        refresh
     } = props
 
 const init = {
@@ -88,10 +89,10 @@ const init = {
 
             axiosClient.post('/register', {...newUser})
                 .then(({ data }) => {
-                    console.log(data)
+                    setOpen(false)
+                    refresh()
                 })
                 .catch(error=>{
-                    const messageErr = error.response.data.messageError
                     console.log(error)
                 })
         }

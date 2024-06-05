@@ -99,7 +99,7 @@ class Usuarios extends Authenticatable {
 
     public static function getAllEmpleados() {
         return HandleDbResponse::handleResponse(function() {
-            $empleados = DB::select('select * from vw_empleados');
+            $empleados = DB::select('select * from vw_empleados order by id desc');
             return JsonHelper::jsonResponse(200, ['empleados'=>$empleados]);
         }, 'Error al traer a todos los empleados');
     }

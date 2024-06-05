@@ -111,5 +111,7 @@ Route::controller(InventarioController::class)->group(function () {
         Route::get('/entradas', 'indexEntradas');
         Route::get('/inventario/{id}', 'getInventario');
         Route::post('/entrada', 'insert_entrada');
+        Route::post('/entrada/orden', 'insert_entrada_orden');
+        Route::get('/entrada/orden/{id}', 'getEntradaOrden');
     });
 });

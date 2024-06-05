@@ -81,6 +81,6 @@ class OrdenesController extends Controller
     }
 
     public function abonosOrden($id) {
-        Ordenes::getAllAbonos($id);
+        return Ordenes::getAllAbonos($id);
     }
 }

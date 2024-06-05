@@ -24,7 +24,8 @@ const AddEmpleado = React.memo((props)=>{
     const {
         cargos=[],
         empleados=[],
-        setOpen
+        setOpen,
+        refresh
     } = props
 
 const init = {
@@ -85,10 +86,10 @@ const init = {
 
             axiosClient.post('/register', {...newUser})
                 .then(({ data }) => {
-                    console.log(data)
+                    refresh()
+                    setOpen(false)
                 })
                 .catch(error=>{
-                    const messageErr = error.response.data.messageError
                     console.log(error)
                 })
         }

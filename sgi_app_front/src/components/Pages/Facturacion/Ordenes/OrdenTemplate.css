@@ -107,6 +107,10 @@ ul li {
     overflow-y: scroll;
 }
 
+.ordenTemplateBody::-webkit-scrollbar {
+    display: none;
+}
+
 .ordenTemplateBody table {
     border-collapse: collapse;
     border-radius: 4px;
@@ -202,6 +206,10 @@ ul li {
 }
 
 @media print {
+    
+    .ordenTemplateBody {
+        background: red !important;
+    }
 
     .MuiAppBar-root {
         visibility: hidden;

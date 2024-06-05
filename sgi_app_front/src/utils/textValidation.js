@@ -6,6 +6,10 @@ export function validarFormatoConComas(cadena) {
     return regex.test(cadena);
 }
 
+export function formatearNumeroDinero(cadena) {
+    return formatearNumeroConComas(truncarDecimal(cadena))
+}
+
 export function formatearNumeroConComas(cadena) {
     // Convertimos la cadena a un número flotante
     let numero = parseFloat(cadena);

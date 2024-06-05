@@ -19,4 +19,14 @@ class InventarioController extends Controller
         $entrada = $request['entrada'];
         return Inventario::nuevaEntrada($entrada);
     }
+
+    public function insert_entrada_orden(Request $request) {
+        $entrada = $request['entrada'];
+
+        return Inventario::nuevaEntradaOrden($entrada);
+    }
+
+    public function getEntradaOrden($id) {
+        return Inventario::nuevaEntradaOrdenVw($id);
+    }
 }

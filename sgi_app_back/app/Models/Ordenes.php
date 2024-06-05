@@ -119,8 +119,8 @@ class Ordenes extends Model
 
     public static function getAllAbonos($ordenId) {
         return HandleDbResponse::handleResponse(function() use ($ordenId){
-            $abonos = DB::select('select * from vw_abonos_orden where id = ?', [$ordenId]);
+            $abonos = DB::select('select * from vw_abonos_orden where `ID orden` = ?', [$ordenId]);
             return JsonHelper::jsonResponse(200, ['abonos'=>$abonos]);
-        }, 'Error al abonar a la orden');
+        }, 'Error al traer los abonos de la orden');
     }
 }

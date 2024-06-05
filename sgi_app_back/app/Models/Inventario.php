@@ -49,4 +49,30 @@ class Inventario extends Model
         return JsonHelper::jsonResponse(200, ['id'=> $stockId]);
         }, 'Error al querer ingresar una nueva entrada');
     }
+
+    public static function nuevaEntradaOrden($entrada) {
+        
+        return HandleDbResponse::handleResponse(function () use ($entrada) {
+            foreach ($entrada as $ent) {
+                $nuevoStock = array();
+                array_push($nuevoStock,
+                intval($ent['productoId']),
+                intval($ent['Almacen']),
+                intval($ent['Cantidad ingreso']),
+                $ent['id'] && $ent['id'] !== '' ? intval($ent['id']) : NULL,
+                $ent['Fecha de vencimiento stock'] && $ent['Fecha de vencimiento stock'] !== 'No caduca' ? $ent['Fecha de vencimiento stock'] : NULL,
+                );
+                DB::select('CALL pa_nuevo_stock(?,?,?,?,?,@stock)', $nuevoStock);
+                $stockId = DB::select('SELECT @stock AS stockId')[0]->stockId;  
+            }
+            return JsonHelper::jsonResponse(200, ['mensaje'=> 'Orden ingresada con exito']);
+        }, 'Error al querer ingresar una nueva entrada');
+    }
+
+    public static function nuevaEntradaOrdenVw($id) {
+        return HandleDbResponse::handleResponse(function () use ($id) {
+            $entrada = DB::select('select * from vw_entrada_orden_items where ordenId = ?', [$id]);
+            return JsonHelper::jsonResponse(200, ['entrada'=> $entrada]);
+        }, 'Error al querer ingresar una nueva entrada');
+    }
 }

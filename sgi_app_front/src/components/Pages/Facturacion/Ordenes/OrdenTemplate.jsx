@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import './OrdenTemplate.css'
 import logo from '../../../../imgs/logo.png'
 import { TiPrinter } from "react-icons/ti";
+import { FaRegFilePdf } from "react-icons/fa6";
 import { IoMdDownload } from "react-icons/io";
 import validateApi, { formatearNumeroConComas } from '../../../../utils/textValidation';
 import { MdDelete } from "react-icons/md";
@@ -11,6 +12,8 @@ import { ButtonGroup } from '@mui/material';
 import UpgradeIcon from '@mui/icons-material/Upgrade';
 import { ImCancelCircle } from "react-icons/im";
 import { TextField } from '../../../Common/AwesomeFields/AwesomeFields';
+import { connetor_plugin } from '../../../Common/ConnetorPrinter/ConnectorPlugin'
+
 const OrdenTemplate = ({ orden,
     detalles,
     title = 'Factura',
@@ -19,13 +22,55 @@ const OrdenTemplate = ({ orden,
     updateItem = (i) => { },
     setItem = () => { },
     edit = null,
-    actions=true
+    actions = true
 }) => {
 
     const [cantidad, setCantidad] = useState('')
     const [precio, setPrecio] = useState('')
     const [descuento, setDescuento] = useState('')
     const [porcentaje, setPorcentaje] = useState('')
+
+    async function imprimirTicket() {
+        let nombreImpresora = "";
+        let api_key = "123"
+
+
+        /*connetor_plugin.obtenerImpresoras()
+                        .then(impresoras => {                    
+                         console.log(impresoras)
+                        });*/
+
+        const conector = new connetor_plugin()
+        conector.fontsize("2")
+        conector.textaling("center")
+        conector.text("Ferreteria Angel")
+        conector.fontsize("1")
+        conector.text("Monte Everest 4578 Las Cumbres Tijuana")
+        conector.text("PECJ711218EZ9")
+        conector.feed("3")
+        conector.textaling("left")
+        conector.text("Fecha: Miercoles 8 de Septiembre 2021 13:50")
+        conector.text("Cant.           Descripcion         Importe")
+        conector.text("----------------------------------------------------")
+        conector.text("1- Barrote 2x4x8                    $110")
+        conector.text("3- Esquinero Vinil                  $165")
+        conector.feed("1")
+        conector.fontsize("2")
+        conector.textaling("center")
+        conector.text("Total: $275")
+        conector.qr("https://abrazasoft.com")
+        conector.feed("5")
+        conector.cut("0")
+
+        const res = await conector.imprimir(nombreImpresora, api_key);
+        if (res === true) {
+            console.log('Impresion hecha con exito')
+        } else {
+            console.log("Problema al imprimir: " + res)
+
+        }
+    }
+
 
     return (
         <div className='ordenTemplateWrapper print-area'>
@@ -88,8 +133,8 @@ const OrdenTemplate = ({ orden,
                                             if (edit !== null && index === edit) {
                                                 return <tr key={index}>
                                                     <div className='ordenTemplateBtns'>
-                                                        <button onClick={()=>{
-                                                            setItem(prev=>{
+                                                        <button onClick={() => {
+                                                            setItem(prev => {
                                                                 const copyList = [...prev]
                                                                 const copyItem = copyList[index]
                                                                 const updatedItem = {
@@ -154,7 +199,7 @@ const OrdenTemplate = ({ orden,
                                                             }
                                                         }}
                                                     /></td>
-                                                    <td style={{background: '#DA5854', color: '#FFF'}}>C$ {formatearNumeroConComas((Number(cantidad ? cantidad : 0) * (parseFloat(precio ? precio : 0) / 1.15).toFixed(2)).toFixed(2))}</td>
+                                                    <td style={{ background: '#DA5854', color: '#FFF' }}>C$ {formatearNumeroConComas((Number(cantidad ? cantidad : 0) * (parseFloat(precio ? precio : 0) / 1.15).toFixed(2)).toFixed(2))}</td>
 
                                                 </tr>
                                             } else {
@@ -215,8 +260,14 @@ const OrdenTemplate = ({ orden,
                             <button onClick={() => {
                                 window.print()
                             }} type='button' className='ordenTemplateBtn'>
+                                <span><FaRegFilePdf /></span>
+                                <span>Imprimir PDF</span>
+                            </button>
+                            <button onClick={() => {
+                                imprimirTicket()
+                            }} type='button' className='ordenTemplateBtn'>
                                 <span><TiPrinter /></span>
-                                <span>Imprimir</span>
+                                <span>Imprimir Ticket</span>
                             </button>
                         </div>
                     </div>
