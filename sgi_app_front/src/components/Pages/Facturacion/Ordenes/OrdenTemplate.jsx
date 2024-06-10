@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import './OrdenTemplate.css'
 import logo from '../../../../imgs/logo.png'
-import { TiPrinter } from "react-icons/ti";
+import firma from '../../../../imgs/firma_test.png'
+import { MdOutlineEmail } from "react-icons/md";
 import { FaRegFilePdf } from "react-icons/fa6";
+import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
 import { IoMdDownload } from "react-icons/io";
-import validateApi, { formatearNumeroConComas } from '../../../../utils/textValidation';
+import validateApi, { formatearNumeroConComas, obtenerTipoEntidad, convertirHoraAMPM } from '../../../../utils/textValidation';
 import { MdDelete } from "react-icons/md";
 import { IconButton } from '@mui/material';
 import { FaEdit } from "react-icons/fa";
@@ -13,11 +15,13 @@ import UpgradeIcon from '@mui/icons-material/Upgrade';
 import { ImCancelCircle } from "react-icons/im";
 import { TextField } from '../../../Common/AwesomeFields/AwesomeFields';
 import { connetor_plugin } from '../../../Common/ConnetorPrinter/ConnectorPlugin'
+import {convertirFechaEspaniol} from '../../../../utils/DatesHelper'
+
 
 const OrdenTemplate = ({ 
     orden,
     detalles,
-    title = 'Factura',
+    title = '',
     imprimir = true,
     deleteItem = (i) => { },
     updateItem = (i) => { },
@@ -32,19 +36,19 @@ const OrdenTemplate = ({
     const [porcentaje, setPorcentaje] = useState('')
 
     async function imprimirTicket() {
-        let nombreImpresora = "";
+        let nombreImpresora = "SuperImpresora";
         let api_key = "123"
 
 
         /*connetor_plugin.obtenerImpresoras()
                         .then(impresoras => {                    
                          console.log(impresoras)
-                        });*/
-
+                        });
+        return*/
         const conector = new connetor_plugin()
         conector.fontsize("2")
         conector.textaling("center")
-        conector.text("Ferreteria Angel")
+        conector.text("Ferreteria Danielka")
         conector.fontsize("1")
         conector.text("Monte Everest 4578 Las Cumbres Tijuana")
         conector.text("PECJ711218EZ9")
@@ -81,16 +85,18 @@ const OrdenTemplate = ({
                         <div className='ordenTemplateHeadTop'>
                             <div className='ordenTemplateHeadTopLeft textStart'>
                                 <img src={logo} />
-                                <h3>Ferreteria y materiales de construccion Danielka S.A</h3>
+                                <h3>Ferreteria y materiales de construccion Danielka</h3>
                             </div>
                             <div className='ordenTemplateHeadTopRight textEnd'>
-                                <h3>{title} [Orden]</h3>
+                                <h3>{`${title} Orden de compra`}</h3>
                             </div>
                         </div>
                         <div className='hr' />
                         <div className='ordenTemplateHeadMiddle'>
                             <div className='ordenTemplateHeadMiddleLeft textStart'>
-                                <p><span className='texttBold'>Fecha de emision</span>: {orden['Fecha emision']}</p>
+                                <p><span className='texttBold'>Fecha de emision</span>: {convertirFechaEspaniol(orden['Fecha emision'])}</p>
+                                <p><span className='texttBold'>Hora</span>: {convertirHoraAMPM(orden['Hora emision'])}</p>
+                                <p><span className='texttBold'>{orden['Estado entrega']==='Esperando' ? 'Fecha para recibir orden' : 'Fecha de orden entegada'}</span>: {orden['Fecha de entrega']}</p>
                             </div>
                             <div className='ordenTemplateHeadMiddleRight textEnd'>
                                 <p><span className='textBold'>Orden No:</span> {orden.id === 'new' ? 'Nueva orden en proceso' : orden.id}</p>
@@ -100,17 +106,25 @@ const OrdenTemplate = ({
                         <div className='ordenTemplateHeadBottom'>
                             <div className='ordenTemplateHeadBottomLeft'>
                                 <ul>
-                                    <li className='textBold'>Orden hecha a:</li>
+                                    <li className='textBold'>Proveedor:</li>
                                     <li>{orden['Proveedor']}</li>
-                                    {/** Aqui se puede poner la direccion del proveedor(u otros datos de este) */}
-                                    <li>Managua, Nicaragua</li>
+                                </ul>
+                                <ul>
+                                    <li className='textBold'>Numero RUC:</li>
+                                    <li>{orden['Numero RUC']}</li>
+                                    <li className='textBold'>Tipo de entidad tributaria:</li>
+                                    <li>{obtenerTipoEntidad(orden['Numero RUC'])}</li>
                                 </ul>
                             </div>
                             <div className='ordenTemplateHeadBottomRight'>
                                 <ul className='textEnd'>
                                     <li className='textBold'>Orden hecha por:</li>
+                                    <li>Ferreteria Danielka</li>
                                     <li>{orden['Orden hecha por']}</li>
-                                    {/** Aqui se puede poner el email del empleado(u otros datos de este) */}
+                                    <li className='textBold'>Telefono ferreteria:</li>
+                                    <li>22222222</li>
+                                    <li className='textBold'>Numero RUC Ferreteria Danielka:</li>
+                                    <li>M1231231231231</li>
                                 </ul>
                             </div>
                         </div>
@@ -217,8 +231,8 @@ const OrdenTemplate = ({
                                                     </td> : null}
                                                     <td>{detalle['Producto']}</td>
                                                     <td>{formatearNumeroConComas(detalle['Cantidad'])}</td>
-                                                    <td>C$ {formatearNumeroConComas((parseFloat(detalle['Precio']) / 1.15).toFixed(2))}</td>
-                                                    <td>C$ {formatearNumeroConComas((Number(detalle['Cantidad']) * (parseFloat(detalle['Precio']) / 1.15).toFixed(2)).toFixed(2))}</td>
+                                                    <td>C$ {formatearNumeroConComas((parseFloat(detalle['Precio'])).toFixed(2))}</td>
+                                                    <td>C$ {formatearNumeroConComas((Number(detalle['Cantidad']) * (parseFloat(detalle['Precio'])).toFixed(2)).toFixed(2))}</td>
                                                 </tr>
                                             }
 
@@ -232,18 +246,17 @@ const OrdenTemplate = ({
                                         <div className='infoItemTd textEnd textBold'>Sub Total:</div>
                                         <div className='infoItemTd textEnd'>C$ {formatearNumeroConComas(orden['Subtotal'])}</div>
                                     </div>
-
-                                    <div className='ordenTemplateBodyInfoItem borderBottom'>
-                                        <div className='infoItemTd textEnd textBold'>IVA 15.0%</div>
-                                        <div className='infoItemTd textEnd'>C$ {formatearNumeroConComas((parseFloat(orden['Subtotal']) * 0.15).toFixed(2))}</div>
-                                    </div>
                                     <div style={{ display: String(orden['Descuento']) !== '0' ? '' : 'none' }} className='ordenTemplateBodyInfoItem borderBottom'>
-                                        <div className='infoItemTd textEnd textBold'>Descuento</div>
+                                        <div className='infoItemTd textEnd textBold'>{`Descuento ${orden['Porcentaje']}%`}</div>
                                         <div className='infoItemTd textEnd'>C$ {formatearNumeroConComas(orden['Descuento'])}</div>
                                     </div>
                                     <div style={{ display: String(orden['Cargos por mora']) !== '0' ? '' : 'none' }} className='ordenTemplateBodyInfoItem borderBottom'>
-                                        <div className='infoItemTd textEnd textBold'>Descuento</div>
+                                        <div className='infoItemTd textEnd textBold'>Cargo por mora</div>
                                         <div className='infoItemTd textEnd'>C$ {formatearNumeroConComas(orden['Cargos por mora'])}</div>
+                                    </div>
+                                    <div className='ordenTemplateBodyInfoItem borderBottom'>
+                                        <div className='infoItemTd textEnd textBold'>IVA 15.0%</div>
+                                        <div className='infoItemTd textEnd'>C$ {formatearNumeroConComas( ((Number(orden['Subtotal']) - Number(orden['Descuento']) + Number(orden['Cargos por mora'])) * 0.15).toFixed(2) )}</div>
                                     </div>
                                     <div className='ordenTemplateBodyInfoItem'>
                                         <div className='infoItemTd textEnd textBold'>Total:</div>
@@ -255,21 +268,31 @@ const OrdenTemplate = ({
                     </div>
 
                     <div className='ordenTemplateFoot textCenter'>
-                        <p><span className='textBold textCenter'>NOTE:&nbsp;</span>Esta es una factura generada por una computadora y no requiere una firma fisica.</p>
-
                         <div style={{ display: imprimir ? '' : 'none' }} className='ordenTemplateBtns'>
+                            <button onClick={() => {
+                                alert('Facturar orden')
+                            }} type='button' className='ordenTemplateBtn'>
+                                <span><LiaFileInvoiceDollarSolid /></span>
+                                <span>Facturar orden</span>
+                            </button>
+                            <button onClick={() => {
+                                alert('Email enviado')
+                            }} type='button' className='ordenTemplateBtn'>
+                                <span><MdOutlineEmail /></span>
+                                <span>Enviar email</span>
+                            </button>
                             <button onClick={() => {
                                 window.print()
                             }} type='button' className='ordenTemplateBtn'>
                                 <span><FaRegFilePdf /></span>
                                 <span>Imprimir PDF</span>
                             </button>
-                            <button onClick={() => {
-                                imprimirTicket()
-                            }} type='button' className='ordenTemplateBtn'>
-                                <span><TiPrinter /></span>
-                                <span>Imprimir Ticket</span>
-                            </button>
+                        </div>
+
+                        <div className='Firma'>
+                            <img width={100} height={70} src={firma}/>
+                            <div className='line'></div>
+                            <p>Firma</p>
                         </div>
                     </div>
                 </div>

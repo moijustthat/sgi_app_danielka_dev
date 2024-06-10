@@ -32,8 +32,15 @@ class Ordenes extends Model
         return HandleDbResponse::handleResponse(function() {
             $ordenes = DB::select('select * from vw_ordenes');
             return JsonHelper::jsonResponse(200, ['ordenes'=>$ordenes, 'message'=> 'Ordenes retribuidas con exito']);
-        }, 'Error al consultar todos las proveedores');
+        }, 'Error al leer todas las ordenes');
     }
+
+    public static function getOrdenesRecientes() {
+        return HandleDbResponse::handleResponse(function() {
+            $ordenes = DB::select('select * from vw_ordenes_recientes');
+            return JsonHelper::jsonResponse(200, ['ordenes'=>$ordenes]);
+        }, 'Error al leer las ordenes recientes');
+    } // En realidad lo que devuelve es el detalle mas significativo de cada orden reciente
 
     public static function nueva_orden($proveedor, $orden, $detalles, $usuario) {
         return HandleDbResponse::handleResponse(function() use ($proveedor, $orden, $detalles, $usuario){
@@ -63,7 +70,7 @@ class Ordenes extends Model
                     intval($proveedorId),
                     $usuario,
                     $orden['Fecha de pago limite'] && $orden['Fecha de pago limite'] !== '' ? $orden['Fecha de pago limite'] : NULL,
-                    $orden['Porcentaje de mora'] && $orden['Porcentaje de mora'] !== '' ? $orden['Porcentaje de mora'] : NULL          
+                    $orden['Porcentaje de mora'] && $orden['Porcentaje de mora'] !== '' ? $orden['Porcentaje de mora'] : NULL
                 );
 
                 DB::select('CALL pa_nueva_orden(?, ?, ?, ?, @orden)', $nuevaOrden);
@@ -103,7 +110,7 @@ class Ordenes extends Model
                         $detalle['Porcentaje de descuento'] && $detalle['Porcentaje de descuento'] !== '' ? floatval($detalle['Porcentaje de descuento']) : NULL
                     );
                     DB::select('CALL pa_nuevo_detalle_orden(?,?,?,?,?,?,?)', $nuevoDetalle);
-                }   
+                }
                 $ordenVw = DB::select('select * from vw_ordenes WHERE id=?',[$ordenId]);
                 return JsonHelper::jsonResponse(200, ['orden'=>$ordenVw]);
             });

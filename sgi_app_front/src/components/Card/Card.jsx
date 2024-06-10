@@ -9,6 +9,8 @@ import Chart from 'react-apexcharts'
 
 import { UilTimes } from '@iconscout/react-unicons'
 
+import * as DateHelper from '../../utils/DatesHelper'
+
 const Card = (props) => {
 
     const [expanded, setExpanded] = useState(false)
@@ -46,7 +48,7 @@ function CompactCard({param, setExpanded}) {
             <div className='detail'>
                 {param.png}
                 <span>${param.value}</span>
-                <span>Ultimas 24 horas</span>
+                <span>{DateHelper.getCurentTime() >= '08:00:00' && DateHelper.getCurentTime() <= '17:00:00' ? 'Hoy' : 'Ayer'}</span>
             </div>
         </motion.div>
     )

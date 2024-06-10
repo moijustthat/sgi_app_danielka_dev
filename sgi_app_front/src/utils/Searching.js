@@ -18,8 +18,9 @@ export const handleConditionalCostValidation = (value, validation, ifValid, ifNo
   }
 
 export const handleFoundCostValidation = debounce((matrix, constraint, value, ifFound, ifNotFound)=>{
+ 
     let found = matrix.find(item=> {
-        if (item.hasOwnProperty('info')) item = item.info
+        if (item.hasOwnProperty('info')) item = item.info 
         return quitarTildes(String(item[constraint]).replace(/\s+/g, '').toUpperCase()) === quitarTildes(value.replace(/\s+/g, '').toUpperCase())
     })
     if (found) {

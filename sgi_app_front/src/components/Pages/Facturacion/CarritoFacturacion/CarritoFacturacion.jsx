@@ -199,6 +199,7 @@ const CarritoFacturacion = ({
                                    onMinus={() => restOnList(setListaDetalles, listaDetalles.length, 'Cantidad', detalle.id)}
                                 />
                                 <TextField
+                                    type='price'
                                     incomplete={emptyFields.find(field => field === `Precio de ${tipo==='orden'?'compra':'venta'}`)}
                                     label='Precio'
                                     value={detalle[`Precio de ${tipo==='orden'?'compra':'venta'}`]}
@@ -237,6 +238,7 @@ const CarritoFacturacion = ({
                                 />
                                 <TextField
                                     label='Porcentaje'
+                                    blocked={Number(detalle['Cantidad con descuento'])===0}
                                     value={detalle['Porcentaje de descuento']}
                                     onChange={(value, setErr, setWarning) => {
                                         if (validateApi.positiveReal(value) &&
@@ -245,6 +247,7 @@ const CarritoFacturacion = ({
                                     }}
                                 />
                                 <Adder
+                                    blocked={Number(detalle['Cantidad con descuento'])===0}
                                     onPlus={() => addOnList(setListaDetalles, listaDetalles.length, 'Porcentaje de descuento', detalle.id)}
                                     onMinus={() => restOnList(setListaDetalles, listaDetalles.length, 'Porcentaje de descuento', detalle.id)}
                                 />

@@ -11,14 +11,13 @@ use App\Http\Controllers\OrdenesController;
 use App\Http\Controllers\VentasController;
 use App\Http\Controllers\AlmacenesController;
 use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\ReportesController;
 
 
 
 Route::controller(UsuariosController::class)->group(function () {
     Route::post('/login', 'loginUsuario');
-   
     //Route::patch('/usuarios/desactivate', 'desactivateUsuario');
-
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/logout', 'logout');
         Route::get('/clientes', 'indexClientes');
@@ -95,6 +94,7 @@ Route::controller(OrdenesController::class)->group(function () {
         Route::post('/cancelar/orden', 'cancelarOrden');
         Route::post('/activar/orden', 'activarOrden');
         Route::get('/abonos/orden/{id}', 'abonosOrden');
+        Route::get('/ordenes/recientes', 'ordenesRecientes');
     });
 });
 
@@ -113,5 +113,11 @@ Route::controller(InventarioController::class)->group(function () {
         Route::post('/entrada', 'insert_entrada');
         Route::post('/entrada/orden', 'insert_entrada_orden');
         Route::get('/entrada/orden/{id}', 'getEntradaOrden');
+    });
+});
+
+Route::controller(ReportesController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/financial_resume', 'financialResume');
     });
 });

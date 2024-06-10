@@ -92,3 +92,7 @@
     border-top: var(--size) solid rgba(0, 0, 0, 0.5);
     top: 60%;
 }
+
+.priceModify {
+    border: 1px solid black;
+}

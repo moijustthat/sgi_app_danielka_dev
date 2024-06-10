@@ -58,7 +58,7 @@ export const CardsData = [
     },
 
     {
-        title: 'Compras',
+        title: 'Ordenes',
         color: {
             background: 'linear-gradient(180deg, #60CD99 0%, #A6E684 100%)',
             boxShadow: '0px 10px 20px 0px #82F9BE'
@@ -68,8 +68,8 @@ export const CardsData = [
         png: <UilUsdSquare />, //icono superior derecha
         series: [
             {
-                name: 'compras',
-                data: [31, 40, 28, 51, 42, 109, 100]
+                name: 'ordenes',
+                data: [500, 40, 28, 51, 42, 109, 100] // Aqui iran los gatos de cada orden a una determinada hora
             }
         ]
     },

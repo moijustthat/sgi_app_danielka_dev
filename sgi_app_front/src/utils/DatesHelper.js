@@ -31,6 +31,29 @@ export function calcularEdad(fechaNacimiento) {
     return edad;
 }
 
+export function convertirFechaEspaniol(fecha) {
+    var partesFecha = fecha.split('-');
+    var year = partesFecha[0];
+    var month = partesFecha[1];
+    var day = partesFecha[2];
+    
+    // Crear un objeto Date
+    var nuevaFecha = new Date(year, month - 1, day);
+    
+    // Obtener el nombre del mes
+    var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    var nombreMes = meses[nuevaFecha.getMonth()];
+    
+    // Obtener el día del mes y el año
+    var dia = nuevaFecha.getDate();
+    var anio = nuevaFecha.getFullYear();
+    
+    // Construir la nueva fecha en el formato deseado
+    var nuevaFechaFormateada = dia + ' de ' + nombreMes + ' de ' + anio;
+    
+    return nuevaFechaFormateada;
+}
+
 // () -> Date
 const padZero = (str, amount) => {
     str = String(str)

@@ -2,17 +2,12 @@ import React, {useState} from 'react'
 import './CreateInvoice.css'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton, Divider } from '@mui/material';
-import { UilStore } from '@iconscout/react-unicons'
 import { LiaFileInvoiceSolid } from "react-icons/lia";
-import { FiTool } from "react-icons/fi";
 import {TextField, TextArea, SelectField, ImgField, DateField} from '../../../Common/AwesomeFields/AwesomeFields'
 import TablaNuevaVenta from '../../../Common/Table/Table'
 import validateApi from '../../../../utils/textValidation';
 import axiosClient from '../../../../axios-client';
-import FormDialog from '../../../Common/FormDialog/FormDialog'
-import {Button} from '@mui/material';
 import { handleFoundCostValidation, handleConditionalCostValidation, handleDoubleCostValidation } from '../../../../utils/Searching'
-import { validate } from 'uuid';
 import * as dateHelper from '../../../../utils/DatesHelper'
 import { Avatar } from '@mui/material';
 import hexToDataURL, { isHex } from '../../../../utils/HexToDataUrl';
@@ -32,13 +27,11 @@ const formatTable = (table) => {
     const filteredColumns = ['id', 'Nombre', 'Cantidad', 'Precio de venta', 'Cantidad con descuento', 'Porcentaje de descuento']
      for (let row of table) {
         let copyRow = {}
-        
         if (row.Imagen !== '') {
             copyRow.Imagen = <Avatar alt={'producto'} src={isHex(row.Imagen) ? hexToDataURL(row.Imagen) : `data:image/jpeg;base64,${row.Imagen}`}/>
         } else {
             copyRow.Imagen = <Avatar alt={'producto'} src={logo}/>
         }
-        
         for (let column of filteredColumns) {
             copyRow[column] = row[column]
         }
@@ -111,6 +104,8 @@ const CreateInvoice = React.memo((props) => {
         'Correo': false,
         'Correo/Formato': false,
         'Cedula': false,
+        'Numero RUC': false,
+        'Numero RUC/Formato': false,
         'Cedula/Formato': false,
         'Telefono': false,
     })
@@ -370,11 +365,41 @@ const CreateInvoice = React.memo((props) => {
                                 />
 
                                 <TextField 
-                                    label='Numero RUT'
+                                    label='Numero RUC'
                                     placeholder='Obligatorio'
                                     value={cliente['Numero RUT']}
-                                    onChange={(value)=> {
-                                        if (validateApi.numeric(value)) {
+                                    onChange={(value, setErr, setWarning)=> {
+                                        if (validateApi.name(value)) {
+
+                                            handleConditionalCostValidation(
+                                                value,
+                                                (ruc) => validateApi.ruc(ruc),
+                                                () => {
+                                                  setWarning("");
+                                                  handleRollbacks(setRollbacks, "Numero RUC/Formato", false);
+                                                },
+                                                () => {
+                                                  setWarning("Formato incorrecto");
+                                                  handleRollbacks(setRollbacks, "Numero RUC/Formato", true);
+                                                }
+                                              );
+                            
+                                            if (!!!!!rollbacks["Numero RUC/Formato"]) {
+                                              handleFoundCostValidation(
+                                                clientes,
+                                                "Numero RUC",
+                                                value,
+                                                () => {
+                                                  setWarning("RUT encontrado en la base de datos");
+                                                  handleRollbacks(setRollbacks, "Numero RUT", true);
+                                                },
+                                                () => {
+                                                  setWarning("");
+                                                  handleRollbacks(setRollbacks, "Numero RUT", false);
+                                                }
+                                              );
+                                            }
+                                            
                                             setCliente({
                                                 ...cliente,
                                                 'Numero RUT': value

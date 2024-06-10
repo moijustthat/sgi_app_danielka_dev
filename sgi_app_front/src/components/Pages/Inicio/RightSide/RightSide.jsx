@@ -15,7 +15,6 @@ const RightSide = () => {
                 <MasVendidos />
             </div>
         </div>
-        
     )
 }
 

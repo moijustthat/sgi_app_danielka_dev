@@ -86,14 +86,6 @@ export const connetor_plugin = (() => {
         }
 
         async imprimir(nombreImpresora, apiKey) {
-            if (nombreImpresora === 'Microsoft Print to PDF') {
-                const filePath = prompt('Por favor, introduce la ubicación del archivo:');
-                if (!filePath) {
-                    throw new Error('La ubicación del archivo es necesaria.');
-                }
-                nombreImpresora = `Microsoft Print to PDF (${filePath})`;
-            }
-
             const body = {
                 operaciones: this.operations,
                 nombre_impresora: nombreImpresora,

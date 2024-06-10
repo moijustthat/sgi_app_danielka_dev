@@ -205,6 +205,18 @@ ul li {
     min-width: 600px;
 }
 
+.Firma {
+    float: right;
+}
+
+.Firma img  {
+    margin-top: -25px;
+}
+
+.Firma .line {
+    border: 1px solid black;
+}
+
 @media print {
     
     .ordenTemplateBody {
