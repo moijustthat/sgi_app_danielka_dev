@@ -1,13 +1,13 @@
 .InicioContainer {
-    display: grid;
+    /*display: grid;
     grid-template-columns: auto 20rem;
-    gap: 10px;
+    gap: 10px;*/
 }
 
 .Inicio {
-    display: flex;
+    /*display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: space-evenly;*/
 }
 
 @media screen and (max-width: 1276px) {

@@ -58,7 +58,7 @@ export const ContextProvider = ({children}) => {
         } else {
             localStorage.removeItem('USER_INFO')
         }
-    }    
+    }
 
     const setToken = (token) => {
         _setToken(token)

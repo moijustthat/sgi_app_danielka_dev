@@ -1,0 +1,3 @@
+.rootInput.block input:first-child {
+    pointer-events: none;
+  }

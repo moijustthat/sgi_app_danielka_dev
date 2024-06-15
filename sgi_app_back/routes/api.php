@@ -2,6 +2,17 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+/*
+use App\Http\Controllers\Api\AuthController;
+
+
+Route::post('/signup', [AuthController::class, 'signup']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+*/
+
+// Deprecated
 // Controladores:
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\ProductosController;
@@ -12,7 +23,6 @@ use App\Http\Controllers\VentasController;
 use App\Http\Controllers\AlmacenesController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\ReportesController;
-
 
 
 Route::controller(UsuariosController::class)->group(function () {
@@ -121,3 +131,4 @@ Route::controller(ReportesController::class)->group(function () {
         Route::get('/financial_resume', 'financialResume');
     });
 });
+
