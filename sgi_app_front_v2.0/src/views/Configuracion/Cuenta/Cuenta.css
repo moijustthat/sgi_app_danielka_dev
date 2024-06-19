@@ -1,0 +1,11 @@
+.accountWrapper {
+    height: 100vh;
+}
+
+.profileAccount > *{
+    margin: 20% 20% !important;
+}
+
+.rightSideAccount {
+    
+}

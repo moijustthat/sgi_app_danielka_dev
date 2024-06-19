@@ -5,6 +5,11 @@ import NotFound from "../views/NotFound";
 import DefaultLayout from "../Components/Layouts/DefaultLayout";
 import GuessLayout from "../Components/Layouts/GuessLayout";
 import Dashboard from "../views/Home/Dashboard/Dashboard";
+
+import Empresa from '../views/Configuracion/Empresa/Empresa';
+import Cuenta from "../views/Configuracion/Cuenta/Cuenta";
+import Empleados from "../views/Empleados/Empleados";
+
 const router = createBrowserRouter(/*routes:*/ [
     {
         path: "/",
@@ -105,7 +110,7 @@ const router = createBrowserRouter(/*routes:*/ [
             },
             {
                 path: "empleados/lista",
-                element: <h1>Lista de empleados</h1>
+                element: <Empleados/>
             },
             {
                 path: "empleados/permisos",
@@ -117,11 +122,11 @@ const router = createBrowserRouter(/*routes:*/ [
             },
             {
                 path: "configuracion/cuenta",
-                element: <h1>Cuenta</h1>
+                element: <Cuenta />
             },
             {
                 path: "configuracion/empresa",
-                element: <h1>Empresa</h1>
+                element: <Empresa />
             },
             {
                 path: "configuracion/general",

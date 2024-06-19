@@ -1,0 +1,15 @@
+.MuiTab-root {
+    font-family: 'Inter' !important;    
+    color: #000 !important;
+    font-size: 13px !important;
+}
+
+.MuiTab-iconWrapper {
+    font-size: 25px !important;
+}
+
+
+.MuiTabs-indicator {
+    background-color: #617293 !important;
+}
+

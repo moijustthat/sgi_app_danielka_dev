@@ -1,0 +1,35 @@
+.containerEmpresa {
+    height: 100vh;
+}
+
+.wrapperInfoEmpresa {
+    height: 60%;
+}
+
+.wrapperInfoEmpresa > * {
+    height: 100%;
+}
+
+.wrapperLogoEmpresa {
+    height: 60%;
+}
+
+.wrapperLogoEmpresa > * {
+    height: 100%;
+}
+
+.wrapperRetiroDeCaja {
+    height: 35%;
+}
+
+.wrapperRetiroDeCaja > * {
+    height: 100%;
+}
+
+.wrapperRespaldoBdEmpresa {
+    height: 35%;
+}
+
+.wrapperRespaldoBdEmpresa > * {
+    height: 100%;
+}
