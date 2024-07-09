@@ -35,7 +35,6 @@ import { Button, IconButton } from "@mui/material";
 // Pa generar el pdf
 import { renderToString } from "react-dom/server";
 import { jsPDF } from "jspdf";
-import html2pdf from "html2pdf.js";
 import OrdenTemplate from "./OrdenTemplate";
 
 import { filterColumns } from "../../../../utils/HandleTable";

@@ -13,8 +13,6 @@ import { UilEye } from '@iconscout/react-unicons'
 import hexToDataURL, { isHex, base64ToHex } from '../../../../utils/HexToDataUrl'
 import axiosClient from '../../../../axios-client'
 import { Avatar } from '@mui/material'
-import { NotificationContext } from '../../../Notifications/NotificationProvider'
-import { v4, validate } from 'uuid'
 import DBParser from '../../../../utils/DbFieldsConverter'
 import validateAPI from '../../../../utils/textValidation'
 import Resume from '../../../Common/Resume/Resume.'
@@ -27,7 +25,6 @@ import AlertDialog from '../../../Common/AlertDialog/AlertDialog'
 import { FaTrashCan } from "react-icons/fa6";
 import { HiOutlineViewGridAdd } from "react-icons/hi";
 import { FcAddDatabase } from "react-icons/fc";
-
 import CardView from '../../../Common/CardViews/CardView'
 import FormInventario from './FormInventario'
 import ItemsTemplate from '../../../Common/ItemsTemplate/ItemsTemplate'
@@ -111,7 +108,6 @@ const Productos = () => {
   const [almacenes, setAlmacenes] = useState([])
   const [columnas, setColumnas] = useState([])
 
-  const dispatch = useContext(NotificationContext)
 
   // Confirmaciones(No se como hacer un provider todavia :()
   const [desactivar, setDesactivar] = useState(null)
@@ -414,16 +410,7 @@ const Productos = () => {
             const payload = { productos: desactivar }
             axiosClient.post('/desactivate-productos', payload)
               .then(({ data }) => {
-                dispatch({
-                  type: 'ADD_NOTIFICATION',
-                  payload: {
-                    id: v4(),
-                    type: 'success',
-                    title: 'Exito',
-                    icon: <UimCheckCircle />,
-                    message: data.data
-                  }
-                })
+                
                 setDesactivar(null)
                 getProductos()
               }).catch(err => {
