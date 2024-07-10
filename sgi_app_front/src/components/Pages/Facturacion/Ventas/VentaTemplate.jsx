@@ -13,6 +13,7 @@ import UpgradeIcon from '@mui/icons-material/Upgrade';
 import { ImCancelCircle } from "react-icons/im";
 import { TextField } from '../../../Common/AwesomeFields/AwesomeFields';
 import { connetor_plugin } from '../../../Common/ConnetorPrinter/ConnectorPlugin'
+import firma from '../../../../imgs/firma_test.png'
 
 const VentaTemplate = ({ 
     venta, 
@@ -205,10 +206,12 @@ const VentaTemplate = ({
                                 <span><TiPrinter /></span>
                                 <span>Imprimir</span>
                             </button>
-                            <button type='button' className='ventaTemplateBtn'>
-                                <span><IoMdDownload /></span>
-                                <span>Descargar</span>
-                            </button>
+                        </div>
+
+                        <div className='Firma'>
+                            <img width={100} height={70} src={firma}/>
+                            <div className='line'></div>
+                            <p>Firma</p>
                         </div>
                     </div>
                 </div>

@@ -22,7 +22,7 @@ import { Divider, ListItemButton, MenuItem, TextField, Alert } from '@mui/materi
 import { BsThreeDots } from "react-icons/bs";
 import ButtonNavigation from '../../Common/ButtonNavigation/ButtonNavigation'
 import SearchField from '../SearchField/SearchField';
-
+ 
 import './Table.css';
 
 function descendingComparator(a, b, orderBy) {
@@ -127,6 +127,7 @@ function EnhancedTableToolbar(props) {
     <Toolbar
       sx={{
         pl: { sm: 2 },
+        paddingTop: '15px',
         pr: { xs: 1, sm: 1 },
         ...(numSelected > 0 && {
           bgcolor: (theme) =>
@@ -325,13 +326,12 @@ export default function GeneralTable({requestUpdate=null, footer = '', dense = f
   }, [edit]);
 
   return (
-    <Box sx={{ width: '99%' }}>
-      <Paper elevation={0} square={false} sx={{ width: '99%', mb: 2, borderRadius: '13px' }}>
+    <Box sx={{ width: '99%'}}>
+      <Paper elevation={0} square={false} sx={{width: '99%', borderRadius: '13px' }}>
         <EnhancedTableToolbar setSearchText={setSearchText} generalActions={generalActions} setSelected={setSelected} selected={selected} numSelected={selected.length} />
         <TableContainer
           style={{
-            height: 'auto',
-            overflowY: 'auto',
+            height: '440px', 
             width: '99%',
             maxWidth: '100%',
             overflowX: 'auto'

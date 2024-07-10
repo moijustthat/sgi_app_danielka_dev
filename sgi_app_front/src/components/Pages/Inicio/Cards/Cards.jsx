@@ -15,9 +15,10 @@ const Cards = () => {
             .then(({data}) => {
                 // Total financiero ordenes ultimas 24 horas
                 const totales = data.totales
+                
                 const financialData = {
-                    'Ordenes' : totales.ordenes.totalOrdenes,
-                    'Ventas' : totales.ventas.totalVentas,
+                    'Ordenes' : Math.trunc(Number(totales.ordenes.totalOrdenes) * 100) / 100,
+                    'Ventas' : Math.trunc(Number(totales.ventas.totalVentas) * 100) / 100,
                     'Ganancias': Number(totales.ventas.totalVentas) - Number(totales.ordenes.totalOrdenes)
                 }
                 setFinancialTotal(financialData)

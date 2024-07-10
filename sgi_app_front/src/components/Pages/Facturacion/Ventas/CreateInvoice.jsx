@@ -1,4 +1,5 @@
 import React, {useState} from 'react'
+import ReactDOM from 'react-dom';
 import './CreateInvoice.css'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton, Divider } from '@mui/material';
@@ -17,10 +18,15 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import ProductosBD from './CarritoClientes/ProductosBD';
 import onChangeSize from './InvoiceGeneralActions/FullSize';
-
 // Cambiar esta funcion de ayuda de fichero dateHelper
 import { myConcat } from '../../../../utils/Searching';
+import FormDialog from '../../../Common/FormDialog/FormDialog'
+import Abonos from '../Abonos/Abonos'
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import ConectorPluginV3 from '../../../../utils/ConectorPluginV3.js'
 
+const MySwal = withReactContent(Swal)
 
 const formatTable = (table) => {
     const formatedTable = []
@@ -99,6 +105,8 @@ const CreateInvoice = React.memo((props) => {
     const [edit, setEdit] = useState(null)
     const [requestBd, setRequestBd] = useState(null)
     const [markAsIncomplete, setMarkAsIncomplete] =  useState([])
+    const [abonar, setAbonar] = useState(null)
+
 
     const [rollbacks, setRollbacks] = useState({
         'Correo': false,
@@ -111,6 +119,16 @@ const CreateInvoice = React.memo((props) => {
     })
 
     const generalActions = [onChangeSize(listFullSize, setListFullSize, edit)]
+
+    const imprimirTicket = async () => {
+        const nombreImpresora = "ABDPOS"; // Puede ser obtenida de la lista de impresoras o puedes escribirlo si lo conoces
+        const conector = new ConectorPluginV3();
+        const respuesta = await conector
+        .Iniciar()
+        .EscribirTexto("Hola mundo")
+        .Feed(1)
+        .imprimirEn(nombreImpresora);
+    }
 
     const onRealizarVenta = () => {
         let rollback = false
@@ -144,9 +162,8 @@ const CreateInvoice = React.memo((props) => {
             const payload = {cliente: cliente, venta: venta, detalles: listaDetalles, usuario: currentUser} 
             axiosClient.post('/venta', payload)
                 .then(({ data }) => {
-                    const response = data.data
-                    console.log(response)
-                    setOpen(false) // Volver al inicio de Ordenes
+                    const venta = data.venta[0]
+                    setAbonar(venta)
                 })       
                 .catch(error=>{
                     const messageErr = error.response.data.messageError
@@ -158,6 +175,16 @@ const CreateInvoice = React.memo((props) => {
     if (requestBd) return requestBd
     else return (
         <div className='container'>
+
+           {abonar && <FormDialog 
+                open={abonar}
+                content={<Abonos 
+                    factura={abonar}
+                    tipo='venta'
+                    close={() => {setAbonar(null); setOpen(false);}}
+                />}
+            /> }
+
             <div className={`glass ${listFullSize ? 'fullGlass' : 'partialGlass'}`}>
                 <div className='exit'>
                     <IconButton  onClick={() => setOpen(false)}>
@@ -582,7 +609,7 @@ const CreateInvoice = React.memo((props) => {
                     <button>Actualizar</button>
                     <button>Cancelar</button>
                 </div>
-                <button onClick={onRealizarVenta}  className={`btnAgregarOrden ${!listFullSize ? 'partialBtn' : 'fullBtn'}`}>Realizar orden</button>
+                <button onClick={onRealizarVenta}  className={`btnAgregarOrden ${!listFullSize ? 'partialBtn' : 'fullBtn'}`}>Realizar venta</button>
             </div>
         </div>
     )

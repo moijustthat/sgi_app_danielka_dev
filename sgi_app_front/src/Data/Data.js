@@ -33,10 +33,10 @@ export const SideBarData = [
         heading: 'Productos',
     },
 
-    {
+    /*{
         icon: <UilChartPieAlt />,
         heading: 'Reportes'
-    }
+    }*/
 ]
 
 export const CardsData = [

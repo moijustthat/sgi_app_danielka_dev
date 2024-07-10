@@ -218,11 +218,8 @@ const Ordenes = () => {
       icon: <LiaFileInvoiceDollarSolid />,
       action: (id) => {
         const orden = ordenes.find((ord) => ord.id === id);
-        if(!!!orden['NumFactura']) {
-          alert('Primero debes facturar esta orden')
-        } else {
-          orden["Estado"] !== "cancelada" && showAbonos(id);
-        }
+
+        orden["Estado"] !== "cancelada" && showAbonos(id);
       },
     },
   ];
@@ -400,6 +397,7 @@ const Ordenes = () => {
       />
     );
   } else if (abonos) {
+    
     const abonosInput = [
       {
         label: "Monto",
@@ -560,69 +558,68 @@ const Ordenes = () => {
             }
             open={openForm}
           />
-          <div className="ordenes">
-            <Table
-              pagination={true}
-              dense={true}
-              rows={
-                permisoLeerOrdenes
-                  ? filterColumns(
-                      colorStatesEntrega(
-                        (id) => {},
-                        colorStates(
-                          (id) => setCancelar(id),
-                          (id) => setActivar(id),
-                          colorMoney(
-                            colorCommas(ordenes, [
-                              "Subtotal",
-                              "Descuento",
-                              "Cargos por mora",
-                              "Total",
-                              "Pagado",
-                              "Debido",
-                            ]),
-                            [
-                              "Subtotal",
-                              "Descuento",
-                              "Cargos por mora",
-                              "Total",
-                              "Pagado",
-                              "Debido",
-                            ]
-                          )
+
+          <Table
+            pagination={true}
+            dense={true}
+            rows={
+              permisoLeerOrdenes
+                ? filterColumns(
+                    colorStatesEntrega(
+                      (id) => {},
+                      colorStates(
+                        (id) => setCancelar(id),
+                        (id) => setActivar(id),
+                        colorMoney(
+                          colorCommas(ordenes, [
+                            "Subtotal",
+                            "Descuento",
+                            "Cargos por mora",
+                            "Total",
+                            "Pagado",
+                            "Debido",
+                          ]),
+                          [
+                            "Subtotal",
+                            "Descuento",
+                            "Cargos por mora",
+                            "Total",
+                            "Pagado",
+                            "Debido",
+                          ]
                         )
-                      ),
-                      [
-                        "Fecha emision",
-                        "Hora emision",
-                        "Fecha limite de pago",
-                        "Subtotal",
-                        "Descuento",
-                        "Cargos por mora",
-                        "Numero RUC",
-                      ]
-                    )
-                  : []
-              }
-              empty={
-                <CardView
-                  type="shopping"
-                  text={
-                    permisoLeerOrdenes
-                      ? "Realiza compras a tus proveedores para llenar tu inventario"
-                      : "No tienes permisos para este modulo 😔"
-                  }
-                  style={{
-                    marginLeft: "35%",
-                    width: "30%",
-                    height: "100%",
-                  }}
-                />
-              }
-              generalActions={generalActions}
-              actions={actions}
-            />
-          </div>
+                      )
+                    ),
+                    [
+                      "Fecha emision",
+                      "Hora emision",
+                      "Fecha limite de pago",
+                      "Subtotal",
+                      "Descuento",
+                      "Cargos por mora",
+                      "Numero RUC",
+                    ]
+                  )
+                : []
+            }
+            empty={
+              <CardView
+                type="shopping"
+                text={
+                  permisoLeerOrdenes
+                    ? "Realiza compras a tus proveedores para llenar tu inventario"
+                    : "No tienes permisos para este modulo 😔"
+                }
+                style={{
+                  marginLeft: "35%",
+                  width: "30%",
+                  height: "100%",
+                }}
+              />
+            }
+            generalActions={generalActions}
+            actions={actions}
+          />
         </div>
       </>
     );

@@ -14,7 +14,8 @@ import { NotificationContext } from '../../../Notifications/NotificationProvider
 const Abonos = ({
     factura,
     tipo,
-    close
+    close,
+    batch=()=>{}
 }) => {
 
     const dispatch = useContext(NotificationContext)
@@ -57,6 +58,7 @@ const Abonos = ({
                           message: 'Abono realizado con exito'
                         }
                       })
+                      if (Number(monto) === factura['Debido']) batch()
                       close()
                 })
                 .catch(error=>{

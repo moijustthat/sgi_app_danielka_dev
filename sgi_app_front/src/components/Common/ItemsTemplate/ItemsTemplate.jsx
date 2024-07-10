@@ -231,10 +231,6 @@ const ItemsTemplate = ({
                                 <span><TiPrinter /></span>
                                 <span>Imprimir</span>
                             </button>
-                            <button type='button' className='itemTemplateBtn'>
-                                <span><IoMdDownload /></span>
-                                <span>Descargar</span>
-                            </button>
                         </div>
                     </div>
                 </div>

@@ -1,7 +1,6 @@
 .CatalogoProductos {
     padding-top: 1.5rem;
-    display: grid;
-    height: 450px;
+    height: 700px;
     width: 100%;
     grid-template-columns: auto;
 }

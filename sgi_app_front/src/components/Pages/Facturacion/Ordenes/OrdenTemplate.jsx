@@ -269,18 +269,7 @@ const OrdenTemplate = ({
 
                     <div className='ordenTemplateFoot textCenter'>
                         <div style={{ display: imprimir ? '' : 'none' }} className='ordenTemplateBtns'>
-                            <button onClick={() => {
-                                alert('Facturar orden')
-                            }} type='button' className='ordenTemplateBtn'>
-                                <span><LiaFileInvoiceDollarSolid /></span>
-                                <span>Facturar orden</span>
-                            </button>
-                            <button onClick={() => {
-                                alert('Email enviado')
-                            }} type='button' className='ordenTemplateBtn'>
-                                <span><MdOutlineEmail /></span>
-                                <span>Enviar email</span>
-                            </button>
+                            
                             <button onClick={() => {
                                 window.print()
                             }} type='button' className='ordenTemplateBtn'>

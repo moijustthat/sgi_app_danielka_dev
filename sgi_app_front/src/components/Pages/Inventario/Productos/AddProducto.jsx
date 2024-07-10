@@ -379,7 +379,7 @@ const AddProducto = React.memo((props) => {
     //Establecer nuevos productos a la tabla de catalogo
     // Realizar peticion post console.log
     const payload = {productos: listaNuevosProductos}
-    
+
     axiosClient.post('/productos', payload)
     .then(({data}) => {
       console.log(data)
@@ -408,6 +408,7 @@ const AddProducto = React.memo((props) => {
     .catch ((error) => {
       const messageErr = error.response.data.messageError
       console.log(messageErr)
+      console.log(error);
       dispatch({
         type: 'ADD_NOTIFICATION',
         payload: {

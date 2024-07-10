@@ -62,7 +62,7 @@ export default function BasicTable() {
             <h3>Ordenes Recientes</h3>
             <div className="table-container">
                 <TableContainer component={Paper} style={{
-                    maxHeight: '300px',
+                    maxHeight: '500px',
                     overflowY: 'scroll',
                  }}>
                     <Table sx={{ minWidth: 650}} aria-label="fixed size table">

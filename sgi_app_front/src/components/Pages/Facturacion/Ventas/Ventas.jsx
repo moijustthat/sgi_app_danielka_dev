@@ -11,12 +11,20 @@ import {ordenarPorAtributo} from '../../../../utils/Ordenamiento'
 import { colorStates, colorMoney, colorCommas, colorNullToZero, filterColumns, colorStatesEntrega } from '../../../../utils/HandleTable'
 import { getVentas } from '../LoadData/LoadData'
 import { AiOutlineDollarCircle } from "react-icons/ai";
-import { AiTwotonePrinter } from "react-icons/ai";
+import { FaTruck } from "react-icons/fa";
 import { UilEye } from '@iconscout/react-unicons';
 import VentaTemplate from './VentaTemplate'
 import { useStateContext } from '../../../../Contexts/ContextProvider'
 import FullScreenDialog from '../../../FullDialog/FullDialog'
-
+import Swal from 'sweetalert2';
+import validateApi from '../../../../utils/textValidation'
+import { MdAttachMoney } from "react-icons/md";
+import ItemsTemplate from '../../../Common/ItemsTemplate/ItemsTemplate'
+import {
+    formatearNumeroConComas,
+    formatearNumeroDinero,
+    truncarDecimal,
+  } from "../../../../utils/textValidation";
 const Ventas = () => {
 
     const {getPermisos} = useStateContext()
@@ -39,6 +47,19 @@ const Ventas = () => {
     const [currentVenta, setCurrentVenta] = useState({id: null, detalles: null})
     const [details, setDetails] = useState(null)
     const [openDetails, setOpenDetails] = useState(false)
+    const [abonos, setAbonos] = useState(null)
+
+    const getAbonos = (id) => {
+        axiosClient.get(`/abonos/venta/${id}`)
+           .then(({ data }) => {
+                const abonos = data.abonos
+                const venta = ventas.find(v=>v.id === id)
+                setAbonos({ venta: venta, abonos: abonos })
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
 
     const showDetails = (id) => {
         if (currentVenta.id !== id) {
@@ -61,6 +82,21 @@ const Ventas = () => {
             setDetails(factura)
             setOpenDetails(true)
         }
+    }
+
+    const entrega = (id) => {
+        axiosClient.post('/venta/entrega', {id: id})
+            .then(({data})=>{
+                Swal.fire(
+                    'Entregado!',
+                    'La venta ha sido entregada.',
+                    'success'
+                  );
+                  getVentas(setLoading, setVentas)
+            })
+            .catch(error => {
+                console.log(error)
+            })
     }
 
     const generateOrdenPDF = (id) => {
@@ -122,14 +158,39 @@ const Ventas = () => {
             action: (id) => showDetails(id)
         },
         {
-            label: 'Imprimir',
-            icon: <AiTwotonePrinter />,
-            action: (id) => ()=>null//generateOrdenPDF(id)
+            label: 'Entrega',
+            icon: <FaTruck />,
+            action: (id) => {
+                const curr = ventas.find(venta=> venta.id === id);
+                if (curr['Estado entrega'] === 'Esperando') {
+                    Swal.fire({
+                      title: '¿Estás seguro?',
+                      text: `Estás a punto de entregar esta venta al cliente ${curr['Cliente']}.`,
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#3085d6',
+                      cancelButtonColor: '#d33',
+                      confirmButtonText: 'Sí, entregar',
+                      cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        entrega(id);
+                      }
+                    });
+                  } else {
+                    Swal.fire({
+                      title: "Venta ya entregada",
+                      text: `La venta ya ha sido entregada previamente al cliente ${curr['Cliente']}.`,
+                      icon: "info",
+                      confirmButtonText: "Ok",
+                    });
+                  }
+            }
         },
         {
             label: 'Abonar',
             icon: <AiOutlineDollarCircle />,
-            action: (id) => alert('Abonar')
+            action: (id) => getAbonos(id)
         }
     ]
     
@@ -221,8 +282,99 @@ const Ventas = () => {
         content={details}
         refreshState={() => setOpenDetails(false)}
     />)
+    else if (abonos) {
 
-    return (
+        const abonosInput = [
+            {
+              label: "Monto",
+              type: "text",
+              validate: (value) => {
+                const overPayment = Number(abonos.venta["Debido"]) < Number(value);
+                return (
+                  validateApi.positiveReal(value) &&
+                  validateApi.priceTruncated(value) &&
+                  !!!overPayment
+                );
+              },
+            },
+          ];
+
+        const debido = formatearNumeroDinero(abonos.venta["Debido"]);
+
+        return (
+          <FullScreenDialog
+            title="Abonos"
+            refreshState={() => {
+              setAbonos(null);
+              getVentas(setLoading, setVentas);
+            }}
+            content={
+              <ItemsTemplate
+                header={{
+                  title: `Abonos de la venta #${abonos.venta["#Num"]}`,
+                  row1LeftLabel: "Abonos hechos",
+                  row1LeftValue: `${abonos.abonos.length}`,
+                  row1RightLabel: "Total a pagar",
+                  row1RightValue: `C$ ${formatearNumeroDinero(
+                    abonos.venta["Total"]
+                  )}`,
+                  row2LeftLabel: "Importe debido",
+                  row2LeftValue:
+                    Number(debido) === 0 ? (
+                      <div
+                        style={{
+                          width: "300px",
+                          color: "#FFF",
+                          background: "#4CBDA3",
+                          borderRadius: "5px",
+                        }}
+                      >
+                        Venta pagada
+                      </div>
+                    ) : (
+                      `C$ ${debido}`
+                    ),
+                  row2RightLabel: "Fecha limite de pago",
+                  row2RightValue:
+                    abonos.venta["Fecha limite de pago"] || "Sin fecha fimite",
+                }}
+                rows={colorCommas(abonos.abonos, ["Monto"])}
+                noNew={Number(debido) === 0}
+                newLabel="Nuevo abono"
+                newIcon={<MdAttachMoney />}
+                newInputs={abonosInput}
+                onCreateNew={({ Monto }) => {
+                  if (Monto === "") return;
+
+                  const payload = { facturaId: abonos.venta.id, abono: Monto };
+                  axiosClient
+                    .post(`/abono/venta`, payload)
+                    .then(({ data }) => {
+                      const response = data.message;
+                      const venta = ventas.find(
+                        (o) => o.id === abonos.venta.id
+                      );
+                      venta["Debido"] = Number(venta["Debido"]) - Number(Monto);
+                      venta["Pagado"] = Number(venta["Pagado"]) + Number(Monto);
+                      getAbonos(abonos.venta.id);
+                    })
+                    .catch((error) => {
+                      console.log(error);
+                    });
+                }}
+                footer={[
+                  {
+                    label: "Total abonado",
+                    value:
+                      "C$ " + formatearNumeroDinero(abonos.venta["Pagado"]),
+                  },
+                ]}
+              />
+            }
+          />
+        );
+    }
+    else return (
         <>
             <div className='ListaVentas'>
 
@@ -242,7 +394,7 @@ const Ventas = () => {
                     open={openForm}/>
                 <div className='ventas'>
                     <Table 
-                        pagination={false} 
+                         
                         rows={permisoLeerVentas ? filterColumns(colorStatesEntrega(()=>{}, colorStates(()=>{}, ()=>{}, colorMoney( colorCommas(ventas, ['Subtotal', 'Descuento', 'Cargos por mora', 'Total', 'Pagado', 'Debido']), ['Subtotal', 'Descuento', 'Cargos por mora', 'Total', 'Pagado', 'Debido'] ))), ['Fecha emision', 'Fecha limite de pago', 'Subtotal', 'Descuento', 'Cargos por mora', 'Fecha', 'Hora']) : []}
                         empty={<CardView type='shopping' text={permisoCrearVentas ? 'Aqui veras las ventas que tus clientes realizan!' : 'No tienes permisos para este modulo 😔'}   style={{
                             marginLeft: '35%',
