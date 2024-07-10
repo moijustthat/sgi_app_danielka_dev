@@ -13,11 +13,13 @@ import { FaCheck } from "react-icons/fa";
 import validateApi from '../../../../utils/textValidation'
 import * as DateHelper from '../../../../utils/DatesHelper'
 import axiosClient from '../../../../axios-client';
+import Swal from 'sweetalert2';
 
 const EntregaTemplate = ({
     rows = [],
     data= [],
     setRows=()=>{},
+    close=()=>{},
     almacenes=[],
     newLabel = 'Nuevo registro',
     newIcon = <GrFormAdd />,
@@ -46,14 +48,22 @@ const EntregaTemplate = ({
            if (row['Almacen'] === 'empty' || row['Almacen'] === '' || row['Fecha de vencimiento stock'] === '' || row['Fecha de vencimiento stock'] === 'empty') return
         }
 
-        axiosClient.post('/entrada/orden',{entrada: data})
-            .then(({data})=>{
-                const response = data.mensaje
-                console.log(response)
-            })
-            .catch(error=>{
-                console.log(error)
-            })
+        axiosClient
+          .post("/entrada/orden", { entrada: data })
+          .then(({ data }) => {
+            const response = data.mensaje;
+            Swal.fire({
+              icon: "success",
+              title: "Éxito",
+              text: "Orden ingresada correctamente",
+              confirmButtonText: "OK",
+            }).then(() => {
+              close();
+            });
+          })
+          .catch((error) => {
+            console.error(error);
+          });
         
         
     }

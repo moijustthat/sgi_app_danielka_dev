@@ -378,6 +378,10 @@ const Ordenes = () => {
               row2RightValue:
                 entrada.orden["Fecha limite de pago"] || "Sin fecha fimite",
             }}
+            close={()=>{
+              setEntrada(null);
+              getOrdenes(setLoading, setOrdenes)
+            }}
             data={entrada.entrada}
             rows={filterColumns(entrada.entrada, [
               "ordenId",

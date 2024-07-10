@@ -8,6 +8,8 @@ import validateApi from "../../../../utils/textValidation";
 import { Avatar } from "@mui/material";
 import { base64ToHex } from "../../../../utils/HexToDataUrl";
 
+import Swal from 'sweetalert2';
+
 export const FormPassword = () => {
 
   const [currentPassword, setCurrentPassword] = useState('')
@@ -103,35 +105,59 @@ export const FormData = () => {
   const [correo, setCorreo] = useState('')
   const [img, setImg] = useState('')
 
-  const onChangeData = (e) => {
-    e.preventDefault()
+  
+const onChangeData = (e) => {
+  e.preventDefault();
 
-    if (nombre===''&&correo===''&&img==='') {
-      alert('Debes llenar al menos un campo para actualizar tus datos')
-      return
-    } else if (!!!validateApi.email(correo)) {
-      alert('Formato de correo incorrecto. Vuelve a intentarlo')
-      return
-    } else {
-      const payload = {userId: user.usuarioId, nombre: nombre, correo: correo, img: img !== '' ? img : ''}
-      axiosClient.post('/changeData', payload)
-        .then(({data})=>{
-          alert('Datos cambiados con exito')
-          _setUser(prev=> {
-            const converted = JSON.parse(prev)
-            converted.nombre = nombre && nombre !== '' ? nombre : converted.nombre 
-            converted.email = correo && correo !== '' ? correo : converted.email 
-            converted.img = img && img !== '' ? img : converted.img 
-            setUser(JSON.stringify(converted))
-            return JSON.stringify(converted)
-          })
-          console.log(data.data)
-        })
-        .catch(error=>{
-          console.log(error)
-        })
-    }
+  if (nombre === '' && correo === '' && img === '') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Advertencia',
+      text: 'Debes llenar al menos un campo para actualizar tus datos'
+    });
+    return;
+  } else if (!validateApi.email(correo)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Formato de correo incorrecto. Vuelve a intentarlo'
+    });
+    return;
+  } else {
+    const payload = {
+      userId: user.usuarioId,
+      nombre: nombre,
+      correo: correo,
+      img: img !== '' ? img : ''
+    };
+    axiosClient.post('/changeData', payload)
+      .then(({ data }) => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Éxito',
+          text: 'Datos cambiados con éxito'
+        }).then(() => {
+          _setUser(prev => {
+            const converted = JSON.parse(prev);
+            converted.nombre = nombre && nombre !== '' ? nombre : converted.nombre;
+            converted.email = correo && correo !== '' ? correo : converted.email;
+            converted.img = img && img !== '' ? img : converted.img;
+            setUser(JSON.stringify(converted));
+            return JSON.stringify(converted);
+          });
+          console.log(data.data);
+        });
+      })
+      .catch(error => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un error al cambiar los datos'
+        });
+        console.log(error);
+      });
   }
+};
   return (
     <>
       <div className="formContainer">
