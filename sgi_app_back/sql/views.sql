@@ -215,4 +215,26 @@ FROM
     JOIN `ventas` `v` ON `v`.`ventaId` = `vd`.`ventaId`
     JOIN `productos` `p` ON `vd`.`productoId` = `p`.`productoId`;
 
+select * from vw_ordenes;
 
+create view vw_top_productos as
+SELECT dv.productoId, p.nombre, SUM(dv.cantidad) as `cantidad` FROM
+detalles_venta dv JOIN productos p ON p.productoId = dv.productoId
+GROUP BY dv.productoId
+order by `cantidad`
+DESC
+LIMIT 7;
+
+select * from vw_top_productos;
+
+
+-- Crear tabla movimiento
+CREATE TABLE IF NOT EXISTS movimiento (
+    movimientoId INT AUTO_INCREMENT PRIMARY KEY,
+    monto FLOAT NOT NULL,
+    fecha DATE NOT NULL DEFAULT CURDATE(),
+    hora TIME NOT NULL DEFAULT CURTIME(),
+    empleadoId INT NOT NULL,
+    tipo ENUM('ingreso', 'extraccion') NOT NULL,
+    FOREIGN KEY (empleadoId) REFERENCES usuarios(usuarioId)
+);

@@ -62,6 +62,10 @@ Route::controller(ProductosController::class)->group(function () {
         Route::post('/desactivate-productos', 'desactivarProductos');
         Route::post('/updateProducto', 'actualizarProducto');
         Route::get('/productos/top', 'topProductos');
+        Route::post('/caja/ingresar', 'ingresoMonto');
+        Route::post('/caja/extraer', 'extraerMonto');
+        Route::get('/movimientos', 'getMovimientos');
+
     });
 });
 

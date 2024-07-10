@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jul 10, 2024 at 04:58 AM
+-- Generation Time: Jul 10, 2024 at 10:30 AM
 -- Server version: 8.2.0
 -- PHP Version: 8.2.13
 
@@ -30,6 +30,18 @@ CREATE DEFINER=`admin`@`localhost` PROCEDURE `entregar_venta` (IN `p_id` INT)   
     UPDATE detalles_venta
     SET fechaLlegada = CURDATE()
     WHERE ventaId = p_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `extraer_monto_pa`$$
+CREATE DEFINER=`admin`@`localhost` PROCEDURE `extraer_monto_pa` (IN `p_monto` FLOAT, IN `p_empleadoId` INT)   BEGIN
+    INSERT INTO movimiento (monto, fecha, hora, empleadoId, tipo)
+    VALUES (p_monto, CURDATE(), CURTIME(), p_empleadoId, 'extraccion');
+END$$
+
+DROP PROCEDURE IF EXISTS `ingresar_monto_pa`$$
+CREATE DEFINER=`admin`@`localhost` PROCEDURE `ingresar_monto_pa` (IN `p_monto` FLOAT, IN `p_empleadoId` INT)   BEGIN
+    INSERT INTO movimiento (monto, fecha, hora, empleadoId, tipo)
+    VALUES (p_monto, CURDATE(), CURTIME(), p_empleadoId, 'ingreso');
 END$$
 
 DROP PROCEDURE IF EXISTS `pa_abono_orden`$$
@@ -681,6 +693,35 @@ INSERT INTO `modulos` (`moduloId`, `nombre`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `movimiento`
+--
+
+DROP TABLE IF EXISTS `movimiento`;
+CREATE TABLE IF NOT EXISTS `movimiento` (
+  `movimientoId` int NOT NULL AUTO_INCREMENT,
+  `monto` float NOT NULL,
+  `fecha` date NOT NULL,
+  `hora` time NOT NULL,
+  `empleadoId` int NOT NULL,
+  `tipo` enum('ingreso','extraccion') NOT NULL,
+  PRIMARY KEY (`movimientoId`),
+  KEY `empleadoId` (`empleadoId`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `movimiento`
+--
+
+INSERT INTO `movimiento` (`movimientoId`, `monto`, `fecha`, `hora`, `empleadoId`, `tipo`) VALUES
+(1, 12, '2024-07-10', '04:04:47', 89, 'ingreso'),
+(2, 5000, '2024-07-10', '04:06:51', 89, 'ingreso'),
+(3, 12, '2024-07-10', '04:09:17', 89, 'extraccion'),
+(4, 100, '2024-07-10', '04:28:17', 89, 'ingreso'),
+(5, 50, '2024-07-10', '04:28:31', 89, 'extraccion');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `ordenes`
 --
 
@@ -1234,7 +1275,7 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 (376, 'App\\Models\\Usuarios', 88, 'auth_token', '92fbdae17d844cd3a7dab156a649f2ef5635bf2f174ad079a0117064c057e25a', '[\"*\"]', '2024-07-05 03:15:56', NULL, '2024-07-05 03:15:37', '2024-07-05 03:15:56'),
 (377, 'App\\Models\\Usuarios', 90, 'auth_token', 'fc53c166e92742cc758baa8fca0c6097248dc9de0c021dca6eea239a1406231c', '[\"*\"]', '2024-07-05 03:46:36', NULL, '2024-07-05 03:43:09', '2024-07-05 03:46:36'),
 (378, 'App\\Models\\Usuarios', 89, 'auth_token', '7d3e748809763524a6893f64aaa029fd811eb19053ac6f1ec4610ae1108477f3', '[\"*\"]', '2024-07-05 06:59:05', NULL, '2024-07-05 03:47:07', '2024-07-05 06:59:05'),
-(379, 'App\\Models\\Usuarios', 89, 'auth_token', '5a809117450dc42387ee5cc627e976bd31e9d36d714a80cb91cb825b30404ece', '[\"*\"]', '2024-07-10 10:56:48', NULL, '2024-07-09 12:17:38', '2024-07-10 10:56:48'),
+(379, 'App\\Models\\Usuarios', 89, 'auth_token', '5a809117450dc42387ee5cc627e976bd31e9d36d714a80cb91cb825b30404ece', '[\"*\"]', '2024-07-10 16:28:37', NULL, '2024-07-09 12:17:38', '2024-07-10 16:28:37'),
 (380, 'App\\Models\\Usuarios', 102, 'auth_token', '15c624893ca5e6aa3e61b9516f9be7b245bcb7b738f41baf0ea59e3b201ea586', '[\"*\"]', NULL, NULL, '2024-07-09 12:30:19', '2024-07-09 12:30:19');
 
 -- --------------------------------------------------------
@@ -1861,6 +1902,22 @@ CREATE TABLE IF NOT EXISTS `vw_inventario` (
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `vw_movimientos`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `vw_movimientos`;
+CREATE TABLE IF NOT EXISTS `vw_movimientos` (
+`Empleado` varchar(100)
+,`Fecha` date
+,`Hora` time
+,`ID` int
+,`Monto` float
+,`TipoMovimiento` enum('ingreso','extraccion')
+);
+
+-- --------------------------------------------------------
+
+--
 -- Stand-in structure for view `vw_ordenes`
 -- (See below for the actual view)
 --
@@ -2207,6 +2264,16 @@ DROP TABLE IF EXISTS `vw_inventario`;
 
 DROP VIEW IF EXISTS `vw_inventario`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`admin`@`localhost` SQL SECURITY DEFINER VIEW `vw_inventario`  AS SELECT `i`.`inventarioId` AS `id`, ((`i`.`cantidad` - ifnull(`per`.`cantidad`,0)) - ifnull(`dv`.`cantidad`,0)) AS `Disponible`, `i`.`fecha` AS `Fecha de registro`, `i`.`hora` AS `Hora de registro`, `i`.`comprobante` AS `Comprobante`, `p`.`productoId` AS `productoId`, `p`.`nombre` AS `Producto`, `p`.`descripcion` AS `Descripcion`, `p`.`codigoBarra` AS `Codigo de barra`, `p`.`precio` AS `Precio de venta`, `p`.`activo` AS `Estado del producto`, `p`.`perecedero` AS `Caducidad`, `i`.`fechaVencimiento` AS `Fecha de vencimiento`, `p`.`img` AS `Imagen`, `p`.`categoriaId` AS `Categoria`, `p`.`marcaId` AS `Marca`, `p`.`unidadMedidaId` AS `Unidad de medida`, `p`.`metodo` AS `Metodo`, `a`.`nombre` AS `Almacen`, `a`.`activo` AS `Estado del almacen`, `a`.`prioridad` AS `Prioridad de busqueda` FROM ((((`inventario` `i` join `productos` `p` on((`i`.`productoId` = `p`.`productoId`))) join `almacenes` `a` on((`i`.`almacenId` = `a`.`almacenId`))) left join `perdidas` `per` on((`i`.`inventarioId` = `per`.`inventarioId`))) left join `detalles_venta` `dv` on((`i`.`inventarioId` = `dv`.`inventarioId`))) HAVING (`Disponible` > 0) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `vw_movimientos`
+--
+DROP TABLE IF EXISTS `vw_movimientos`;
+
+DROP VIEW IF EXISTS `vw_movimientos`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`admin`@`localhost` SQL SECURITY DEFINER VIEW `vw_movimientos`  AS SELECT `m`.`movimientoId` AS `ID`, `m`.`monto` AS `Monto`, `m`.`fecha` AS `Fecha`, `m`.`hora` AS `Hora`, `e`.`Nombre` AS `Empleado`, `m`.`tipo` AS `TipoMovimiento` FROM (`movimiento` `m` join `usuarios` `e` on((`e`.`usuarioId` = `m`.`empleadoId`))) ;
 
 -- --------------------------------------------------------
 

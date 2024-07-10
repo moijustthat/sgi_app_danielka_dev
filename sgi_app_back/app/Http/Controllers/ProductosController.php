@@ -8,6 +8,18 @@ use App\Lib\JsonHelper;
 class ProductosController extends Controller
 {
 
+    public function ingresoMonto(Request $request) {
+        return Productos::ingreso($request['monto'], $request['empleadoId']);
+    }
+
+    public function extraerMonto(Request $request) {
+        return Productos::extraccion($request['monto'], $request['empleadoId']);
+    }
+
+    public function getMovimientos() {
+        return Productos::getMovimientos();
+    }
+
     public function topProductos() {
         return Productos::topProductos();
     }

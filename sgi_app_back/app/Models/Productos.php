@@ -27,11 +27,34 @@ class Productos extends Model
 
     // Peticiones con procedientos almacenados(esto no se ve en los tutoriales de youtube)
 
+    public static function ingreso($monto, $empleadoId)
+    {
+        return HandleDbResponse::handleResponse(function() use ($monto, $empleadoId) {
+            $ingreso = DB::select('CALL ingresar_monto_pa(?, ?)', [$monto, $empleadoId]);
+            return JsonHelper::jsonResponse(200, ['data' => 'Ingreso realizado con exito']);
+        }, 'Error al ingresar a caja');
+    }
+
+    public static function extraccion($monto, $empleadoId)
+    {
+        return HandleDbResponse::handleResponse(function() use ($monto, $empleadoId) {
+            $ingreso = DB::select('CALL extraer_monto_pa(?, ?)', [$monto, $empleadoId]);
+            return JsonHelper::jsonResponse(200, ['data' => 'Extraccion realizado con exito']);
+        }, 'Error al extraer de caja');
+    }
+
     public static function getAllProducts() {
         return HandleDbResponse::handleResponse(function() {
             $products = DB::select('select * from vw_productos where Estado = "t";');
             return JsonHelper::jsonResponse(200, ['data'=>$products, 'message'=> 'Productos retribuidos con exito']);
         }, 'Error al consultar todos los productos');
+    }
+
+    public static function getMovimientos() {
+        return HandleDbResponse::handleResponse(function() {
+            $movimientos = DB::select('select * from vw_movimientos;');
+            return JsonHelper::jsonResponse(200, ['data'=>$movimientos, 'message'=> 'Movimientos de caja retribuidos con exito']);
+        }, 'Error al consultar todos los movimientos');
     }
 
     public static function desactivate($productsIds) {
@@ -50,6 +73,8 @@ class Productos extends Model
         }, 'Error al consultar los 5 productos mas vendidos');
     }
 
+
+    
     // Por alguna razon aqui no sirvio la transaccion. Esperemos Sergio lo arregle
     public static function saveNewProducts($products) {
         return HandleDbResponse::handleResponse(function() use ($products){
