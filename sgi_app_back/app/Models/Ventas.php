@@ -21,6 +21,43 @@ class Ventas extends Model
 
     public $timestamps = false;
 
+    public static function total()
+    {
+        return HandleDbResponse::handleResponse(function() {
+            $total = DB::select('CALL total_ganancias(@total)');
+            $totalValue = DB::select('SELECT @total AS total')[0]->total;
+            return JsonHelper::jsonResponse(200, ['total' => $totalValue]);
+        }, 'Error al generar el gráfico');
+    }
+
+    public static function chart() {
+        return HandleDbResponse::handleResponse(function() {
+            $ventas = DB::select('select id, `Fecha emision`, Pagado from vw_ventas order by `Fecha emision` asc limit 5');
+            return JsonHelper::jsonResponse(200, ['ventas'=>$ventas]);
+        }, 'Error al generar el gráfico');
+    }
+
+    public static function entregar($id) {
+        return HandleDbResponse::handleResponse(function() use ($id){
+            $orden = DB::select('CALL entregar_venta(?)', [$id]);
+            return JsonHelper::jsonResponse(200, ['message'=>'Entrega realizada con exito']);
+        }, 'Error al entregar el pedido de la venta');
+    }
+
+    public static function getAbonos($id) {
+        return HandleDbResponse::handleResponse(function() use ($id) {
+            $ventas = DB::select('select * from vw_abonos_venta where `ID venta` = ?', [$id]);
+            return JsonHelper::jsonResponse(200, ['abonos'=>$ventas, 'message'=> 'Abonos retribuidos exitosamente']);
+        }, 'Error al consultar los abonos');
+    }
+
+    public static function abonar($ventaId, $abono) {
+        return HandleDbResponse::handleResponse(function() use ($ventaId, $abono){
+            $orden = DB::select('CALL pa_abono_venta(?,?)', [$ventaId, $abono]);
+            return JsonHelper::jsonResponse(200, ['message'=>'Abono realizado con exito']);
+        }, 'Error al abonar a la venta');
+    }
+
     public static function getAllVentas() {
         return HandleDbResponse::handleResponse(function() {
             $ventas = DB::select('select * from vw_ventas');
@@ -84,7 +121,8 @@ class Ventas extends Model
                     );
                     DB::select('CALL pa_nuevo_detalle_venta(?,?,?,?,?,?,?)', $nuevoDetalle);
                 }   
-                
+              $ventaVw = DB::select('SELECT * FROM vw_ventas WHERE id=?', [$ventaId]);
+              return JsonHelper::jsonResponse(200, ['venta'=>$ventaVw]);
             });
         }, 'Error al crear la  nueva venta');
     }

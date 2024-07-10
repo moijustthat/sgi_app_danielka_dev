@@ -61,7 +61,7 @@ Route::controller(ProductosController::class)->group(function () {
         Route::post('/productos', 'agregarProductos');
         Route::post('/desactivate-productos', 'desactivarProductos');
         Route::post('/updateProducto', 'actualizarProducto');
-
+        Route::get('/productos/top', 'topProductos');
     });
 });
 
@@ -86,7 +86,6 @@ Route::controller(ItemsController::class)->group(function () {
         Route::post('/categoria', 'insert_categoria');
         Route::post('/marca', 'insert_marca');
         Route::post('/unidad_medida', 'insert_unidad_medida');
-
         Route::post('/desactivate-categorias', 'desactivarCategorias');
         Route::post('/desactivate-marcas', 'desactivarMarcas');
         Route::post('/desactivate-medidas', 'desactivarUnidadesMedida');
@@ -102,6 +101,7 @@ Route::controller(OrdenesController::class)->group(function () {
         Route::get('/orden/{id}', 'indexOrden');
         Route::post('/abono/orden', 'abonoOrden');
         Route::post('/cancelar/orden', 'cancelarOrden');
+        Route::get('/ordenes/chart', 'chart');
         Route::post('/activar/orden', 'activarOrden');
         Route::get('/abonos/orden/{id}', 'abonosOrden');
         Route::get('/ordenes/recientes', 'ordenesRecientes');
@@ -112,7 +112,12 @@ Route::controller(VentasController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/venta', 'insert_venta');
         Route::get('/ventas', 'indexVentas');
+        Route::get('/ventas/chart', 'chart');
+        Route::post('/abono/venta', 'abonoVenta');
+        Route::get('/abonos/venta/{id}', 'abonosVenta');
         Route::get('/venta/{id}', 'indexVenta');
+        Route::post('/venta/entrega', 'entregaVenta');
+        Route::get('/total', 'total');
     });
 });
 

@@ -8,6 +8,10 @@ use App\Lib\JsonHelper;
 class OrdenesController extends Controller
 {
 
+    public function chart() {
+        return Ordenes::chart();
+    }
+
     public function indexOrdenes() {
         return Ordenes::getAllOrdenes();
     }

@@ -43,6 +43,13 @@ class Productos extends Model
         }, 'Error al desabilitar los productos');
     }
 
+    public static function topProductos() {
+        return HandleDbResponse::handleResponse(function() {
+            $productos = DB::select('select * from vw_top_productos');
+            return JsonHelper::jsonResponse(200, ['data'=>$productos, 'message'=> 'Top 5 productos retribuidos con exito']);
+        }, 'Error al consultar los 5 productos mas vendidos');
+    }
+
     // Por alguna razon aqui no sirvio la transaccion. Esperemos Sergio lo arregle
     public static function saveNewProducts($products) {
         return HandleDbResponse::handleResponse(function() use ($products){

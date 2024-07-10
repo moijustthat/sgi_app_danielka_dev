@@ -21,6 +21,13 @@ class Ordenes extends Model
 
     public $timestamps = false;
 
+    public static function chart() {
+        return HandleDbResponse::handleResponse(function() {
+            $ordenes = DB::select('select id, `Fecha emision`, Pagado from vw_ordenes order by `Fecha emision` asc limit 5');
+            return JsonHelper::jsonResponse(200, ['ordenes'=>$ordenes]);
+        }, 'Error al generar el gráfico');
+    }
+
     public static function getOrden($ordenId) {
         return HandleDbResponse::handleResponse(function() use ($ordenId){
             $orden = DB::select('select * from vw_detalles_orden WHERE ordenId = ?', [$ordenId]);

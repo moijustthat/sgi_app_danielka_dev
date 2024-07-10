@@ -8,6 +8,10 @@ use App\Lib\JsonHelper;
 class ProductosController extends Controller
 {
 
+    public function topProductos() {
+        return Productos::topProductos();
+    }
+
     public function index() {
         return Productos::getAllProducts();
     }
